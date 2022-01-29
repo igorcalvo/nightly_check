@@ -1,0 +1,5 @@
+date,exp1,exp2,exp3,exp4
+2022-01-25,True,True,False,False
+2022-01-26,True,True,False,False
+2022-01-27,True,True,False,False
+2022-01-28,False,False,False,False
