@@ -21,12 +21,8 @@ variables.pop(0)
 data = CreateEntry(data)
 data.to_csv(csvFileName, index=False)
 
-print(Transpose(header))
-
-checkboxes = [[sg.Checkbox(PadString(' ' + header, 30), default=False, key=header) for header in splitList] for splitList in Transpose(header)]
-# print(checkboxes)
-
-layout = [[sg.Text(message)],  checkboxes, [sg.Text(PadString("", 20)), sg.Button("OK")]]
+checkboxes = [[(sg.Checkbox(PadString(' ' + item, 30), default=False, key=item, font=('Consolas', 11)) if item != '' else sg.Text(PadString('', 65))) for item in splitList] for splitList in Transpose(header)]
+layout = [[sg.Text(message)],  checkboxes, [sg.Text(PadString("", 250)), sg.Button("OK")]]
 # window = sg.Window(title="Argus", layout=layout, size=(600, 200))
 window = sg.Window(title="Argus", layout=layout)
 
