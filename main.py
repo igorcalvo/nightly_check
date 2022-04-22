@@ -18,12 +18,13 @@ data = pd.read_csv(csvFileName)
 variables = list(data.columns)
 variables.pop(0)
 
-VerifyHeaderAndData(header, variables)
+VerifyHeaderAndData(header, variables, csvFileName, data)
 data = CreateEntry(data)
 data.to_csv(csvFileName, index=False)
 
 checkboxes = [[(sg.Checkbox(PadString(' ' + item, 30), default=False, key=item, font=('Consolas', 11)) if item != '' else sg.Text(PadString('', 65))) for item in splitList] for splitList in Transpose(header)]
-layout = [[sg.Text(message)],  checkboxes, [sg.Text(PadString("", 250)), sg.Button("OK")]]
+categoryTitles = [sg.Text(PadString(c.upper(), 59)) for c in categories]
+layout = [[sg.Text(message)],  categoryTitles, checkboxes, [sg.Text(PadString("", 250)), sg.Button("OK")]]
 # window = sg.Window(title="Argus", layout=layout, size=(600, 200))
 window = sg.Window(title="Argus", layout=layout)
 
@@ -47,8 +48,6 @@ window.close()
 
 # LOGIC
 #   save checkboxes to csv
-#   read variables from another csv
-#   create new data.csv file if changed columns (preserve old data if possible)
 
 # MISC
 #   add sounds?

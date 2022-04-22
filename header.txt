@@ -1,3 +1,13 @@
+addiction_nofap
+addiction_food
+addiction_videogames
+addiction_youtube
+addiction_anime
+
+betterme_projects
+betterme_japanese
+betterme_reading
+
 body_sleep
 body_eat
 body_yoga
@@ -11,19 +21,7 @@ mind_phone_bed
 mind_phone_job
 mind_phone_toilet
 
-addiction_nofap
-addiction_food
-addiction_videogames
-addiction_youtube
-addiction_anime
-
-betterme_projects
-betterme_japanese
-betterme_reading
-
 social_groom
 social_tinder
 social_role
 social_test
-
-??? writing? -> communication
