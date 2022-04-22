@@ -11,13 +11,14 @@ headerFileName = 'header.txt'
 
 with open(headerFileName) as h:
     lines = h.readlines()
-    header = ParseHeaderFile(lines)
+    header, categories = ParseHeaderFile(lines)
     h.close()
 
 data = pd.read_csv(csvFileName)
 variables = list(data.columns)
 variables.pop(0)
 
+VerifyHeaderAndData(header, variables)
 data = CreateEntry(data)
 data.to_csv(csvFileName, index=False)
 

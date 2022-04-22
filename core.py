@@ -3,7 +3,10 @@ from datetime import date, timedelta
 # .csv
 
 def CheckForTodaysEntry(lastDate: str) -> int:
-    delta = date.today() - date.fromisoformat(lastDate)
+    try:
+        delta = date.today() - date.fromisoformat(lastDate)
+    except:
+        raise Exception("Can't parse the data, it needs to be in the format 'yyyy-mm-dd'. \nDatabase probably got corrupted.")
     return delta.days
 
 def GetLatestDate(data) -> str:
@@ -51,7 +54,15 @@ def CombineListIfChar(flatList: list, ch: str) -> list:
     return result
 
 def ParseHeaderFile(content: list) -> list:
-    result = []
+    header = []
     for line in content:
-        result.append(ParseHeader(line))
-    return CombineListIfChar(result, '')
+        header.append(ParseHeader(line))
+    return CombineListIfChar(header, '')
+
+def VerifyHeaderAndData(header: list, dataVariables: list):
+    print("Header")
+    print(header)
+    print("dataVariables")
+    print(dataVariables)
+    if len(header) == len(dataVariables):
+        return
