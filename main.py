@@ -10,7 +10,7 @@ headerFileName = 'variables.txt'
 
 with open(headerFileName) as h:
     lines = h.readlines()
-    header, categories = ParseHeaderFile(lines)
+    categories, header, descriptions = ParseHeaderFile(lines)
     h.close()
 
 data = pd.read_csv(csvFileName)
@@ -21,7 +21,7 @@ VerifyHeaderAndData(header, variables, csvFileName, data)
 data = CreateEntry(data)
 data.to_csv(csvFileName, index=False)
 
-checkboxes = [[(sg.Checkbox(PadString(' ' + item, 30), default=False, key=item, font=('Consolas', 11)) if item != '' else sg.Text(PadString('', 66))) for item in splitList] for splitList in Transpose(header)]
+checkboxes = [[(sg.Checkbox(PadString(' ' + item, 30), default=False, key=item, font=('Consolas', 11), tooltip=GetDescriptionText(descriptions, header, item)) if item != '' else sg.Text(PadString('', 66))) for item in splitList] for splitList in Transpose(header)]
 categoryTitles = [sg.Text(PadString(c.upper(), 59)) for c in categories]
 layout = [[sg.Text(message)],  categoryTitles, checkboxes, [sg.Text(PadString("", 250)), sg.Button("OK")]]
 # window = sg.Window(title="Argus", layout=layout, size=(600, 200))
@@ -39,19 +39,16 @@ window.close()
 # LAYOUT
 #   size pixels
 #   checkbox
-#   control checkbox
-#   exit button
+#   OK button
 #   phrase
 #   pop up message on exit
 #   style
 #   icon
-#   description for checkboxes ********************
 
 # MISC
 #   add sounds?
 #   find phrases to display
-#   define headers
-#   run before windows shutdown ********************
+#   double check headers
 
 # DATA VISUALIZATION
 #   calendar like

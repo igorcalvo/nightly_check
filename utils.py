@@ -1,4 +1,20 @@
 
+def GroupListIfChar(flatList: list, ch: str) -> list:
+    result = []
+    separtorIndexes = [i for i, x in enumerate(flatList) if x == ch]
+    for i in range(len(separtorIndexes) + 1):
+        result.append([])
+    index = 0
+    for ind, item in enumerate(flatList):
+        if item == ch:
+            continue
+        try:
+            if ind + 1 > separtorIndexes[index]:
+                index += 1
+        except:
+            pass
+        result[index].append(item)
+    return result
 
 def SplitList(alist: list, parts: int = 1) -> list:
     length = len(alist)

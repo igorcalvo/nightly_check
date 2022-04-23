@@ -1,24 +1,24 @@
-addiction_nofap
-addiction_food
-addiction_videogames
-addiction_youtube
-addiction_anime
+addiction_nofap, Did you fap?
+addiction_food, Did you eat more than you should?
+addiction_videogames, Did you play more than you should?
+addiction_youtube, Did you watch more than necessary?
+addiction_anime, Did you watch more than necessary?
 
-betterme_projects
-betterme_japanese
-betterme_studying
-betterme_reading
+betterme_projects, Did you work on a side project?
+betterme_japanese, Did you study japanese?
+betterme_studying, Did you study something interesting?
+betterme_reading, Do you plan to read before going to sleep?
 
-body_sleep
-body_birl
-body_run
-body_groom
+body_sleep, Did you get enough sleep?
+body_birl, Did you work out?
+body_run, Did you go for a run?
+body_groom, Did you take care of your body?
 
-mind_meditation
-mind_go_outisde
-mind_watch_eat
-mind_phone_bed
-mind_phone_job
+mind_meditation, Did you meditate?
+mind_go_outisde, Did you go outside?
+mind_watch_eat, Did you eat while watching something?
+mind_phone_bed, Do you plan to fall asleep watching youtube?
+mind_phone_job, Did you watch youtube videos during work hours?
 
-social_tinder
-social_role
+social_tinder, Did you make any progress in dating?
+social_go_out, Did you go out?

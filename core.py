@@ -34,6 +34,12 @@ def CreateEntry(data):
             data = data.append((di), ignore_index=True)
     return data
 
+def BackUpData(csvfileName: str, data):
+    fileName = csvfileName.replace('.csv', '_' + str(date.today()) + '.csv')
+    if exists(fileName):
+        raise Exception("File " + fileName + " already exists.")
+    data.to_csv(fileName, index=False)
+
 def SaveData(data, checkboxDict: dict, csvFileName):
     for key in checkboxDict.keys():
         data.iloc[-1, data.columns.get_loc(ToLowerUnderScored(key))] = checkboxDict[key]
@@ -51,39 +57,23 @@ def ParseHeader(field: str, tags: list) -> str:
     result = " ".join(parts)
     return result
 
-def GroupListIfChar(flatList: list, ch: str) -> list:
-    result = []
-    separtorIndexes = [i for i, x in enumerate(flatList) if x == ch]
-    for i in range(len(separtorIndexes) + 1):
-        result.append([])
-    index = 0
-    for ind, item in enumerate(flatList):
-        if item == ch:
-            continue
-        try:
-            if ind + 1 > separtorIndexes[index]:
-                index += 1
-        except:
-            pass
-        result[index].append(item)
-    return result
-
 def ParseHeaderFile(content: list) -> tuple:
     setOfCategories = set([field.split('_')[0] for field in content])
     setOfCategories.remove('\n')
     tags = list(setOfCategories)
     tags.sort()
 
-    header = []
-    for line in content:
-        header.append(ParseHeader(line, tags))
-    return GroupListIfChar(header, ''), tags
+    header = [ParseHeader(line.split(',')[0], tags) if line != '' else '' for line in content]
+    descriptions = [line.split(',')[1].strip() if line.find(',') > -1 else '' for line in content]
+    return tags, GroupListIfChar(header, ''), GroupListIfChar(descriptions, '')
 
-def BackUpData(csvfileName: str, data):
-    fileName = csvfileName.replace('.csv', '_' + str(date.today()) + '.csv')
-    if exists(fileName):
-        raise Exception("File " + fileName + " already exists.")
-    data.to_csv(fileName, index=False)
+def GetDescriptionText(descriptionMatrix: list, headerMatrix: list, headerValue: str) -> str:
+    for idx1, sublist in enumerate(headerMatrix):
+        for idx2, item in enumerate(sublist):
+            if item == headerValue:
+                return descriptionMatrix[idx1][idx2]
+    print("GetDescriptionText: Couldn't find description for: " + headerValue)
+    return ''
 
 # Combining both
 
@@ -100,6 +90,3 @@ def VerifyHeaderAndData(header: list, dataVariables: list, csvFileName: str, dat
             if h not in dataVariables:
                 print("header " + h + " was added")
                 data[h] = [None for item in range(data.shape[0])]
-    else:
-        return
-
