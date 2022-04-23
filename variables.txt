@@ -6,22 +6,19 @@ addiction_anime
 
 betterme_projects
 betterme_japanese
+betterme_studying
 betterme_reading
 
 body_sleep
-body_eat
-body_yoga
 body_birl
 body_run
+body_groom
 
 mind_meditation
-mind_leave_home
-mind_tv_eat
+mind_go_outisde
+mind_watch_eat
 mind_phone_bed
 mind_phone_job
-mind_phone_toilet
 
-social_groom
 social_tinder
 social_role
-social_test

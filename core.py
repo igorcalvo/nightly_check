@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 from os.path import exists
+from utils import *
 
 # .csv
 
@@ -14,15 +15,29 @@ def GetLatestDate(data) -> str:
     return data.iloc[-1]['date']
 
 def CreateEntry(data):
-    lastDate: str = GetLatestDate(data)
-    deltaDays = CheckForTodaysEntry(data.iloc[-1]['date'])
-    if deltaDays > 1:
+    deltaDays = None
+    lastDate = None
+    try:
+        lastDate: str = GetLatestDate(data)
+        deltaDays = CheckForTodaysEntry(data.iloc[-1]['date'])
+    except:
+        print("CreateEntry: .csv seems to be empty.")
+    finally:
+        deltaDays = 1 if deltaDays is None else deltaDays
+        lastDate = (date.today() + timedelta(days=-1)).isoformat() if lastDate is None else lastDate
+
+    if deltaDays > 0:
         di = dict.fromkeys(data.columns.values, '')
         for day in range(deltaDays):
             newDate = date.fromisoformat(lastDate)
             di['date'] = str(newDate + timedelta(days=(day + 1)))
             data = data.append((di), ignore_index=True)
     return data
+
+def SaveData(data, checkboxDict: dict, csvFileName):
+    for key in checkboxDict.keys():
+        data.iloc[-1, data.columns.get_loc(ToLowerUnderScored(key))] = checkboxDict[key]
+    data.to_csv(csvFileName, index=False)
 
 # .txt
 
@@ -73,15 +88,14 @@ def BackUpData(csvfileName: str, data):
 # Combining both
 
 def VerifyHeaderAndData(header: list, dataVariables: list, csvFileName: str, data):
-    flatHeader = [item.lower().replace(' ', '_') for sublist in header for item in sublist]
-    if len(flatHeader) < len(dataVariables):
+    flatHeader = [ToLowerUnderScored(item) for sublist in header for item in sublist]
+    # if len(flatHeader) != len(dataVariables):
+    if len([item for item in dataVariables if item not in flatHeader]) > 0 or len([item for item in flatHeader if item not in dataVariables]) > 0:
         BackUpData(csvFileName, data)
         for h in dataVariables:
             if h not in flatHeader:
                 print("header " + h + " was removed")
                 data.drop(h, inplace=True, axis=1)
-    elif len(flatHeader) > len(dataVariables):
-        BackUpData(csvFileName, data)
         for h in flatHeader:
             if h not in dataVariables:
                 print("header " + h + " was added")

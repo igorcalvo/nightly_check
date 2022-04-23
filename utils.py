@@ -28,3 +28,5 @@ def Transpose(alist: list, emptyItem = '') -> list:
 
     return result
 
+def ToLowerUnderScored(string: str) -> str:
+    return string.replace(' ', '_').lower()
