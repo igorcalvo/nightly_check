@@ -46,3 +46,6 @@ def Transpose(alist: list, emptyItem = '') -> list:
 
 def ToLowerUnderScored(string: str) -> str:
     return string.replace(' ', '_').lower()
+
+def FlattenList(l: list) -> list:
+    return [item for sublist in l for item in sublist]

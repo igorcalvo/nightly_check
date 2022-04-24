@@ -1,0 +1,15 @@
+bar background		00274f	
+bar text		b1d8ff
+
+window background	002f5f
+
+categories text		4aa3ff
+change font?
+
+checkboxes background	00274f
+checkboxes text		8dc5ff
+
+
+done background		00274f
+done text		b1d8ff
+
