@@ -9,7 +9,7 @@ buttonText = 'Done'
 
 with open(headerFileName) as h:
     lines = h.readlines()
-    categories, header, descriptions = ParseHeaderFile(lines)
+    frequencies, categories, header, descriptions, habitMessages = ParseHeaderFile(lines)
     h.close()
 
 if not exists(csvFileName):
@@ -38,7 +38,6 @@ window.close()
 
 # TODO LIST
 # -----------
-
 # FEATURE
 #   pop up message on exit
 #   based on configured expected habits

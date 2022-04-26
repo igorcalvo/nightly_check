@@ -31,13 +31,13 @@ def CreateEntry(data):
         for day in range(deltaDays):
             newDate = date.fromisoformat(lastDate)
             di['date'] = str(newDate + timedelta(days=(day + 1)))
-            data = data.append((di), ignore_index=True)
+            data = data.append(di, ignore_index=True)
     return data
 
 def BackUpData(csvfileName: str, data):
     fileName = csvfileName.replace('.csv', '_' + str(date.today()) + '.csv')
     if exists(fileName):
-        raise Exception("File " + fileName + " already exists.")
+        raise Exception(f"File {fileName} already exists.")
     data.to_csv(fileName, index=False)
 
 def SaveData(data, checkboxDict: dict, csvFileName):
@@ -49,30 +49,35 @@ def SaveData(data, checkboxDict: dict, csvFileName):
 
 def ParseHeader(field: str, tags: list) -> str:
     parts = field.split("_")
-    for p in (parts):
-        if (p in tags):
+    for p in parts:
+        if p in tags:
             parts.pop(parts.index(p))
     for i, p in enumerate(parts):
         parts[i] = p.replace("\n", "").capitalize()
     result = " ".join(parts)
     return result
 
+def ParseHeaderLine(content: list, index: int) -> list:
+    return [line.split(';')[index].strip() if line.find(';') > -1 else '' for line in content]
+
 def ParseHeaderFile(content: list) -> tuple:
-    setOfCategories = set([field.split('_')[0] for field in content])
+    setOfCategories = set([field.split(';')[1].split('_')[0].strip() if field.find(';') > -1 else '\n' for field in content])
     setOfCategories.remove('\n')
     tags = list(setOfCategories)
     tags.sort()
 
-    header = [ParseHeader(line.split(',')[0], tags) if line != '' else '' for line in content]
-    descriptions = [line.split(',')[1].strip() if line.find(',') > -1 else '' for line in content]
-    return tags, GroupListIfChar(header, ''), GroupListIfChar(descriptions, '')
+    frequencies = ParseHeaderLine(content, 0)
+    header = [ParseHeader(line.split(';')[1].strip(), tags) if line.find(';') > -1 else '' for line in content]
+    descriptions = ParseHeaderLine(content, 2)
+    habitMessages = ParseHeaderLine(content, 3)
+    return GroupListIfChar(frequencies, ''), tags, GroupListIfChar(header, ''), GroupListIfChar(descriptions, ''), GroupListIfChar(habitMessages, '')
 
-def GetDescriptionText(descriptionMatrix: list, headerMatrix: list, headerValue: str) -> str:
+def GetMatrixDataByHeaderIndexes(otherMatrix: list, headerMatrix: list, headerValue: str) -> str:
     for idx1, sublist in enumerate(headerMatrix):
         for idx2, item in enumerate(sublist):
             if item == headerValue:
-                return descriptionMatrix[idx1][idx2]
-    print("GetDescriptionText: Couldn't find description for: " + headerValue)
+                return otherMatrix[idx1][idx2]
+    print("GetMatrixDataByHeaderIndexes: Couldn't find description for: " + headerValue)
     return ''
 
 # Combining both
@@ -90,3 +95,23 @@ def VerifyHeaderAndData(header: list, dataVariables: list, csvFileName: str, dat
             if h not in dataVariables:
                 print("header " + h + " was added")
                 data[h] = [None for item in range(data.shape[0])]
+
+# Habit messages
+
+def CalculateFrequency(dataFrequency: float, nominalFrequency: float, condition: str) -> bool:
+    match condition:
+        case '<':
+            return dataFrequency < nominalFrequency
+        case '>':
+            return dataFrequency < nominalFrequency
+        case _:
+            raise Exception(f"CalculateFrequency: Condition {condition}{nominalFrequency} is not defined.")
+
+def ParseFrequency(column: str, frequencies: list, header: list) -> tuple:
+    freqString = GetMatrixDataByHeaderIndexes(frequencies, header, column)
+    condition, fraction = tuple(freqString.split(','))
+    return condition, int(fraction.split('/')[0]) / int(fraction.split('/')[1])
+
+def CheckHabit(column: str, frequency: tuple, data) -> tuple:
+    habitMessage = ''
+    # write code to check if there enough data and calculate it accordingly

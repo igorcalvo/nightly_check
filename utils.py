@@ -23,10 +23,10 @@ def SplitList(alist: list, parts: int = 1) -> list:
 def PadString(string: str, length: int) -> str:
     return string.ljust(length)
 
-def Transpose(alist: list, emptyItem = '') -> list:
-    maxdims = [len(sublist) for sublist in alist]
+def Transpose(alist: list, emptyItem='') -> list:
+    maxDims = [len(sublist) for sublist in alist]
     dim1 = len(alist)
-    dim2 = max(maxdims)
+    dim2 = max(maxDims)
 
     result = []
     for i in range(dim2):
