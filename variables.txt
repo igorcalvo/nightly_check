@@ -16,8 +16,8 @@
 
 <,6/7; mind_meditation; Did you meditate?; Igor, this is core. Are you okay? Let's try to get back on track ASAP.
 <,3/7; mind_go_outisde; Did you go outside?; I think this is worth a shot, it might lead to less time wasted.
->,6/7; mind_watch_eat; Did you eat while watching something?; Come on dude, neuron that fire together wire together. Do you want to be fat?
->,3/7; mind_phone_bed; Do you plan to fall asleep watching youtube?; Has this week been tough on you? Remember how fun was it to exercise your memory?
+>,6/7; mind_watch_eat; Did you eat while watching something?; Come on dude, neurons that fire together wire together. Do you want to be fat?
+>,3/7; mind_phone_bed; Do you plan to fall asleep watching youtube?; Has this week been tough on you? Remember how fun was it to exercise your memory.
 >,2/7; mind_phone_job; Did you watch youtube videos during work hours?; Man, you have to stop this addiction. More productive work results in fewer work hours! We got better stuff to do! Stop procrastinating!
 
 <,1/21; social_tinder; Did you make any progress in dating?; Do you really wish for a life without romance? What are you waiting for?!

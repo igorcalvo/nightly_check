@@ -30,20 +30,19 @@ window = CreateWindow(categories, header, descriptions, buttonText)
 while True:
     event, valuesDic = window.read()
     if event == buttonText or event == sg.WIN_CLOSED:
-        # if event == buttonText:
-        #     show popup
+        if event == buttonText:
+            PopUp(GetPopUpMessage(frequencies, habitMessages, header, data))
         SaveData(data, valuesDic, csvFileName)
         break
 window.close()
 
 # TODO LIST
 # -----------
-# FEATURE
-#   pop up message on exit
-#   based on configured expected habits
-#       either streak based or interval on interval (3 in a row or 3 in 5)
-#   automatically close popup after 1 or 2 sec
-#   have a random or only the most important message show up
+# POP UP
+#   change to window
+#   style based on frequency difference
+#   decide wether to keep it random or sort messages
+#   code cleanup
 
 # DATA VISUALIZATION
 #   have a button launch it

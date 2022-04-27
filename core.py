@@ -1,5 +1,7 @@
 from datetime import date, timedelta
 from os.path import exists
+from random import choice
+
 from utils import *
 
 # .csv
@@ -84,7 +86,6 @@ def GetMatrixDataByHeaderIndexes(otherMatrix: list, headerMatrix: list, headerVa
 
 def VerifyHeaderAndData(header: list, dataVariables: list, csvFileName: str, data):
     flatHeader = [ToLowerUnderScored(item) for sublist in header for item in sublist]
-    # if len(flatHeader) != len(dataVariables):
     if len([item for item in dataVariables if item not in flatHeader]) > 0 or len([item for item in flatHeader if item not in dataVariables]) > 0:
         BackUpData(csvFileName, data)
         for h in dataVariables:
@@ -103,15 +104,34 @@ def CalculateFrequency(dataFrequency: float, nominalFrequency: float, condition:
         case '<':
             return dataFrequency < nominalFrequency
         case '>':
-            return dataFrequency < nominalFrequency
+            return dataFrequency > nominalFrequency
         case _:
             raise Exception(f"CalculateFrequency: Condition {condition}{nominalFrequency} is not defined.")
 
 def ParseFrequency(column: str, frequencies: list, header: list) -> tuple:
     freqString = GetMatrixDataByHeaderIndexes(frequencies, header, column)
     condition, fraction = tuple(freqString.split(','))
-    return condition, int(fraction.split('/')[0]) / int(fraction.split('/')[1])
+    return condition, int(fraction.split('/')[0]), int(fraction.split('/')[1])
 
-def CheckHabit(column: str, frequency: tuple, data) -> tuple:
-    habitMessage = ''
-    # write code to check if there enough data and calculate it accordingly
+# use todays entry
+def CheckHabit(column: str, frequencies: list, header: list, data) -> tuple:
+    condition, num, den = ParseFrequency(column, frequencies, header)
+    nominal = num/den
+    if data.loc[:,ToLowerUnderScored(column)].count() >= den:
+        trues = [1 if x is True else 0 for x in data.loc[:,ToLowerUnderScored(column)].tail(den)]
+        # trues = [1 if x is True else 0 for x in data.loc[:,ToLowerUnderScored(column)].tail(den+1)][:-1]
+        frequency = sum(trues)/len(trues)
+    else:
+        return 0, 0
+    return (frequency, nominal) if CalculateFrequency(frequency, num/den, condition) else (0, nominal)
+
+# min(|1-x|)
+def GetPopUpMessage(frequencies: list, habitMessages: list, header: list, data) -> str:
+    flatHeader = FlattenList(header)
+    messageData = [(CheckHabit(h, frequencies, header, data), h, GetMatrixDataByHeaderIndexes(habitMessages, header, h)) for h in flatHeader]
+    candidateMessages = set([m[2] if m[0][0] > 0 else '' for m in messageData])
+    candidateMessages.remove('')
+    # messageData = sorted([(CheckHabit(h, frequencies, header, data), h) for h in flatHeader], key=lambda i: abs(1-i[0][1]))
+    # for m in messageData:
+    #     print(m)
+    return choice(list(candidateMessages))
