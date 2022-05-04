@@ -113,25 +113,40 @@ def ParseFrequency(column: str, frequencies: list, header: list) -> tuple:
     condition, fraction = tuple(freqString.split(','))
     return condition, int(fraction.split('/')[0]), int(fraction.split('/')[1])
 
-# use todays entry
 def CheckHabit(column: str, frequencies: list, header: list, data) -> tuple:
     condition, num, den = ParseFrequency(column, frequencies, header)
     nominal = num/den
     if data.loc[:,ToLowerUnderScored(column)].count() >= den:
         trues = [1 if x is True else 0 for x in data.loc[:,ToLowerUnderScored(column)].tail(den)]
-        # trues = [1 if x is True else 0 for x in data.loc[:,ToLowerUnderScored(column)].tail(den+1)][:-1]
         frequency = sum(trues)/len(trues)
     else:
         return 0, 0
     return (frequency, nominal) if CalculateFrequency(frequency, num/den, condition) else (0, nominal)
 
-# min(|1-x|)
-def GetPopUpMessage(frequencies: list, habitMessages: list, header: list, data) -> str:
+def GetPopUpMessage(frequencies: list, habitMessages: list, header: list, data, previousMessage: str) -> str:
     flatHeader = FlattenList(header)
     messageData = [(CheckHabit(h, frequencies, header, data), h, GetMatrixDataByHeaderIndexes(habitMessages, header, h)) for h in flatHeader]
-    candidateMessages = set([m[2] if m[0][0] > 0 else '' for m in messageData])
+    candidateMessages = set([f'{GetMatrixDataByHeaderIndexes(header, habitMessages, m[2])}\n{m[2]}' if m[0][1] > 0 else '' for m in messageData])
     candidateMessages.remove('')
-    # messageData = sorted([(CheckHabit(h, frequencies, header, data), h) for h in flatHeader], key=lambda i: abs(1-i[0][1]))
-    # for m in messageData:
-    #     print(m)
+    if previousMessage != '' and len(candidateMessages) > 1:
+        candidateMessages.remove(previousMessage)
     return choice(list(candidateMessages))
+
+def ReadLatestMessage(msgFileName: str) -> str:
+    if not exists(msgFileName):
+        return ''
+    else:
+        with open(msgFileName, 'r') as f:
+            lines = [l.split('\t') for l in f.readlines()]
+            f.close()
+            return f'{lines[-1][1]}\n{lines[-1][2]}'
+
+def SaveMessageFile(msgFileName: str, todaysMessage: str):
+    today = date.today().isoformat()
+    message = todaysMessage.replace('\n', '\t')
+    data = f'\n{today}\t{message}'
+    if not exists(msgFileName):
+        data = data.replace('\n', '')
+    with open(msgFileName, 'a') as f:
+        f.write(data)
+        f.close()

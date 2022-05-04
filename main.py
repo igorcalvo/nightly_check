@@ -5,10 +5,11 @@ import pandas as pd
 
 csvFileName = 'data.csv'
 headerFileName = 'variables.txt'
+msgFileName = 'msg.txt'
 buttonText = 'Done'
-data = [] # is here just to supress error
 
 log = open('log.txt', 'a')
+valuesDic = ""
 try:
     with open(headerFileName) as h:
         lines = h.readlines()
@@ -34,12 +35,15 @@ try:
         event, valuesDic = window.read()
         if event == buttonText or event == sg.WIN_CLOSED:
             if event == buttonText:
-                PopUp(GetPopUpMessage(frequencies, habitMessages, header, data))
-            SaveData(data, valuesDic, csvFileName)
+                latestMessage = ReadLatestMessage(msgFileName)
+                todaysMessage = GetPopUpMessage(frequencies, habitMessages, header, data, latestMessage)
+                SaveMessageFile(msgFileName, todaysMessage)
+                PopUp(todaysMessage)
+                SaveData(data, valuesDic, csvFileName)
             break
     window.close()
 except Exception as e:
-    log.write(f'{date.today()}\t{data.iloc[-1]}\t{e}\n')
+    log.write(f'***** {date.today()} *****\n\n{valuesDic}\n\n{e}\n\n{e.with_traceback}\n\n')
 finally:
     log.close()
 
@@ -47,11 +51,7 @@ finally:
 # TODO LIST
 # -----------
 # POP UP
-#   change to window
 #   style based on frequency difference
-#   decide wether to keep it random or sort messages
-#   code cleanup
-#   TEST AND TEST SOME MORE
 
 # DATA VISUALIZATION
 #   have a button launch it

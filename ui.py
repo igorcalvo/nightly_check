@@ -13,8 +13,8 @@ ckb_bkg = bar_bkg
 ckb_txt = bar_txt
 dnb_bkg = bar_bkg
 dnb_txt = bar_txt
-pop_bkg = dnb_bkg
-pop_txt = dnb_txt
+pop_bkg = dnb_txt
+pop_txt = dnb_bkg
 
 def PrintFonts():
     root = tk.Tk()
@@ -63,7 +63,7 @@ def CreateWindow(categories: list, header: list, descriptions: list, buttonText:
                      size=(153 * len(categories), 40 * max(len(h) for h in header) + 70))
 
 def PopUp(message: str):
-    sg.Popup(message,
+    sg.PopupNoButtons(message,
              keep_on_top=True,
              auto_close=True,
              auto_close_duration=3,
@@ -71,6 +71,4 @@ def PopUp(message: str):
              text_color=pop_txt,
              no_titlebar=True,
              font=("Arial", 11, "bold"),
-             custom_text='',
-             line_width=500,
-             button_type=5)
+             line_width=500)
