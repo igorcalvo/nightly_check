@@ -51,19 +51,18 @@ try:
 except Exception as e:
     e_type, e_obj, e_tb = exc_info()
     e_filename = ospath.split(e_tb.tb_frame.f_code.co_filename)[1]
-    log.write(f'***** {date.today()} - {datetime.now().time().replace(microsecond=0)} *****\n{valuesDic}\n\n{e_obj}\tat line {e_tb.tb_lineno} of {e_filename}\n\n')
+    log.write(f'{e_obj} at line {e_tb.tb_lineno} of {e_filename}\n{e_tb}\n\n')
 finally:
+    log.write(f'***** {date.today()} - {datetime.now().time().replace(microsecond=0)} *****\n{valuesDic}\n\n')
     log.close()
 
 
 # TODO LIST
-# -----------
 # POP UP
 #   style based on frequency difference
 #   priority for message? maybe just cycle
 
 # UI
-#   HSV color decomp for styles
 #   popup for styles maybe
 
 # HABITS

@@ -1,3 +1,4 @@
+import datetime
 from datetime import date, timedelta
 from os.path import exists
 from random import choice
@@ -8,7 +9,9 @@ from utils import *
 
 def CheckForTodaysEntry(lastDate: str) -> int:
     try:
-        delta = date.today() - date.fromisoformat(lastDate)
+        # Fixes inputting data after midnight
+        currentDate = date.today() + timedelta(days=-1) if datetime.datetime.now().hour < 12 else date.today()
+        delta = currentDate - date.fromisoformat(lastDate)
     except:
         raise Exception("Can't parse the data, it needs to be in the format 'yyyy-mm-dd'. \nDatabase probably got corrupted.")
     return delta.days
@@ -20,13 +23,15 @@ def CreateEntry(data):
     deltaDays = None
     lastDate = None
     try:
-        lastDate: str = GetLatestDate(data)
+        lastDate = GetLatestDate(data)
         deltaDays = CheckForTodaysEntry(data.iloc[-1]['date'])
     except:
         print("CreateEntry: .csv seems to be empty.")
     finally:
         deltaDays = 1 if deltaDays is None else deltaDays
-        lastDate = (date.today() + timedelta(days=-1)).isoformat() if lastDate is None else lastDate
+        # Fixes inputting data after midnight
+        currentDate = date.today() + timedelta(days=-1) if datetime.datetime.now().hour < 12 else date.today()
+        lastDate = (currentDate + timedelta(days=-1)).isoformat() if lastDate is None else lastDate
 
     if deltaDays > 0:
         di = dict.fromkeys(data.columns.values, '')
@@ -116,8 +121,8 @@ def ParseFrequency(column: str, frequencies: list, header: list) -> tuple:
 def CheckHabit(column: str, frequencies: list, header: list, data) -> tuple:
     condition, num, den = ParseFrequency(column, frequencies, header)
     nominal = num/den
-    if data.loc[:,ToLowerUnderScored(column)].count() >= den:
-        trues = [1 if x is True else 0 for x in data.loc[:,ToLowerUnderScored(column)].tail(den)]
+    if data.loc[:, ToLowerUnderScored(column)].count() >= den:
+        trues = [1 if x is True else 0 for x in data.loc[:, ToLowerUnderScored(column)].tail(den)]
         frequency = sum(trues)/len(trues)
     else:
         return 0, 0
@@ -127,7 +132,7 @@ def DetermineSuccessfulToday(data, frequencies: list, header: list, habitMessage
     direction = [[x.split(',')[0] for x in arr] for arr in frequencies]
     expectation = [[False if d == '>' else True for d in arr] for arr in direction]
 
-    reality = [[] for e in range(len(header))]
+    reality = [[] for item in range(len(header))]
     for idx1, sublist in enumerate(header):
         for idx2, item in enumerate(sublist):
             reality[idx1].append(GetValueFromDF(ToLowerUnderScored(header[idx1][idx2]), -1, data))
