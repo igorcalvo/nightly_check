@@ -49,3 +49,6 @@ def ToLowerUnderScored(string: str) -> str:
 
 def FlattenList(l: list) -> list:
     return [item for sublist in l for item in sublist]
+
+def GetValueFromDF(colName: str, row: int, data):
+    return data.iloc[row, data.columns.get_loc(colName)]

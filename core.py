@@ -123,13 +123,37 @@ def CheckHabit(column: str, frequencies: list, header: list, data) -> tuple:
         return 0, 0
     return (frequency, nominal) if CalculateFrequency(frequency, num/den, condition) else (0, nominal)
 
-def GetPopUpMessage(frequencies: list, habitMessages: list, header: list, data, previousMessage: str) -> str:
+def DetermineSuccessfulToday(data, frequencies: list, header: list, habitMessages: list) -> list:
+    direction = [[x.split(',')[0] for x in arr] for arr in frequencies]
+    expectation = [[False if d == '>' else True for d in arr] for arr in direction]
+
+    reality = [[] for e in range(len(header))]
+    for idx1, sublist in enumerate(header):
+        for idx2, item in enumerate(sublist):
+            reality[idx1].append(GetValueFromDF(ToLowerUnderScored(header[idx1][idx2]), -1, data))
+
+    missionAccomplishedMessages = []
+    for idx1, sublist in enumerate(reality):
+        for idx2, item in enumerate(sublist):
+            if reality[idx1][idx2] == expectation[idx1][idx2]:
+                missionAccomplishedMessages.append(habitMessages[idx1][idx2])
+    return missionAccomplishedMessages
+
+def GetPopUpMessage(frequencies: list, habitMessages: list, header: list, data, msgFileName: str) -> str:
     flatHeader = FlattenList(header)
     messageData = [(CheckHabit(h, frequencies, header, data), h, GetMatrixDataByHeaderIndexes(habitMessages, header, h)) for h in flatHeader]
+
     candidateMessages = set([f'{GetMatrixDataByHeaderIndexes(header, habitMessages, m[2])}\n{m[2]}' if m[0][1] > 0 else '' for m in messageData])
     candidateMessages.remove('')
+
+    previousMessage = ReadLatestMessage(msgFileName)
     if previousMessage != '' and len(candidateMessages) > 1:
         candidateMessages.remove(previousMessage)
+
+    successMessages = DetermineSuccessfulToday(data, frequencies, header, habitMessages)
+    successesToRemove = [c for c in candidateMessages for s in successMessages if s in c]
+    candidateMessages.difference_update(successesToRemove)
+
     return choice(list(candidateMessages))
 
 def ReadLatestMessage(msgFileName: str) -> str:
@@ -137,13 +161,13 @@ def ReadLatestMessage(msgFileName: str) -> str:
         return ''
     else:
         with open(msgFileName, 'r') as f:
-            lines = [l.split('\t') for l in f.readlines()]
+            lines = [l.replace('\t\t', '\t').split('\t') for l in f.readlines()]
             f.close()
             return f'{lines[-1][1]}\n{lines[-1][2]}'
 
 def SaveMessageFile(msgFileName: str, todaysMessage: str):
     today = date.today().isoformat()
-    message = todaysMessage.replace('\n', '\t')
+    message = '\t'.join(m + '\t' if len(m) < 8 else m for m in todaysMessage.split('\n'))
     data = f'\n{today}\t{message}'
     if not exists(msgFileName):
         data = data.replace('\n', '')
