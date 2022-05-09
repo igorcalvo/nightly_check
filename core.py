@@ -179,3 +179,26 @@ def SaveMessageFile(msgFileName: str, todaysMessage: str):
     with open(msgFileName, 'a') as f:
         f.write(data)
         f.close()
+
+# Style
+
+def ReadSettings(settingsFileName: str) -> dict:
+    settings: dict = { }
+    if exists(settingsFileName):
+        with open(settingsFileName, 'r') as s:
+            lines = s.readlines()
+            s.close()
+    else:
+        raise Exception(f"Can't find file {settingsFileName}.")
+
+    for line in lines:
+        settings[line.split(':')[0]] = line.split(':')[1].strip()
+    return settings
+
+def SaveSettingsFile(hueOffset: float, settingsFileName: str):
+    data = []
+    data.append(f'hueOffset: {hueOffset}')
+    with open(settingsFileName, 'w') as s:
+        s.write('\n'.join(data))
+        s.close()
+

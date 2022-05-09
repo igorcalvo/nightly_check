@@ -11,10 +11,16 @@ import pandas as pd
 csvFileName = 'data.csv'
 headerFileName = 'variables.txt'
 msgFileName = 'msg.txt'
-buttonText = 'Done'
+settingsFileName = 'settings.txt'
+doneButtonText = 'Done'
+styleButtonText = 'Style'
+sliderTextKey = 'Slider'
+setButtonTextKey = 'Set'
+
+valuesDic = ""
+hueOffset = 0
 
 log = open('log.txt', 'a')
-valuesDic = ""
 try:
     with open(headerFileName) as h:
         lines = h.readlines()
@@ -35,11 +41,23 @@ try:
     data.to_csv(csvFileName, index=False)
 
     # PrintFonts()
-    window = CreateWindow(categories, header, descriptions, buttonText)
+    InitUi(settingsFileName)
+    window = CreateWindow(categories, header, descriptions, doneButtonText, styleButtonText)
     while True:
         event, valuesDic = window.read()
-        if event == buttonText or event == sg.WIN_CLOSED:
-            if event == buttonText:
+        if event == styleButtonText:
+            styleWindow = Style(styleButtonText, sliderTextKey, setButtonTextKey)
+            while True:
+                styleEvent, styleValuesDic = styleWindow.read()
+                if styleEvent == sliderTextKey:
+                    hueOffset = styleValuesDic[sliderTextKey]
+                elif styleEvent == setButtonTextKey or styleEvent == sg.WIN_CLOSED:
+                    if styleEvent == setButtonTextKey:
+                        SaveSettingsFile(hueOffset, settingsFileName)
+                    styleWindow.close()
+                    break
+        elif event == doneButtonText or event == sg.WIN_CLOSED:
+            if event == doneButtonText:
                 SaveData(data, valuesDic, csvFileName)
 
                 message = GetPopUpMessage(frequencies, habitMessages, header, data, msgFileName)
@@ -58,12 +76,10 @@ finally:
 
 
 # TODO LIST
-# POP UP
-#   style based on frequency difference
-#   priority for message? maybe just cycle
 
 # UI
-#   popup for styles maybe
+#   update window styles realtime?
+#   message icon besides message
 
 # HABITS
 #   redefine
