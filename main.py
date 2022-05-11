@@ -3,7 +3,6 @@ from ui import *
 from core import *
 
 from sys import exc_info
-from datetime import datetime
 from os import path as ospath
 
 import pandas as pd
@@ -12,10 +11,13 @@ csvFileName = 'data.csv'
 headerFileName = 'variables.txt'
 msgFileName = 'msg.txt'
 settingsFileName = 'settings.txt'
+
 doneButtonText = 'Done'
 styleButtonText = 'Style'
 sliderTextKey = 'Slider'
 setButtonTextKey = 'Set'
+previewWindowText = 'Preview'
+previewCloseKey = 'ClosePreview'
 
 valuesDic = ""
 hueOffset = 0
@@ -46,11 +48,18 @@ try:
     while True:
         event, valuesDic = window.read()
         if event == styleButtonText:
-            styleWindow = Style(styleButtonText, sliderTextKey, setButtonTextKey)
+            styleWindow = StyleWindow(styleButtonText, sliderTextKey, previewWindowText, setButtonTextKey)
             while True:
                 styleEvent, styleValuesDic = styleWindow.read()
                 if styleEvent == sliderTextKey:
                     hueOffset = styleValuesDic[sliderTextKey]
+                elif styleEvent == previewWindowText:
+                    previewWindow = PreviewWindow(previewWindowText, previewCloseKey, hueOffset)
+                    while True:
+                        previewEvent, previewValuesDic = previewWindow.read()
+                        if previewEvent == previewCloseKey or previewEvent == sg.WIN_CLOSED:
+                            previewWindow.close()
+                            break
                 elif styleEvent == setButtonTextKey or styleEvent == sg.WIN_CLOSED:
                     if styleEvent == setButtonTextKey:
                         SaveSettingsFile(hueOffset, settingsFileName)
@@ -76,10 +85,8 @@ finally:
 
 
 # TODO LIST
-
-# UI
-#   update window styles realtime?
-#   message icon besides message
+# CORE
+#   invert log by adding special char and inserting at [0]
 
 # HABITS
 #   redefine
@@ -89,3 +96,4 @@ finally:
 #   calendar like
 #   colored squares for each header
 #   same hue for each category
+#   different saturation for each goal

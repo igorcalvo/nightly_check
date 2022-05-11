@@ -1,16 +1,17 @@
-import datetime
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from os.path import exists
 from random import choice
 
 from utils import *
+
+wakeup_time = 6
 
 # .csv
 
 def CheckForTodaysEntry(lastDate: str) -> int:
     try:
         # Fixes inputting data after midnight
-        currentDate = date.today() + timedelta(days=-1) if datetime.datetime.now().hour < 12 else date.today()
+        currentDate = date.today() + timedelta(days=-1) if datetime.now().hour < wakeup_time else date.today()
         delta = currentDate - date.fromisoformat(lastDate)
     except:
         raise Exception("Can't parse the data, it needs to be in the format 'yyyy-mm-dd'. \nDatabase probably got corrupted.")
@@ -30,7 +31,7 @@ def CreateEntry(data):
     finally:
         deltaDays = 1 if deltaDays is None else deltaDays
         # Fixes inputting data after midnight
-        currentDate = date.today() + timedelta(days=-1) if datetime.datetime.now().hour < 12 else date.today()
+        currentDate = date.today() + timedelta(days=-1) if datetime.now().hour < wakeup_time else date.today()
         lastDate = (currentDate + timedelta(days=-1)).isoformat() if lastDate is None else lastDate
 
     if deltaDays > 0:
