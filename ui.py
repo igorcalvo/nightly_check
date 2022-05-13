@@ -179,7 +179,7 @@ def PreviewWindow(previewWindowText: str, previewCloseKey: str, hueOffset: float
                      pad=((15, 0), (2, 2)),
                      tooltip="Sample tooltip")],
         [sg.Button("Close",
-                   font=("Verdana", 9, "bold"),
+                   font=fonts["btn"],
                    size=7,
                    key=previewCloseKey,
                    pad=((65, 0), (15, 15)),

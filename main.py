@@ -22,7 +22,7 @@ previewCloseKey = 'ClosePreview'
 valuesDic = ""
 hueOffset = 0
 
-log = open('log.txt', 'a')
+log = open('log.txt', 'r+')
 try:
     with open(headerFileName) as h:
         lines = h.readlines()
@@ -78,22 +78,19 @@ try:
 except Exception as e:
     e_type, e_obj, e_tb = exc_info()
     e_filename = ospath.split(e_tb.tb_frame.f_code.co_filename)[1]
-    log.write(f'{e_obj} at line {e_tb.tb_lineno} of {e_filename}\n{e_tb}\n\n')
+    LogWrite(log, f'{e_obj} at line {e_tb.tb_lineno} of {e_filename}\n{e_tb}\n\n')
 finally:
-    log.write(f'***** {date.today()} - {datetime.now().time().replace(microsecond=0)} *****\n{valuesDic}\n\n')
+    LogWrite(log, f'***** {date.today()} - {datetime.now().time().replace(microsecond=0)} *****\n{valuesDic}\n\n')
     log.close()
 
 
 # TODO LIST
-# CORE
-#   invert log by adding special char and inserting at [0]
-
-# HABITS
-#   redefine
-
 # DATA VISUALIZATION
 #   have a button launch it
 #   calendar like
 #   colored squares for each header
 #   same hue for each category
 #   different saturation for each goal
+
+# HABITS
+#   redefine

@@ -88,6 +88,12 @@ def GetMatrixDataByHeaderIndexes(otherMatrix: list, headerMatrix: list, headerVa
     print("GetMatrixDataByHeaderIndexes: Couldn't find description for: " + headerValue)
     return ''
 
+def LogWrite(logFile, newLines: str):
+    content: list = logFile.readlines()
+    content.insert(0, newLines)
+    logFile.seek(0)
+    logFile.write(''.join(content))
+
 # Combining both
 
 def VerifyHeaderAndData(header: list, dataVariables: list, csvFileName: str, data):
@@ -127,7 +133,7 @@ def CheckHabit(column: str, frequencies: list, header: list, data) -> tuple:
         frequency = sum(trues)/len(trues)
     else:
         return 0, 0
-    return (frequency, nominal) if CalculateFrequency(frequency, num/den, condition) else (0, nominal)
+    return (frequency, nominal) if CalculateFrequency(frequency, nominal, condition) else (0, nominal)
 
 def DetermineSuccessfulToday(data, frequencies: list, header: list, habitMessages: list) -> list:
     direction = [[x.split(',')[0] for x in arr] for arr in frequencies]
@@ -184,7 +190,7 @@ def SaveMessageFile(msgFileName: str, todaysMessage: str):
 # Style
 
 def ReadSettings(settingsFileName: str) -> dict:
-    settings: dict = { }
+    settings: dict = {}
     if exists(settingsFileName):
         with open(settingsFileName, 'r') as s:
             lines = s.readlines()
@@ -202,4 +208,3 @@ def SaveSettingsFile(hueOffset: float, settingsFileName: str):
     with open(settingsFileName, 'w') as s:
         s.write('\n'.join(data))
         s.close()
-
