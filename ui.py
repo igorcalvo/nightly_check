@@ -2,6 +2,9 @@ import PySimpleGUI as sg
 import tkinter as tk
 import matplotlib.colors as clr
 
+# Button icon
+# sg.Button('', image_data=flower_base64,
+
 from core import GetMatrixDataByHeaderIndexes, ReadSettings
 from utils import PadString, Transpose
 
@@ -25,11 +28,17 @@ colors = {
     "ckb_txt":  bar_txt,
     "dnb_bkg":  bar_bkg,
     "dnb_txt":  bar_txt,
+    "stl_bkg":  bar_bkg,
+    "stl_txt":  bar_txt,
+    "dtb_bkg":  bar_bkg,
+    "dtb_txt":  bar_txt,
     "pop_bkg":  bar_txt,
     "pop_txt":  bar_bkg,
     "sld_txt":  cat_txt,
     "sld_bkg":  sld_bkg,
     "sld_sld":  bar_txt,
+    "dat_txt":  cat_txt,
+    "dat_bkg":  sld_bkg,
 }
 
 fonts = {
@@ -79,7 +88,7 @@ def CreateCheckBoxes(descriptions: list, header: list) -> list:
                           pad=((15, 0), (2, 2)),
                           tooltip=GetMatrixDataByHeaderIndexes(descriptions, header, item)) if item != '' else sg.Text(PadString('', 37), background_color=colors["win_bkg"])) for item in splitList] for splitList in Transpose(header)]
 #                                                                                                                      Fixes floating checkbox on a column
-def CreateLayout(categories: list, header: list, descriptions: list, doneButtonText: str, styleButtonText: str) -> list:
+def CreateLayout(categories: list, header: list, descriptions: list, doneButtonText: str, styleButtonText: str, dataButtonText: str) -> list:
     #                        Spacing between categories
     categoryTitles = [sg.Text(PadString(c.upper(), 27),
                               text_color=colors["cat_txt"],
@@ -92,24 +101,30 @@ def CreateLayout(categories: list, header: list, descriptions: list, doneButtonT
             [sg.Button(styleButtonText,
                        font=fonts["btn"],
                        size=7,
-                       button_color=(colors["dnb_bkg"], colors["dnb_txt"]),
+                       button_color=(colors["stl_bkg"], colors["stl_txt"]),
                        pad=((15, 0), (10, 10))),
     #                Button's distance from the left
-             sg.Text(PadString("", 150), background_color=colors["win_bkg"]),
+             sg.Text(PadString("", 65), background_color=colors["win_bkg"]),
+             sg.Button(dataButtonText,
+                       font=fonts["btn"],
+                       size=7,
+                       button_color=(colors["dtb_bkg"], colors["dtb_txt"])),
+    #                Button's distance from the left
+             sg.Text(PadString("", 65), background_color=colors["win_bkg"]),
              sg.Button(doneButtonText,
                        font=fonts["btn"],
                        size=7,
                        button_color=(colors["dnb_bkg"], colors["dnb_txt"]))]]
 
-def CreateWindow(categories: list, header: list, descriptions: list, doneButtonText: str, styleButtonText: str):
-    layout = CreateLayout(categories, header, descriptions, doneButtonText, styleButtonText)
+def MainWindow(categories: list, header: list, descriptions: list, doneButtonText: str, styleButtonText: str, dataButtonText: str):
+    layout = CreateLayout(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText)
     return sg.Window(title="Argus",
-                     icon="assets\icon64.ico",
+                     icon="assets\icons\icon64.ico",
                      layout=layout,
                      use_custom_titlebar=True,
                      titlebar_background_color=colors["bar_bkg"],
                      titlebar_text_color=colors["bar_txt"],
-                     titlebar_icon="assets\icon16.png",
+                     titlebar_icon="assets\icons\icon16.png",
                      background_color=colors["win_bkg"],
                      size=(153 * len(categories), 40 * max(len(h) for h in header) + 70))
 
@@ -148,7 +163,7 @@ def StyleWindow(styleButtonText: str, sliderTextKey: str, previewWindowText: str
           sg.Button(setButtonTextKey,
                     font=fonts["btn"],
                     size=7,
-                    pad=((52, 0), (15, 15)),
+                    pad=((322, 0), (15, 15)),
                     key=setButtonTextKey,
                     button_color=(colors["dnb_bkg"], colors["dnb_txt"]))
           ]]
@@ -157,7 +172,7 @@ def StyleWindow(styleButtonText: str, sliderTextKey: str, previewWindowText: str
      use_custom_titlebar=True,
      titlebar_background_color=colors["bar_bkg"],
      titlebar_text_color=colors["bar_txt"],
-     titlebar_icon="assets\style16.png",
+     titlebar_icon="assets\icons\style16.png",
      background_color=colors["sld_bkg"],
      relative_location=(-100, 0)
      ).Finalize()
@@ -189,7 +204,23 @@ def PreviewWindow(previewWindowText: str, previewCloseKey: str, hueOffset: float
      use_custom_titlebar=True,
      titlebar_background_color=ApplyHueOffset(colors["bar_bkg"], hueOffset),
      titlebar_text_color=ApplyHueOffset(colors["bar_txt"], hueOffset),
-     titlebar_icon="assets\preview16.png",
+     titlebar_icon="assets\icons\preview16.png",
      background_color=ApplyHueOffset(colors["win_bkg"], hueOffset),
      relative_location=(240, 0)
+     ).Finalize()
+
+def DataWindow(dataButtonText: str, textArg: str, imgArg: str):
+    return sg.Window(dataButtonText, [
+        [sg.Text(PadString(textArg, 0),
+                 background_color=colors["dat_bkg"],
+                 text_color=colors["dat_txt"])],
+        [sg.Image(imgArg)]
+    ],
+     return_keyboard_events=True,
+     use_custom_titlebar=True,
+     titlebar_background_color=colors["bar_bkg"],
+     titlebar_text_color=colors["bar_txt"],
+     titlebar_icon="assets\icons\data16.png",
+     background_color=colors["dat_bkg"],
+     relative_location=(0, 0)
      ).Finalize()

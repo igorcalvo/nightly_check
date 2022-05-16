@@ -88,9 +88,9 @@ def GetMatrixDataByHeaderIndexes(otherMatrix: list, headerMatrix: list, headerVa
     print("GetMatrixDataByHeaderIndexes: Couldn't find description for: " + headerValue)
     return ''
 
-def LogWrite(logFile, newLines: str):
+def LogWrite(logFile, newLines: str, previousExecText: str = ''):
     content: list = logFile.readlines()
-    content.insert(0, newLines)
+    content.insert(0, newLines + previousExecText)
     logFile.seek(0)
     logFile.write(''.join(content))
 
@@ -208,3 +208,10 @@ def SaveSettingsFile(hueOffset: float, settingsFileName: str):
     with open(settingsFileName, 'w') as s:
         s.write('\n'.join(data))
         s.close()
+
+#  Data Visualization
+
+# GetHeaderData(CleanDF(data), "Tinder"), True
+def GetHeaderData(data, header: str, returnDate: bool = False):
+    columnHeader = ToLowerUnderScored(header)
+    return data[["date", columnHeader]] if returnDate else data[columnHeader].tolist()

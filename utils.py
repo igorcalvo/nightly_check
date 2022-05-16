@@ -52,3 +52,6 @@ def FlattenList(l: list) -> list:
 
 def GetValueFromDF(colName: str, row: int, data):
     return data.iloc[row, data.columns.get_loc(colName)]
+
+def CleanDF(data):
+    return data.dropna().iloc[:-1]
