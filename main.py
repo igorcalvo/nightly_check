@@ -44,7 +44,7 @@ try:
 
     VerifyHeaderAndData(header, variables, csvFileName, data)
     data = CreateEntry(data)
-    Run()
+    # Draw()
     # PrintFonts()
     InitUi(settingsFileName)
     window = MainWindow(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText)
@@ -90,26 +90,45 @@ try:
 except Exception as e:
     e_type, e_obj, e_tb = exc_info()
     e_filename = ospath.split(e_tb.tb_frame.f_code.co_filename)[1]
-    exceptionText = f'{e_obj} at line {e_tb.tb_lineno} of {e_filename}\n'
+    exceptionText = f"{e_obj} at line {e_tb.tb_lineno} of {e_filename}\n"
     LogWrite(log, exceptionText)
 finally:
-    LogWrite(log, f'***** {date.today()} - {datetime.now().time().replace(microsecond=0)} *****\n{valuesDic}\n\n', exceptionText)
+    LogWrite(log, f"***** {date.today()} - {datetime.now().time().replace(microsecond=0)} *****\n{valuesDic}\n\n", exceptionText)
     log.close()
 
 
 # TODO LIST
 # DATA VISUALIZATION
-#   get data
-#   graph heatmap
-#   calendar like
-#   colored squares for each header
+#   draw lines of squares F
+#   image size as a function of squares
+#   spacing between rows (categories)
+#   hue offset (between categories)
+#   (S or V) offset between items of same category
+#   how dates somehow if possible? (have if as a grid)
+#   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! GRID IS PROBABLY FOR THE BEST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#   write header on the side and categories https://stackoverflow.com/a/16377244
+#   read data from data
+#   change square color based on data (True or False)
+#   have the image in memory
+#   button to save image
+#   background color bases on style (hueoffset settings variable)
+#   performance: https://stackoverflow.com/a/71735508 and https://stackoverflow.com/a/71735508
+
+#   PAST
 #   same hue for each category
 #   different saturation for each goal
+
+#   FUTURE
+#   have an indicator on the side of each row based on frequencies:
+#       all good
+#       improving, but still bad
+#       declining, but still good
+#       all bad
 
 # EDIT DATA
 #   methods
 #   ui
-#   limit to 1 y-day
+#   limit to y-day
 
 # HABITS
 #   redefine

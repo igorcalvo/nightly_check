@@ -155,7 +155,7 @@ def GetPopUpMessage(frequencies: list, habitMessages: list, header: list, data, 
     flatHeader = FlattenList(header)
     messageData = [(CheckHabit(h, frequencies, header, data), h, GetMatrixDataByHeaderIndexes(habitMessages, header, h)) for h in flatHeader]
 
-    candidateMessages = set([f'{GetMatrixDataByHeaderIndexes(header, habitMessages, m[2])}\n{m[2]}' if m[0][1] > 0 else '' for m in messageData])
+    candidateMessages = set([f"{GetMatrixDataByHeaderIndexes(header, habitMessages, m[2])}\n{m[2]}" if m[0][1] > 0 else '' for m in messageData])
     candidateMessages.remove('')
 
     previousMessage = ReadLatestMessage(msgFileName)
@@ -175,12 +175,12 @@ def ReadLatestMessage(msgFileName: str) -> str:
         with open(msgFileName, 'r') as f:
             lines = [l.replace('\t\t', '\t').split('\t') for l in f.readlines()]
             f.close()
-            return f'{lines[-1][1]}\n{lines[-1][2]}'
+            return f"{lines[-1][1]}\n{lines[-1][2]}"
 
 def SaveMessageFile(msgFileName: str, todaysMessage: str):
     today = date.today().isoformat()
     message = '\t'.join(m + '\t' if len(m) < 8 else m for m in todaysMessage.split('\n'))
-    data = f'\n{today}\t{message}'
+    data = f"\n{today}\t{message}"
     if not exists(msgFileName):
         data = data.replace('\n', '')
     with open(msgFileName, 'a') as f:
@@ -204,7 +204,7 @@ def ReadSettings(settingsFileName: str) -> dict:
 
 def SaveSettingsFile(hueOffset: float, settingsFileName: str):
     data = []
-    data.append(f'hueOffset: {hueOffset}')
+    data.append(f"hueOffset: {hueOffset}")
     with open(settingsFileName, 'w') as s:
         s.write('\n'.join(data))
         s.close()
