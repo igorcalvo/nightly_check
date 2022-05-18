@@ -51,7 +51,7 @@ def BackUpData(csvfileName: str, data):
 def SaveData(data, checkboxDict: dict, csvFileName):
     for key in checkboxDict.keys():
         data.iloc[-1, data.columns.get_loc(ToLowerUnderScored(key))] = checkboxDict[key]
-    data.to_csv(csvFileName, index=False)
+    data.to_csv(csvFileName, mode='a', index=False)
 
 # .txt
 
@@ -88,9 +88,10 @@ def GetMatrixDataByHeaderIndexes(otherMatrix: list, headerMatrix: list, headerVa
     print("GetMatrixDataByHeaderIndexes: Couldn't find description for: " + headerValue)
     return ''
 
-def LogWrite(logFile, newLines: str, previousExecText: str = ''):
+def LogWrite(logFile, newLines: str):
+    logFile.seek(0)
     content: list = logFile.readlines()
-    content.insert(0, newLines + previousExecText)
+    content.insert(0, newLines)
     logFile.seek(0)
     logFile.write(''.join(content))
 
@@ -156,10 +157,11 @@ def GetPopUpMessage(frequencies: list, habitMessages: list, header: list, data, 
     messageData = [(CheckHabit(h, frequencies, header, data), h, GetMatrixDataByHeaderIndexes(habitMessages, header, h)) for h in flatHeader]
 
     candidateMessages = set([f"{GetMatrixDataByHeaderIndexes(header, habitMessages, m[2])}\n{m[2]}" if m[0][1] > 0 else '' for m in messageData])
-    candidateMessages.remove('')
+    if len(candidateMessages.intersection({''})) > 0:
+        candidateMessages.remove('')
 
     previousMessage = ReadLatestMessage(msgFileName)
-    if previousMessage != '' and len(candidateMessages) > 1:
+    if previousMessage != '' and len(candidateMessages.intersection({previousMessage})) > 0:
         candidateMessages.remove(previousMessage)
 
     successMessages = DetermineSuccessfulToday(data, frequencies, header, habitMessages)

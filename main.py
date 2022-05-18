@@ -22,7 +22,7 @@ previewWindowText = 'Preview'
 previewCloseKey = 'ClosePreview'
 dataButtonText = 'Data'
 
-valuesDic = ''
+valuesDic = {}
 hueOffset = 0
 
 log = open('data\log.txt', 'r+')
@@ -44,10 +44,10 @@ try:
 
     VerifyHeaderAndData(header, variables, csvFileName, data)
     data = CreateEntry(data)
-    # Draw()
     # PrintFonts()
-    InitUi(settingsFileName)
-    window = MainWindow(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText)
+    Draw()
+    # InitUi(settingsFileName)
+    # window = MainWindow(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText)
     while True:
         event, valuesDic = window.read()
         if event == styleButtonText:
@@ -90,33 +90,31 @@ try:
 except Exception as e:
     e_type, e_obj, e_tb = exc_info()
     e_filename = ospath.split(e_tb.tb_frame.f_code.co_filename)[1]
-    exceptionText = f"{e_obj} at line {e_tb.tb_lineno} of {e_filename}\n"
-    LogWrite(log, exceptionText)
+    LogWrite(log, f"{e_obj} at line {e_tb.tb_lineno} of {e_filename}\n\n")
 finally:
-    LogWrite(log, f"***** {date.today()} - {datetime.now().time().replace(microsecond=0)} *****\n{valuesDic}\n\n", exceptionText)
+    finallyString = f"***** {date.today()} - {datetime.now().time().replace(microsecond=0)} *****\n"
+    if any(valuesDic.values()):
+        LogWrite(log, f"{finallyString}{valuesDic}\n\n")
+    else:
+        LogWrite(log, f"{finallyString}\n")
     log.close()
 
 
 # TODO LIST
 # DATA VISUALIZATION
-#   draw lines of squares F
-#   image size as a function of squares
-#   spacing between rows (categories)
-#   hue offset (between categories)
-#   (S or V) offset between items of same category
-#   how dates somehow if possible? (have if as a grid)
-#   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! GRID IS PROBABLY FOR THE BEST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#   write header on the side and categories https://stackoverflow.com/a/16377244
+
+#   grid (to write)
+#   write (goals' header, categories, dates) https://stackoverflow.com/a/16377244
+#   color (hue between categories, S V between items, skipped?)
+#   draw (spacing, categories)
+
 #   read data from data
 #   change square color based on data (True or False)
 #   have the image in memory
 #   button to save image
 #   background color bases on style (hueoffset settings variable)
 #   performance: https://stackoverflow.com/a/71735508 and https://stackoverflow.com/a/71735508
-
-#   PAST
-#   same hue for each category
-#   different saturation for each goal
+#   performance: also https://pillow.readthedocs.io/en/stable/handbook/tutorial.html#merging-images
 
 #   FUTURE
 #   have an indicator on the side of each row based on frequencies:
