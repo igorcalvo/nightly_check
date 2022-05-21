@@ -1,6 +1,5 @@
 from ui import ApplyHueOffset
 from PIL import Image
-
 import matplotlib.colors as clr
 
 def SegmentUnitIntoList(n: int) -> list:

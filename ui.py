@@ -1,10 +1,8 @@
 import PySimpleGUI as sg
 import tkinter as tk
 import matplotlib.colors as clr
-
 # Button icon
 # sg.Button('', image_data=flower_base64,
-
 from core import GetMatrixDataByHeaderIndexes, ReadSettings
 from utils import PadString, Transpose
 

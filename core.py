@@ -1,12 +1,33 @@
 from datetime import date, timedelta, datetime
 from os.path import exists
 from random import choice
-
 from utils import *
+import pandas as pd
 
 wakeup_time = 6
 
 # .csv
+
+def ReadCsv(dataFileName: str):
+    with open(dataFileName, 'r') as dataFile:
+        lines = dataFile.readlines()
+        dataFile.close()
+    header = lines[0].replace('\n', '').split(',')
+    content = [stringLine.replace('\n', '').split(', ') for stringLine in lines[1:]]
+    df = pd.DataFrame(content, columns=header)
+    return pd.DataFrame(content, columns=header)
+
+def WriteCsv(dataFileName: str, data):
+    cols = ','.join([col for col in data.columns])
+    content = ''
+    for index, row in data.iterrows():
+        rowData = [str(item) for item in list(row)]
+        content += f'\n{rowData}'.replace("[", "").replace("]", "").replace("'", "")
+    with open(dataFileName, 'w') as dataFile:
+        dataFile.seek(0)
+        dataFile.write(f'{cols}')
+        dataFile.write(f'{content}')
+        dataFile.close()
 
 def CheckForTodaysEntry(lastDate: str) -> int:
     try:
@@ -46,12 +67,13 @@ def BackUpData(csvfileName: str, data):
     fileName = csvfileName.replace('.csv', '_' + str(date.today()) + '.csv')
     if exists(fileName):
         raise Exception(f"File {fileName} already exists.")
-    data.to_csv(fileName, index=False)
+    WriteCsv(fileName, data)
 
+# TODO 65 B4
 def SaveData(data, checkboxDict: dict, csvFileName):
     for key in checkboxDict.keys():
         data.iloc[-1, data.columns.get_loc(ToLowerUnderScored(key))] = checkboxDict[key]
-    data.to_csv(csvFileName, mode='a', index=False)
+    WriteCsv(csvFileName, data)
 
 # .txt
 
@@ -152,6 +174,7 @@ def DetermineSuccessfulToday(data, frequencies: list, header: list, habitMessage
                 missionAccomplishedMessages.append(habitMessages[idx1][idx2])
     return missionAccomplishedMessages
 
+# TODO spee this method up (taking 11 sec)
 def GetPopUpMessage(frequencies: list, habitMessages: list, header: list, data, msgFileName: str) -> str:
     flatHeader = FlattenList(header)
     messageData = [(CheckHabit(h, frequencies, header, data), h, GetMatrixDataByHeaderIndexes(habitMessages, header, h)) for h in flatHeader]
@@ -167,6 +190,9 @@ def GetPopUpMessage(frequencies: list, habitMessages: list, header: list, data, 
     successMessages = DetermineSuccessfulToday(data, frequencies, header, habitMessages)
     successesToRemove = [c for c in candidateMessages for s in successMessages if s in c]
     candidateMessages.difference_update(successesToRemove)
+
+    if len(candidateMessages) < 1:
+        return 'No data. Keep going!'
 
     return choice(list(candidateMessages))
 
@@ -193,12 +219,14 @@ def SaveMessageFile(msgFileName: str, todaysMessage: str):
 
 def ReadSettings(settingsFileName: str) -> dict:
     settings: dict = {}
-    if exists(settingsFileName):
-        with open(settingsFileName, 'r') as s:
-            lines = s.readlines()
+    if not exists(settingsFileName):
+        with open(settingsFileName, 'w') as s:
+            s.write('hueOffset: 0')
             s.close()
-    else:
-        raise Exception(f"Can't find file {settingsFileName}.")
+
+    with open(settingsFileName, 'r') as s:
+        lines = s.readlines()
+        s.close()
 
     for line in lines:
         settings[line.split(':')[0]] = line.split(':')[1].strip()

@@ -1,13 +1,10 @@
-import PySimpleGUI
-
 from ui import *
 from core import *
 from imggen import *
 
 from sys import exc_info
 from os import path as ospath
-
-import pandas as pd
+from time import perf_counter
 
 csvFileName = 'data\data.csv'
 headerFileName = 'variables.txt'
@@ -27,6 +24,7 @@ hueOffset = 0
 
 log = open('data\log.txt', 'r+')
 exceptionText = ''
+ini = perf_counter()
 try:
     with open(headerFileName) as h:
         lines = h.readlines()
@@ -38,16 +36,16 @@ try:
         cols.insert(0, 'date')
         data = pd.DataFrame(columns=cols)
     else:
-        data = pd.read_csv(csvFileName)
+        data = ReadCsv(csvFileName)
     variables = list(data.columns)
     variables.pop(0)
 
     VerifyHeaderAndData(header, variables, csvFileName, data)
     data = CreateEntry(data)
+    # Draw()
     # PrintFonts()
-    Draw()
-    # InitUi(settingsFileName)
-    # window = MainWindow(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText)
+    InitUi(settingsFileName)
+    window = MainWindow(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText)
     while True:
         event, valuesDic = window.read()
         if event == styleButtonText:
@@ -74,7 +72,7 @@ try:
             dataWindow = DataWindow(dataButtonText, textArg, imgArg)
             while True:
                 dataEvent, dataValuesDic = dataWindow.read()
-                if dataEvent == PySimpleGUI.WIN_CLOSED:
+                if dataEvent == sg.WIN_CLOSED:
                     dataWindow.close()
                     break
         elif event == doneButtonText or event == sg.WIN_CLOSED:
@@ -90,15 +88,14 @@ try:
 except Exception as e:
     e_type, e_obj, e_tb = exc_info()
     e_filename = ospath.split(e_tb.tb_frame.f_code.co_filename)[1]
-    LogWrite(log, f"{e_obj} at line {e_tb.tb_lineno} of {e_filename}\n\n")
+    LogWrite(log, f"\n{e_obj} at line {e_tb.tb_lineno} of {e_filename}\n\n")
 finally:
     finallyString = f"***** {date.today()} - {datetime.now().time().replace(microsecond=0)} *****\n"
     if any(valuesDic.values()):
         LogWrite(log, f"{finallyString}{valuesDic}\n\n")
     else:
-        LogWrite(log, f"{finallyString}\n")
+        LogWrite(log, f"{finallyString}")
     log.close()
-
 
 # TODO LIST
 # DATA VISUALIZATION
