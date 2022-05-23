@@ -55,3 +55,6 @@ def GetValueFromDF(colName: str, row: int, data):
 
 def CleanDF(data):
     return data.dropna().iloc[:-1]
+
+def AlignRight(string: str, length: int):
+    return string.rjust(length)

@@ -10,6 +10,7 @@ csvFileName = 'data\data.csv'
 headerFileName = 'variables.txt'
 msgFileName = 'data\msg.txt'
 settingsFileName = 'data\settings.txt'
+logFileName = 'data\log.txt'
 
 doneButtonText = 'Done'
 styleButtonText = 'Style'
@@ -22,6 +23,7 @@ dataButtonText = 'Data'
 valuesDic = {}
 hueOffset = 0
 
+CreateFileIfDoesntExist(logFileName)
 log = open('data\log.txt', 'r+')
 exceptionText = ''
 ini = perf_counter()
@@ -42,7 +44,7 @@ try:
 
     VerifyHeaderAndData(header, variables, csvFileName, data)
     data = CreateEntry(data)
-    # Draw()
+    # Draw(categories, header)
     # PrintFonts()
     InitUi(settingsFileName)
     window = MainWindow(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText)
@@ -99,26 +101,17 @@ finally:
 
 # TODO LIST
 # DATA VISUALIZATION
-
-#   grid (to write)
-#   write (goals' header, categories, dates) https://stackoverflow.com/a/16377244
+#   generate image size based on parameters -> NewImage
+#   write (dates) -> WriteFooter
 #   color (hue between categories, S V between items, skipped?)
-#   draw (spacing, categories)
 
 #   read data from data
 #   change square color based on data (True or False)
 #   have the image in memory
-#   button to save image
-#   background color bases on style (hueoffset settings variable)
+#   button to export image
+#   n days back as a parameter
 #   performance: https://stackoverflow.com/a/71735508 and https://stackoverflow.com/a/71735508
 #   performance: also https://pillow.readthedocs.io/en/stable/handbook/tutorial.html#merging-images
-
-#   FUTURE
-#   have an indicator on the side of each row based on frequencies:
-#       all good
-#       improving, but still bad
-#       declining, but still good
-#       all bad
 
 # EDIT DATA
 #   methods
@@ -127,3 +120,14 @@ finally:
 
 # HABITS
 #   redefine
+
+#   FUTURE
+#   have an indicator on the side of each row based on frequencies:
+#       all good
+#       improving, but still bad
+#       declining, but still good
+#       all bad
+#   compile code
+#   ui for variables
+#   improve style's ui
+#   have some sort of readme?

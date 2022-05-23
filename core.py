@@ -69,7 +69,6 @@ def BackUpData(csvfileName: str, data):
         raise Exception(f"File {fileName} already exists.")
     WriteCsv(fileName, data)
 
-# TODO 65 B4
 def SaveData(data, checkboxDict: dict, csvFileName):
     for key in checkboxDict.keys():
         data.iloc[-1, data.columns.get_loc(ToLowerUnderScored(key))] = checkboxDict[key]
@@ -116,6 +115,12 @@ def LogWrite(logFile, newLines: str):
     content.insert(0, newLines)
     logFile.seek(0)
     logFile.write(''.join(content))
+
+def CreateFileIfDoesntExist(fileName: str):
+    if not exists(fileName):
+        with open(fileName, 'w') as file:
+            file.write('')
+            file.close()
 
 # Combining both
 
@@ -174,7 +179,7 @@ def DetermineSuccessfulToday(data, frequencies: list, header: list, habitMessage
                 missionAccomplishedMessages.append(habitMessages[idx1][idx2])
     return missionAccomplishedMessages
 
-# TODO spee this method up (taking 11 sec)
+# TODO speed this method up (taking 11 sec before update)
 def GetPopUpMessage(frequencies: list, habitMessages: list, header: list, data, msgFileName: str) -> str:
     flatHeader = FlattenList(header)
     messageData = [(CheckHabit(h, frequencies, header, data), h, GetMatrixDataByHeaderIndexes(habitMessages, header, h)) for h in flatHeader]
