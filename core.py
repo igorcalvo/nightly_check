@@ -15,7 +15,7 @@ def ReadCsv(dataFileName: str):
     header = lines[0].replace('\n', '').split(',')
     content = [stringLine.replace('\n', '').split(', ') for stringLine in lines[1:]]
     df = pd.DataFrame(content, columns=header)
-    return pd.DataFrame(content, columns=header)
+    return df
 
 def WriteCsv(dataFileName: str, data):
     cols = ','.join([col for col in data.columns])
@@ -196,8 +196,9 @@ def GetPopUpMessage(frequencies: list, habitMessages: list, header: list, data, 
     successesToRemove = [c for c in candidateMessages for s in successMessages if s in c]
     candidateMessages.difference_update(successesToRemove)
 
+    # TODO Test no data tabs
     if len(candidateMessages) < 1:
-        return 'No data. Keep going!'
+        return 'No data.\n Keep going!'
 
     return choice(list(candidateMessages))
 
@@ -206,13 +207,14 @@ def ReadLatestMessage(msgFileName: str) -> str:
         return ''
     else:
         with open(msgFileName, 'r') as f:
+            # lines = [l.split('\t')[-1].replace('\n', '') for l in f.readlines()]
             lines = [l.replace('\t\t', '\t').split('\t') for l in f.readlines()]
             f.close()
             return f"{lines[-1][1]}\n{lines[-1][2]}"
 
 def SaveMessageFile(msgFileName: str, todaysMessage: str):
     today = date.today().isoformat()
-    message = '\t'.join(m + '\t' if len(m) < 8 else m for m in todaysMessage.split('\n'))
+    message = '\t'.join(m + '\t\t' if len(m) <= 4 else m + '\t' if len(m) < 8 else m for m in todaysMessage.split('\n'))
     data = f"\n{today}\t{message}"
     if not exists(msgFileName):
         data = data.replace('\n', '')

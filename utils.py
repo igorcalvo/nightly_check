@@ -41,7 +41,6 @@ def Transpose(alist: list, emptyItem='') -> list:
                 pass
             finally:
                 result[a][b] = value
-
     return result
 
 def ToLowerUnderScored(string: str) -> str:
@@ -58,3 +57,11 @@ def CleanDF(data):
 
 def AlignRight(string: str, length: int):
     return string.rjust(length)
+
+def CycleIndex(obj, index):
+    correctedIndex = index
+    if abs(index) > len(obj):
+        div = abs(index) // len(obj)
+        direction = 1 if index >= 0 else -1
+        correctedIndex = index - direction * div * len(obj) - 1
+    return obj[correctedIndex]

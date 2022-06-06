@@ -1,20 +1,23 @@
+from datetime import date
 from PIL import Image, ImageFont, ImageDraw
 import matplotlib.colors as clr
 
-from utils import FlattenList, AlignRight
-from ui import ApplyHueOffset
+from utils import FlattenList, AlignRight, CycleIndex
 
 fontFamilies = {
     "consolas": r"assets\fonts\consola.ttf",
     "roboto": r"assets\fonts\Roboto-Bold.ttf",
     "liberation": r"assets\fonts\LiberationMono-Bold.ttf",
+    "noto": r"assets\fonts\NotoSansJP-Regular.otf",
 }
 
-def SegmentUnitIntoList(n: int) -> list:
+def SegmentUnitIntoList(n: int, minOffset: float = 0, maxOffset: float = 1) -> list:
     if n <= 0:
-        raise Exception(f"SegmentUnitIntoList: n can't be <= 0. Got {n}")
-    length: float = (1 / n) if n > 1 else 0
-    result = [length * i for i in range(n)]
+        raise Exception(f"SegmentUnitIntoList: n can't be <= 0. Got: {n}")
+    elif minOffset >= maxOffset or minOffset < 0 or maxOffset > 1:
+        raise Exception(f"SegmentUnitIntoList: Offsets out of range. Got min: {minOffset} and max: {maxOffset}")
+    length: float = ((maxOffset - minOffset) / n) if n > 1 else 0
+    result = [minOffset + length * i for i in range(n)]
     return result
 
 def GetRGBColor(hue: float, saturation: float, value: float):
@@ -51,32 +54,38 @@ def GenerateYPositions(initialPosition: tuple, length: int, spacing: int, number
     return positions, positions[-1][1] + length + spacing - initialPosition[1]
 
 def WriteFooter(image, position: tuple, squareSize: int, squareBorder: int, squares: int, latestDate: str):
-    daysOfTheWeek = "SMTWTFS"
-    # daysOfTheWeek = "日月火水木金土"
+    latestDate = '2022-06-04'
+    # daysOfTheWeek = "STQQSSD"
+    # daysOfTheWeek = "MTWTFSS"
+    daysOfTheWeek = "月火水木金土日"
+    todaysIndex = date.fromisoformat(latestDate).weekday()
+    print("todaysIndex", todaysIndex)
+    for s in range(squares):
+        Write(image,
+              (position[0] + s * (squareSize + squareBorder), position[1]),
+              CycleIndex(daysOfTheWeek, todaysIndex - squares + s + 1),
+              (0, 0, 0),
+              "noto")
 
-def WriteAll(image, categories: list, headerList: list, position: tuple, sqrSize: int, sqrBorder: int):
-    flatHeaderList = FlattenList(headerList)
-    maxXDelta = TextListMaxLenToPixels(flatHeaderList)
-    maxHeaderLen = max([len(h) for h in flatHeaderList])
+def WriteAll(image, categories: list, headerList: list, position: tuple, squares: int, sqrSize: int, sqrBorder: int, maxXDelta: int,
+             textSquaresXSpacing: int, textSquaresYOffset: int, categoryYSpacing: int, categoryTextOffset: tuple):
+
+    maxHeaderLen = max([len(h) for h in FlattenList(headerList)])
     maxCategoryLen = max([len(c) for c in categories])
-
-    textSquaresXSpacing = int(0.5 * sqrSize)
-    textSquaresYOffset = int(0.25 * sqrSize)
-
-    categoryYSpacing = int(2 * sqrSize)
-    categoryTextXOffset = int(0.3 * sqrSize)
-    categoryTextYOffset = int(1.2 * sqrSize)
-
     initialPos = [position[0], position[1]]
+    footerTextOffset = (12, 6)
+    hues = SegmentUnitIntoList(len(categories))
+
     for categoryIndex, category in enumerate(categories):
         categoryPositions, nextCategoryPosition = GenerateYPositions((initialPos[0], initialPos[1]), sqrSize, 2, len(headerList[categoryIndex]))
         Write(image,
-              (initialPos[0] + categoryTextXOffset, categoryPositions[0][1] - categoryTextYOffset),
+              (initialPos[0] + categoryTextOffset[0], categoryPositions[0][1] - categoryTextOffset[1]),
               AlignRight(category.upper(), maxCategoryLen),
               (0, 0, 0),
               "liberation",
               12)
         for headerIndex, header in enumerate(headerList[categoryIndex]):
+            hueOffset = 1.5 * (hues[1] - hues[0]) / (2 * len(headerList[categoryIndex]))
             Write(image,
                   categoryPositions[headerIndex],
                   AlignRight(header, maxHeaderLen),
@@ -86,28 +95,46 @@ def WriteAll(image, categories: list, headerList: list, position: tuple, sqrSize
                                categoryPositions[headerIndex][1] - textSquaresYOffset),
                               sqrSize,
                               sqrBorder,
-                              15,
+                              squares,
                               [5, 10, 13],
-                              GetRGBColor(0.5, 0.75, 1),
-                              (150, 150, 150))
+                              # GetRGBColor(0.5, 0.75, 1)
+                              # GetRGBColor(hues[categoryIndex], saturations[headerIndex], 1),
+                              GetRGBColor(hues[categoryIndex] + headerIndex * hueOffset, 0.85, 1),
+                              GetRGBColor(0, 0, 0.75))
         initialPos[1] = initialPos[1] + nextCategoryPosition + categoryYSpacing
+        WriteFooter(image,
+                    (initialPos[0] + maxXDelta + textSquaresXSpacing + ((sqrSize - footerTextOffset[0]) // 2), initialPos[1] - categoryYSpacing - footerTextOffset[1]),
+                    sqrSize,
+                    sqrBorder,
+                    squares,
+                    '')
 
 def Draw(categories: list, header: list):
+    flatHeaderList = FlattenList(header)
     print("categories", categories)
     print("header", header)
-    initialX = 200
-    initialY = 500
-    rows = 10
+    initialX = 75
+    initialY = 75
+    rows = len(flatHeaderList)
     rowsYSpacing = 2
-    categoriesLength = 5
-    categoriesYSpacing = 5
+    categoriesLength = len(categories)
 
     sqrSize = 20
     sqrBorder = 1
-    days = 15
+    squares = 20
 
-    img = NewImage(days * (sqrSize + sqrBorder) + initialX, rows * (rowsYSpacing + sqrSize + sqrBorder) + (categoriesLength - 1) * (categoriesYSpacing - rowsYSpacing) + initialY)
+    maxXDelta = TextListMaxLenToPixels(flatHeaderList)
+
+    textSquaresXSpacing = int(0.5 * sqrSize)
+    textSquaresYOffset = int(0.25 * sqrSize)
+
+    categoryYSpacing = int(2 * sqrSize)
+    categoryTextOffset = (int(0.3 * sqrSize), int(1.2 * sqrSize))
+
+    img = NewImage(squares * (sqrSize + sqrBorder) + maxXDelta + textSquaresXSpacing + initialX,
+                   # rows * (rowsYSpacing + sqrSize + sqrBorder) + (categoriesLength - 1) * (categoryYSpacing - rowsYSpacing) + initialY)
+                   rows * (rowsYSpacing + sqrSize + sqrBorder) + (categoriesLength - 1) * (categoryYSpacing + rowsYSpacing) + initialY)
     # DrawLineOfSquares(img, (2 * sqrSize, 2 * sqrSize), sqrSize, sqrBorder, days, [5, 10, 13], GetRGBColor(0.5, 0.75, 1), (150, 150, 150))
-    WriteAll(img, categories, header, (50, 50), sqrSize, sqrBorder)
+    WriteAll(img, categories, header, (50, 50), squares, sqrSize, sqrBorder, maxXDelta, textSquaresXSpacing, textSquaresYOffset, categoryYSpacing, categoryTextOffset)
     img.show()
     img.save(r'assets\data\test.png')

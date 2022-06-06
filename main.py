@@ -4,7 +4,6 @@ from imggen import *
 
 from sys import exc_info
 from os import path as ospath
-from time import perf_counter
 
 csvFileName = 'data\data.csv'
 headerFileName = 'variables.txt'
@@ -26,7 +25,6 @@ hueOffset = 0
 CreateFileIfDoesntExist(logFileName)
 log = open('data\log.txt', 'r+')
 exceptionText = ''
-ini = perf_counter()
 try:
     with open(headerFileName) as h:
         lines = h.readlines()
@@ -101,10 +99,6 @@ finally:
 
 # TODO LIST
 # DATA VISUALIZATION
-#   generate image size based on parameters -> NewImage
-#   write (dates) -> WriteFooter
-#   color (hue between categories, S V between items, skipped?)
-
 #   read data from data
 #   change square color based on data (True or False)
 #   have the image in memory
