@@ -42,7 +42,7 @@ try:
 
     VerifyHeaderAndData(header, variables, csvFileName, data)
     data = CreateEntry(data)
-    # Draw(categories, header)
+    # Draw(categories, header, frequencies, CleanDF(data))
     # PrintFonts()
     InitUi(settingsFileName)
     window = MainWindow(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText)
@@ -98,14 +98,14 @@ finally:
     log.close()
 
 # TODO LIST
+# FIX GREEN HSL?
+
 # DATA VISUALIZATION
-#   read data from data
-#   change square color based on data (True or False)
 #   have the image in memory
-#   button to export image
-#   n days back as a parameter
-#   performance: https://stackoverflow.com/a/71735508 and https://stackoverflow.com/a/71735508
-#   performance: also https://pillow.readthedocs.io/en/stable/handbook/tutorial.html#merging-images
+#   button to export image & show image
+#   n days back as a parameter (cfg file)
+#   performance?: https://stackoverflow.com/a/71735508 and https://stackoverflow.com/a/71735508
+#   performance?: also https://pillow.readthedocs.io/en/stable/handbook/tutorial.html#merging-images
 
 # EDIT DATA
 #   methods
@@ -122,6 +122,7 @@ finally:
 #       declining, but still good
 #       all bad
 #   compile code
-#   ui for variables
+#   remove unnecessary imports (from x import *)
+#   ui for variables, very nani
 #   improve style's ui
 #   have some sort of readme?

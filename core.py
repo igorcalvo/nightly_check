@@ -248,7 +248,34 @@ def SaveSettingsFile(hueOffset: float, settingsFileName: str):
 
 #  Data Visualization
 
-# GetHeaderData(CleanDF(data), "Tinder"), True
-def GetHeaderData(data, header: str, returnDate: bool = False):
+def GetDateArray(data, squares: int):
+    latestDateIso = GetLatestDate(data)
+    latestDateValue = datetime.fromisoformat(latestDateIso)
+    result = [(latestDateValue + timedelta(days=-day)).strftime("%Y-%m-%d") for day in range(squares)]
+    return result
+
+def GetExpectedValue(header: str, headerList: list, frequencies: list):
+    frequency = GetMatrixDataByHeaderIndexes(frequencies, headerList, header)
+    direction = frequency.split(',')[0]
+    return False if direction == '>' else True
+
+def GetHeaderData(data, dateArray: list, squares: int, header: str, expectedValue: bool = True):
     columnHeader = ToLowerUnderScored(header)
-    return data[["date", columnHeader]] if returnDate else data[columnHeader].tolist()
+    headerData = data[["date", columnHeader]]
+    headerData = headerData.reset_index()
+
+    result = [not expectedValue for item in range(squares)]
+    for index, row in headerData.iterrows():
+        try:
+            if row["date"] in dateArray and row[columnHeader] == str(expectedValue):
+                result[index] = expectedValue
+        except:
+            continue
+    return result
+
+def GetFailIndexesList(headerData: list, expectedValue: bool = True):
+    result = []
+    for index, item in enumerate(headerData):
+        if item != expectedValue:
+            result.append(index)
+    return result

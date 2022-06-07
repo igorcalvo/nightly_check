@@ -3,6 +3,7 @@ from PIL import Image, ImageFont, ImageDraw
 import matplotlib.colors as clr
 
 from utils import FlattenList, AlignRight, CycleIndex
+from core import GetHeaderData, GetDateArray, GetFailIndexesList, GetExpectedValue
 
 fontFamilies = {
     "consolas": r"assets\fonts\consola.ttf",
@@ -54,12 +55,11 @@ def GenerateYPositions(initialPosition: tuple, length: int, spacing: int, number
     return positions, positions[-1][1] + length + spacing - initialPosition[1]
 
 def WriteFooter(image, position: tuple, squareSize: int, squareBorder: int, squares: int, latestDate: str):
-    latestDate = '2022-06-04'
+    latestDate = '2022-06-05'
     # daysOfTheWeek = "STQQSSD"
     # daysOfTheWeek = "MTWTFSS"
     daysOfTheWeek = "月火水木金土日"
     todaysIndex = date.fromisoformat(latestDate).weekday()
-    print("todaysIndex", todaysIndex)
     for s in range(squares):
         Write(image,
               (position[0] + s * (squareSize + squareBorder), position[1]),
@@ -67,7 +67,7 @@ def WriteFooter(image, position: tuple, squareSize: int, squareBorder: int, squa
               (0, 0, 0),
               "noto")
 
-def WriteAll(image, categories: list, headerList: list, position: tuple, squares: int, sqrSize: int, sqrBorder: int, maxXDelta: int,
+def WriteAll(image, categories: list, headerList: list, frequencies: list, data, position: tuple, squares: int, sqrSize: int, sqrBorder: int, maxXDelta: int,
              textSquaresXSpacing: int, textSquaresYOffset: int, categoryYSpacing: int, categoryTextOffset: tuple):
 
     maxHeaderLen = max([len(h) for h in FlattenList(headerList)])
@@ -75,6 +75,7 @@ def WriteAll(image, categories: list, headerList: list, position: tuple, squares
     initialPos = [position[0], position[1]]
     footerTextOffset = (12, 6)
     hues = SegmentUnitIntoList(len(categories))
+    dateArray = GetDateArray(data, squares)
 
     for categoryIndex, category in enumerate(categories):
         categoryPositions, nextCategoryPosition = GenerateYPositions((initialPos[0], initialPos[1]), sqrSize, 2, len(headerList[categoryIndex]))
@@ -85,6 +86,10 @@ def WriteAll(image, categories: list, headerList: list, position: tuple, squares
               "liberation",
               12)
         for headerIndex, header in enumerate(headerList[categoryIndex]):
+            expectedValue = GetExpectedValue(header, headerList, frequencies)
+            headerData = GetHeaderData(data, dateArray, squares, header)
+            failList = GetFailIndexesList(headerData)
+            # print(header, headerData)
             hueOffset = 1.5 * (hues[1] - hues[0]) / (2 * len(headerList[categoryIndex]))
             Write(image,
                   categoryPositions[headerIndex],
@@ -96,7 +101,7 @@ def WriteAll(image, categories: list, headerList: list, position: tuple, squares
                               sqrSize,
                               sqrBorder,
                               squares,
-                              [5, 10, 13],
+                              failList,
                               # GetRGBColor(0.5, 0.75, 1)
                               # GetRGBColor(hues[categoryIndex], saturations[headerIndex], 1),
                               GetRGBColor(hues[categoryIndex] + headerIndex * hueOffset, 0.85, 1),
@@ -109,10 +114,11 @@ def WriteAll(image, categories: list, headerList: list, position: tuple, squares
                     squares,
                     '')
 
-def Draw(categories: list, header: list):
+def Draw(categories: list, header: list, frequencies: list, data):
     flatHeaderList = FlattenList(header)
     print("categories", categories)
     print("header", header)
+    print("data len", len(data.index))
     initialX = 75
     initialY = 75
     rows = len(flatHeaderList)
@@ -121,7 +127,7 @@ def Draw(categories: list, header: list):
 
     sqrSize = 20
     sqrBorder = 1
-    squares = 20
+    squares = min([20, len(data.index)])
 
     maxXDelta = TextListMaxLenToPixels(flatHeaderList)
 
@@ -135,6 +141,6 @@ def Draw(categories: list, header: list):
                    # rows * (rowsYSpacing + sqrSize + sqrBorder) + (categoriesLength - 1) * (categoryYSpacing - rowsYSpacing) + initialY)
                    rows * (rowsYSpacing + sqrSize + sqrBorder) + (categoriesLength - 1) * (categoryYSpacing + rowsYSpacing) + initialY)
     # DrawLineOfSquares(img, (2 * sqrSize, 2 * sqrSize), sqrSize, sqrBorder, days, [5, 10, 13], GetRGBColor(0.5, 0.75, 1), (150, 150, 150))
-    WriteAll(img, categories, header, (50, 50), squares, sqrSize, sqrBorder, maxXDelta, textSquaresXSpacing, textSquaresYOffset, categoryYSpacing, categoryTextOffset)
+    WriteAll(img, categories, header, frequencies, data, (50, 50), squares, sqrSize, sqrBorder, maxXDelta, textSquaresXSpacing, textSquaresYOffset, categoryYSpacing, categoryTextOffset)
     img.show()
     img.save(r'assets\data\test.png')
