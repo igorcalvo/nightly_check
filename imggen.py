@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from PIL import Image, ImageFont, ImageDraw
 import matplotlib.colors as clr
 
@@ -55,7 +55,7 @@ def GenerateYPositions(initialPosition: tuple, length: int, spacing: int, number
     return positions, positions[-1][1] + length + spacing - initialPosition[1]
 
 def WriteFooter(image, position: tuple, squareSize: int, squareBorder: int, squares: int, latestDate: str):
-    latestDate = '2022-06-05'
+    latestDate = (date.today() + timedelta(days=-1)).isoformat()
     # daysOfTheWeek = "STQQSSD"
     # daysOfTheWeek = "MTWTFSS"
     daysOfTheWeek = "月火水木金土日"
@@ -90,7 +90,7 @@ def WriteAll(image, categories: list, headerList: list, frequencies: list, data,
             headerData = GetHeaderData(data, dateArray, squares, header)
             failList = GetFailIndexesList(headerData)
             # print(header, headerData)
-            hueOffset = 1.5 * (hues[1] - hues[0]) / (2 * len(headerList[categoryIndex]))
+            hueOffset = (hues[1] - hues[0]) / (len(headerList[categoryIndex]) + 1)
             Write(image,
                   categoryPositions[headerIndex],
                   AlignRight(header, maxHeaderLen),
@@ -114,7 +114,7 @@ def WriteAll(image, categories: list, headerList: list, frequencies: list, data,
                     squares,
                     '')
 
-def Draw(categories: list, header: list, frequencies: list, data):
+def GenerateImage(categories: list, header: list, frequencies: list, data):
     flatHeaderList = FlattenList(header)
     print("categories", categories)
     print("header", header)
@@ -141,6 +141,8 @@ def Draw(categories: list, header: list, frequencies: list, data):
                    # rows * (rowsYSpacing + sqrSize + sqrBorder) + (categoriesLength - 1) * (categoryYSpacing - rowsYSpacing) + initialY)
                    rows * (rowsYSpacing + sqrSize + sqrBorder) + (categoriesLength - 1) * (categoryYSpacing + rowsYSpacing) + initialY)
     # DrawLineOfSquares(img, (2 * sqrSize, 2 * sqrSize), sqrSize, sqrBorder, days, [5, 10, 13], GetRGBColor(0.5, 0.75, 1), (150, 150, 150))
-    WriteAll(img, categories, header, frequencies, data, (50, 50), squares, sqrSize, sqrBorder, maxXDelta, textSquaresXSpacing, textSquaresYOffset, categoryYSpacing, categoryTextOffset)
-    img.show()
-    img.save(r'assets\data\test.png')
+    WriteAll(img, categories, header, frequencies, data, (50, 50), squares, sqrSize, sqrBorder,
+             maxXDelta, textSquaresXSpacing, textSquaresYOffset, categoryYSpacing, categoryTextOffset)
+    # img.show()
+    # img.save(r'assets\data\test.png')
+    return img

@@ -170,7 +170,7 @@ def DetermineSuccessfulToday(data, frequencies: list, header: list, habitMessage
     reality = [[] for item in range(len(header))]
     for idx1, sublist in enumerate(header):
         for idx2, item in enumerate(sublist):
-            reality[idx1].append(GetValueFromDF(ToLowerUnderScored(header[idx1][idx2]), -1, data))
+            reality[idx1].append(GetValueFromDFByRow(ToLowerUnderScored(header[idx1][idx2]), -1, data))
 
     missionAccomplishedMessages = []
     for idx1, sublist in enumerate(reality):
@@ -265,13 +265,15 @@ def GetHeaderData(data, dateArray: list, squares: int, header: str, expectedValu
     headerData = headerData.reset_index()
 
     result = [not expectedValue for item in range(squares)]
-    for index, row in headerData.iterrows():
+    for index, dateValue in enumerate(dateArray):
         try:
-            if row["date"] in dateArray and row[columnHeader] == str(expectedValue):
+            dataValue = GetValueFromDFByValue("date", dateValue, headerData)
+            value = dataValue[columnHeader].values[0]
+            if value == str(expectedValue):
                 result[index] = expectedValue
         except:
             continue
-    return result
+    return reversed(result)
 
 def GetFailIndexesList(headerData: list, expectedValue: bool = True):
     result = []

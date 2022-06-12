@@ -37,6 +37,8 @@ colors = {
     "sld_sld":  bar_txt,
     "dat_txt":  cat_txt,
     "dat_bkg":  sld_bkg,
+    "exp_txt":  bar_txt,
+    "exp_bkg":  bar_bkg,
 }
 
 fonts = {
@@ -207,12 +209,15 @@ def PreviewWindow(previewWindowText: str, previewCloseKey: str, hueOffset: float
      relative_location=(240, 0)
      ).Finalize()
 
-def DataWindow(dataButtonText: str, textArg: str, imgArg: str):
+def DataWindow(dataButtonText: str, exportImageButtonText: str, imgBase64: str):
     return sg.Window(dataButtonText, [
-        [sg.Text(PadString(textArg, 0),
-                 background_color=colors["dat_bkg"],
-                 text_color=colors["dat_txt"])],
-        [sg.Image(imgArg)]
+        [sg.Image(data=imgBase64)],
+        [sg.Button(exportImageButtonText,
+                   font=fonts["btn"],
+                   size=7,
+                   key=exportImageButtonText,
+                   pad=((5, 0), (5, 5)),
+                   button_color=(colors["exp_bkg"], colors["exp_txt"]))]
     ],
      return_keyboard_events=True,
      use_custom_titlebar=True,

@@ -1,3 +1,5 @@
+from base64 import b64encode
+from io import BytesIO
 
 def GroupListIfChar(flatList: list, ch: str) -> list:
     result = []
@@ -49,7 +51,7 @@ def ToLowerUnderScored(string: str) -> str:
 def FlattenList(l: list) -> list:
     return [item for sublist in l for item in sublist]
 
-def GetValueFromDF(colName: str, row: int, data):
+def GetValueFromDFByRow(colName: str, row: int, data):
     return data.iloc[row, data.columns.get_loc(colName)]
 
 def CleanDF(data):
@@ -65,3 +67,15 @@ def CycleIndex(obj, index):
         direction = 1 if index >= 0 else -1
         correctedIndex = index - direction * div * len(obj) - 1
     return obj[correctedIndex]
+
+def GetValueFromDFByValue(colName: str, value, data):
+    return data.loc[data[colName] == value]
+
+def ImageBytesToBase64(image) -> str:
+    inMemoryFile = BytesIO()
+    image.save(inMemoryFile, format="PNG")
+    inMemoryFile.seek(0)
+    imgBytes = inMemoryFile.read()
+    base64Bytes = b64encode(imgBytes)
+    base64Str = base64Bytes.decode('ascii')
+    return base64Str

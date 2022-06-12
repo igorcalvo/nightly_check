@@ -10,6 +10,7 @@ headerFileName = 'variables.txt'
 msgFileName = 'data\msg.txt'
 settingsFileName = 'data\settings.txt'
 logFileName = 'data\log.txt'
+exportImageFileName = 'image.png'
 
 doneButtonText = 'Done'
 styleButtonText = 'Style'
@@ -18,6 +19,7 @@ setButtonTextKey = 'Set'
 previewWindowText = 'Preview'
 previewCloseKey = 'ClosePreview'
 dataButtonText = 'Data'
+exportButtonText = 'Export'
 
 valuesDic = {}
 hueOffset = 0
@@ -42,7 +44,7 @@ try:
 
     VerifyHeaderAndData(header, variables, csvFileName, data)
     data = CreateEntry(data)
-    # Draw(categories, header, frequencies, CleanDF(data))
+    # GenerateImage(categories, header, frequencies, CleanDF(data))
     # PrintFonts()
     InitUi(settingsFileName)
     window = MainWindow(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText)
@@ -67,12 +69,13 @@ try:
                     styleWindow.close()
                     break
         elif event == dataButtonText:
-            textArg = "Sample Text"
-            imgArg = "assets\data\sample.png"
-            dataWindow = DataWindow(dataButtonText, textArg, imgArg)
+            img = GenerateImage(categories, header, frequencies, CleanDF(data))
+            dataWindow = DataWindow(dataButtonText, exportButtonText, ImageBytesToBase64(img))
             while True:
                 dataEvent, dataValuesDic = dataWindow.read()
-                if dataEvent == sg.WIN_CLOSED:
+                if dataEvent == exportButtonText:
+                    img.save(exportImageFileName)
+                if dataEvent == sg.WIN_CLOSED or dataEvent == exportButtonText:
                     dataWindow.close()
                     break
         elif event == doneButtonText or event == sg.WIN_CLOSED:
@@ -98,11 +101,7 @@ finally:
     log.close()
 
 # TODO LIST
-# FIX GREEN HSL?
-
 # DATA VISUALIZATION
-#   have the image in memory
-#   button to export image & show image
 #   n days back as a parameter (cfg file)
 #   performance?: https://stackoverflow.com/a/71735508 and https://stackoverflow.com/a/71735508
 #   performance?: also https://pillow.readthedocs.io/en/stable/handbook/tutorial.html#merging-images
