@@ -199,7 +199,7 @@ def GetPopUpMessage(frequencies: list, habitMessages: list, header: list, data, 
 
     # TODO Test no data tabs
     if len(candidateMessages) < 1:
-        return 'No data.\n Keep going!'
+        return 'No data\nKeep going!'
 
     return choice(list(candidateMessages))
 
@@ -261,18 +261,18 @@ def SaveSettingsFile(settings: Settings, settingsFileName: str):
 
 #  Data Visualization
 
-def GetDateArray(data, squares: int):
+def GetDateArray(data, squares: int) -> list:
     latestDateIso = GetLatestDate(data)
     latestDateValue = datetime.fromisoformat(latestDateIso)
     result = [(latestDateValue + timedelta(days=-day)).strftime("%Y-%m-%d") for day in range(squares)]
     return result
 
-def GetExpectedValue(header: str, headerList: list, frequencies: list):
+def GetExpectedValue(header: str, headerList: list, frequencies: list) -> bool:
     frequency = GetMatrixDataByHeaderIndexes(frequencies, headerList, header)
     direction = frequency.split(',')[0]
     return False if direction == '>' else True
 
-def GetHeaderData(data, dateArray: list, squares: int, header: str, expectedValue: bool = True):
+def GetHeaderData(data, dateArray: list, squares: int, header: str, expectedValue: bool = True) -> list:
     columnHeader = ToLowerUnderScored(header)
     headerData = data[["date", columnHeader]]
     headerData = headerData.reset_index()
@@ -288,7 +288,7 @@ def GetHeaderData(data, dateArray: list, squares: int, header: str, expectedValu
             continue
     return reversed(result)
 
-def GetFailIndexesList(headerData: list, expectedValue: bool = True):
+def GetFailIndexesList(headerData: list, expectedValue: bool = True) -> list:
     result = []
     for index, item in enumerate(headerData):
         if item != expectedValue:

@@ -216,6 +216,10 @@ def DataWindow(dataButtonText: str, exportImageButtonText: str, imgBase64: str):
                    key=exportImageButtonText,
                    pad=((5, 0), (5, 5)),
                    button_color=(colors["exp_bkg"], colors["exp_txt"]))]
+        # [sg.FileSaveAs(
+        #     key=exportImageButtonText,
+        #     file_types=(('PNG', '.png'), ('JPG', '.jpg'))
+        # )]
     ],
      return_keyboard_events=True,
      use_custom_titlebar=True,

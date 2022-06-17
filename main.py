@@ -25,7 +25,7 @@ valuesDic = {}
 hueOffset = 0
 
 CreateFileIfDoesntExist(logFileName)
-log = open('data\log.txt', 'r+')
+log = open(logFileName, 'r+')
 exceptionText = ''
 try:
     with open(headerFileName) as h:
@@ -106,19 +106,36 @@ finally:
 # HABITS
 #   redefine when living alone
 
+# MISC
+#   export image modal
+#       remove var exportImageFileName
+#   move 'data\' to const and create folder if it does not exist
+
 # EDIT DATA
 #   methods
 #   ui
 #   limit to y-day
 
 #   FUTURE
-#   compile code
 #   have an indicator on the side of each row based on frequencies:
 #       all good
 #       improving, but still bad
 #       declining, but still good
 #       all bad
-#   remove unnecessary imports (from x import *)
 #   ui for variables, very nani
+#       if never ran, start this window
+#       else have a button to edit it later
 #   improve style's ui
 #   have some sort of readme?
+#   write reddit post
+
+#   COMPILED CODE
+#   run: python -m PyInstaller --onefile main.py
+#   solution to assets problem: https://stackoverflow.com/q/31836104
+#   improve code
+#       remove unnecessary imports (from x import *)
+#       remove commented out code
+#   refer to: assets/reference/compiled.PNG
+#       assets folder -> check if folder exists and maybe unzip automatically?
+#       variables.txt -> handle msg, or create with ui
+#       create data folder -> check if folder exists and maybe unzip automatically?

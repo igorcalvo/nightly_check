@@ -2,7 +2,7 @@ from datetime import date, timedelta
 from PIL import Image, ImageFont, ImageDraw
 import matplotlib.colors as clr
 
-from utils import FlattenList, AlignRight, CycleIndex
+from utils import FlattenList, AlignRight, CycleIndex, GetValueFromDFByRow
 from core import GetHeaderData, GetDateArray, GetFailIndexesList, GetExpectedValue
 
 fontFamilies = {
@@ -21,7 +21,7 @@ def SegmentUnitIntoList(n: int, minOffset: float = 0, maxOffset: float = 1) -> l
     result = [minOffset + length * i for i in range(n)]
     return result
 
-def GetRGBColor(hue: float, saturation: float, value: float):
+def GetRGBColor(hue: float, saturation: float, value: float) -> tuple:
                                    # 0 to 1
     rgbFloat = clr.hsv_to_rgb((hue, saturation, value))
     result = tuple(int(v * 255) for v in rgbFloat)
@@ -55,7 +55,7 @@ def GenerateYPositions(initialPosition: tuple, length: int, spacing: int, number
     return positions, positions[-1][1] + length + spacing - initialPosition[1]
 
 def WriteFooter(image, position: tuple, squareSize: int, squareBorder: int, squares: int, latestDate: str):
-    latestDate = (date.today() + timedelta(days=-1)).isoformat()
+    # latestDate = (date.today() + timedelta(days=-1)).isoformat()
     # daysOfTheWeek = "STQQSSD"
     # daysOfTheWeek = "MTWTFSS"
     daysOfTheWeek = "月火水木金土日"
@@ -78,7 +78,7 @@ def WriteAll(image, categories: list, headerList: list, frequencies: list, data,
     dateArray = GetDateArray(data, squares)
 
     for categoryIndex, category in enumerate(categories):
-        categoryPositions, nextCategoryPosition = GenerateYPositions((initialPos[0], initialPos[1]), sqrSize, 2, len(headerList[categoryIndex]))
+        categoryPositions, nextCategoryPosition = GenerateYPositions((initialPos[0], initialPos[1]), sqrSize, 2,len(headerList[categoryIndex]))
         Write(image,
               (initialPos[0] + categoryTextOffset[0], categoryPositions[0][1] - categoryTextOffset[1]),
               AlignRight(category.upper(), maxCategoryLen),
@@ -108,11 +108,12 @@ def WriteAll(image, categories: list, headerList: list, frequencies: list, data,
                               GetRGBColor(0, 0, 0.75))
         initialPos[1] = initialPos[1] + nextCategoryPosition + categoryYSpacing
         WriteFooter(image,
-                    (initialPos[0] + maxXDelta + textSquaresXSpacing + ((sqrSize - footerTextOffset[0]) // 2), initialPos[1] - categoryYSpacing - footerTextOffset[1]),
+                    (initialPos[0] + maxXDelta + textSquaresXSpacing + ((sqrSize - footerTextOffset[0]) // 2),
+                     initialPos[1] - categoryYSpacing - footerTextOffset[1]),
                     sqrSize,
                     sqrBorder,
                     squares,
-                    '')
+                    GetValueFromDFByRow("date", -1, data))
 
 def GenerateImage(categories: list, header: list, frequencies: list, dataDays: int, data):
     flatHeaderList = FlattenList(header)
