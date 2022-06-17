@@ -3,7 +3,7 @@ import tkinter as tk
 import matplotlib.colors as clr
 # Button icon
 # sg.Button('', image_data=flower_base64,
-from core import GetMatrixDataByHeaderIndexes, ReadSettings
+from core import GetMatrixDataByHeaderIndexes
 from utils import PadString, Transpose
 
 # | hue_offset | < 1
@@ -71,9 +71,7 @@ def UpdateColors(hue_offset: float):
     for key in colors.keys():
         colors[key] = ApplyHueOffset(colors[key], hue_offset)
 
-def InitUi(settingsFileName: str):
-    settings = ReadSettings(settingsFileName)
-    hueOffset = float(settings[list(settings.keys())[0]])
+def InitUi(hueOffset: float):
     UpdateColors(hueOffset)
 
 def CreateCheckBoxes(descriptions: list, header: list) -> list:

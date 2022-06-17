@@ -46,7 +46,8 @@ try:
     data = CreateEntry(data)
     # GenerateImage(categories, header, frequencies, CleanDF(data))
     # PrintFonts()
-    InitUi(settingsFileName)
+    settings = ReadSettings(settingsFileName)
+    InitUi(settings.hueOffset)
     window = MainWindow(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText)
     while True:
         event, valuesDic = window.read()
@@ -65,11 +66,12 @@ try:
                             break
                 elif styleEvent == setButtonTextKey or styleEvent == sg.WIN_CLOSED:
                     if styleEvent == setButtonTextKey:
-                        SaveSettingsFile(hueOffset, settingsFileName)
+                        settings.hueOffset = hueOffset
+                        SaveSettingsFile(settings, settingsFileName)
                     styleWindow.close()
                     break
         elif event == dataButtonText:
-            img = GenerateImage(categories, header, frequencies, CleanDF(data))
+            img = GenerateImage(categories, header, frequencies, settings.dataDays, CleanDF(data))
             dataWindow = DataWindow(dataButtonText, exportButtonText, ImageBytesToBase64(img))
             while True:
                 dataEvent, dataValuesDic = dataWindow.read()
@@ -101,26 +103,21 @@ finally:
     log.close()
 
 # TODO LIST
-# DATA VISUALIZATION
-#   n days back as a parameter (cfg file)
-#   performance?: https://stackoverflow.com/a/71735508 and https://stackoverflow.com/a/71735508
-#   performance?: also https://pillow.readthedocs.io/en/stable/handbook/tutorial.html#merging-images
+# HABITS
+#   redefine when living alone
 
 # EDIT DATA
 #   methods
 #   ui
 #   limit to y-day
 
-# HABITS
-#   redefine
-
 #   FUTURE
+#   compile code
 #   have an indicator on the side of each row based on frequencies:
 #       all good
 #       improving, but still bad
 #       declining, but still good
 #       all bad
-#   compile code
 #   remove unnecessary imports (from x import *)
 #   ui for variables, very nani
 #   improve style's ui

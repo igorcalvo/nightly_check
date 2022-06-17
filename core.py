@@ -1,8 +1,9 @@
 from datetime import date, timedelta, datetime
-from os.path import exists
+from os.path import exists, getsize
 from random import choice
 from utils import *
 import pandas as pd
+import json
 
 wakeup_time = 6
 
@@ -222,28 +223,40 @@ def SaveMessageFile(msgFileName: str, todaysMessage: str):
         f.write(data)
         f.close()
 
-# Style
+# Settings
 
-def ReadSettings(settingsFileName: str) -> dict:
-    settings: dict = {}
-    if not exists(settingsFileName):
+class Settings:
+    def __init__(self, hueOffset: float = 0, dataDays: int = 20):
+        self.hueOffset = hueOffset
+        self.dataDays = dataDays
+
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+
+    @staticmethod
+    def fromJSON(jsonString: str):
+        json_dict = json.loads(jsonString)
+        hueOffset = float(json_dict['hueOffset'])
+        dataDays = int(json_dict['dataDays'])
+        return Settings(hueOffset,
+                        dataDays)
+
+def ReadSettings(settingsFileName: str) -> Settings:
+    settings: Settings = Settings()
+    if not exists(settingsFileName) or getsize(settingsFileName) == 0:
         with open(settingsFileName, 'w') as s:
-            s.write('hueOffset: 0')
+            s.write(settings.toJSON())
             s.close()
 
     with open(settingsFileName, 'r') as s:
-        lines = s.readlines()
+        settingsFileContent = s.read()
+        settingsObj = Settings.fromJSON(settingsFileContent)
         s.close()
+    return settingsObj
 
-    for line in lines:
-        settings[line.split(':')[0]] = line.split(':')[1].strip()
-    return settings
-
-def SaveSettingsFile(hueOffset: float, settingsFileName: str):
-    data = []
-    data.append(f"hueOffset: {hueOffset}")
+def SaveSettingsFile(settings: Settings, settingsFileName: str):
     with open(settingsFileName, 'w') as s:
-        s.write('\n'.join(data))
+        s.write(settings.toJSON())
         s.close()
 
 #  Data Visualization

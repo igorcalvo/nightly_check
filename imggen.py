@@ -114,7 +114,7 @@ def WriteAll(image, categories: list, headerList: list, frequencies: list, data,
                     squares,
                     '')
 
-def GenerateImage(categories: list, header: list, frequencies: list, data):
+def GenerateImage(categories: list, header: list, frequencies: list, dataDays: int, data):
     flatHeaderList = FlattenList(header)
     print("categories", categories)
     print("header", header)
@@ -127,7 +127,7 @@ def GenerateImage(categories: list, header: list, frequencies: list, data):
 
     sqrSize = 20
     sqrBorder = 1
-    squares = min([20, len(data.index)])
+    squares = min([dataDays, len(data.index)])
 
     maxXDelta = TextListMaxLenToPixels(flatHeaderList)
 
