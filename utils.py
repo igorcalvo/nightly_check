@@ -79,3 +79,8 @@ def ImageBytesToBase64(image) -> str:
     base64Bytes = b64encode(imgBytes)
     base64Str = base64Bytes.decode('ascii')
     return base64Str
+
+def RemoveDuplicates(arr: list) -> list:
+    seen = set()
+    seen_add = seen.add
+    return [x for x in arr if not (x in seen or seen_add(x))]

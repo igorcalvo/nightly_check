@@ -91,11 +91,10 @@ def ParseHeaderLine(content: list, index: int) -> list:
     return [line.split(';')[index].strip() if line.find(';') > -1 else '' for line in content]
 
 def ParseHeaderFile(content: list) -> tuple:
-    setOfCategories = set([field.split(';')[1].split('_')[0].strip() if field.find(';') > -1 else '\n' for field in content])
-    setOfCategories.remove('\n')
-    tags = list(setOfCategories)
-    tags.sort()
-
+    categories = [field.split(';')[1].split('_')[0].strip() if field.find(';') > -1 else '\n' for field in content]
+    tags = RemoveDuplicates(categories)
+    if '\n' in tags:
+        tags.remove('\n')
     frequencies = ParseHeaderLine(content, 0)
     header = [ParseHeader(line.split(';')[1].strip(), tags) if line.find(';') > -1 else '' for line in content]
     descriptions = ParseHeaderLine(content, 2)
@@ -181,7 +180,7 @@ def DetermineSuccessfulToday(data, frequencies: list, header: list, habitMessage
     return missionAccomplishedMessages
 
 # TODO speed this method up (taking 11 sec before update)
-def GetPopUpMessage(frequencies: list, habitMessages: list, header: list, data, msgFileName: str) -> str:
+def GetPopUpMessage(frequencies: list, habitMessages: list, header: list, data, msgFileName: str) -> str | None:
     flatHeader = FlattenList(header)
     messageData = [(CheckHabit(h, frequencies, header, data), h, GetMatrixDataByHeaderIndexes(habitMessages, header, h)) for h in flatHeader]
 
@@ -199,7 +198,7 @@ def GetPopUpMessage(frequencies: list, habitMessages: list, header: list, data, 
 
     # TODO Test no data tabs
     if len(candidateMessages) < 1:
-        return 'No data\nKeep going!'
+        return None
 
     return choice(list(candidateMessages))
 
@@ -215,7 +214,7 @@ def ReadLatestMessage(msgFileName: str) -> str:
 
 def SaveMessageFile(msgFileName: str, todaysMessage: str):
     today = date.today().isoformat()
-    message = '\t'.join(m + '\t\t' if len(m) <= 4 else m + '\t' if len(m) < 8 else m for m in todaysMessage.split('\n'))
+    message = '\t'.join(m + '\t' if len(m) < 8 else m for m in todaysMessage.split('\n'))
     data = f"\n{today}\t{message}"
     if not exists(msgFileName):
         data = data.replace('\n', '')
@@ -226,9 +225,14 @@ def SaveMessageFile(msgFileName: str, todaysMessage: str):
 # Settings
 
 class Settings:
-    def __init__(self, hueOffset: float = 0, dataDays: int = 20):
+    def __init__(self,
+                 hueOffset: float = 0,
+                 dataDays: int = 21,
+                 displayMessages: bool = True,
+                 ):
         self.hueOffset = hueOffset
         self.dataDays = dataDays
+        self.displayMessages = displayMessages
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
@@ -286,7 +290,8 @@ def GetHeaderData(data, dateArray: list, squares: int, header: str, expectedValu
                 result[index] = expectedValue
         except:
             continue
-    return reversed(result)
+    result.reverse()
+    return result
 
 def GetFailIndexesList(headerData: list, expectedValue: bool = True) -> list:
     result = []

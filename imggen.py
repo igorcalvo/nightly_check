@@ -117,9 +117,6 @@ def WriteAll(image, categories: list, headerList: list, frequencies: list, data,
 
 def GenerateImage(categories: list, header: list, frequencies: list, dataDays: int, data):
     flatHeaderList = FlattenList(header)
-    print("categories", categories)
-    print("header", header)
-    print("data len", len(data.index))
     initialX = 75
     initialY = 75
     rows = len(flatHeaderList)

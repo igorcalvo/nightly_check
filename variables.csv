@@ -1,0 +1,44 @@
+category,header,tooltip,message,condition,frequency
+health,meditate,Did you meditate?,Igor  this is core. Are you okay? Let's try to get back on track ASAP.,<,6/7
+health,birl,Did you work out?,Zyzz would not be proud... Let's get moving!,<,4/7
+health,run,Did you go for a run?,Do you really want to be out of breath when you go up the stairs?,<,1/7
+health,floss,Did you floss?,You only have those teeth. Better take good care of it.,<,1/3
+health,groom,Did you take care of your body?,Must be in a state which leads to the least missed opportunities.,<,1/7
+,,,,,
+better-me,projects,Did you work on a side project?,Are you so busy that busy that you can't spend time on things you find interesting?,<,5/7
+better-me,math|physics,Did you study math of physics?,Do you really want to forget what you've learned?,<,2/14
+better-me,reading,Do you plan to read before going to sleep?,Come on manjust go to bed earlier!,<,5/7
+better-me,japanese kanji,Did you study kanji?,How long are you going to postpone it for? This is one of your dreamsdude.,<,6/7
+better-me,japanese grammar,Did you study grammar?,How long are you going to postpone it for? This is one of your dreamsdude.,<,6/7
+,,,,,
+traps-mind,phone bed,Do you plan to fall asleep watching youtube?,There is no excusereally. Not using it results in better sleep.,>,1/14
+traps-mind,phone job,Did you watch youtube videos during work hours?,More productive work results in fewer work hours!,>,1/14
+traps-mind,binge watching,Did you binge watch?,Too much of anything is bad.,>,1/14
+traps-mind,not enough sleep,Did you sleep too little?,...We have to rest to have a good day tomorrow. Remember?,>,1/7
+,,,,,
+traps-body,food delivery,Did you get food from delivery?,It's way too expensive and probable not healthy.,>,1/14
+traps-body,overeating,Did you overeat?,Even if it was healthylet's not get fat.,>,1/14
+traps-body,sugar,Did you eat sugar?,This is an addictionmust stop right now.,>,1/14
+traps-body,alcohol,Did you drink alcohol?,This could become an addictionbe careful.,>,1/21
+,,,,,
+vices,porn,Did you watch porn?,Do you want to keep polluting your mind?,>,1/14
+vices,no fap,Did you fap?,Do you want to be fapping for ever?,>,1/7
+vices,videogames,Did you play videogames?,Do you really want to game your life away?,>,1/14
+vices,youtube,Did you watch it ouside the allowed areas?,Do you want to be ruled by your mind?,>,1/14
+,,,,,
+mina,tinder setup,Did you set up a dating app?,If you don't things will never change...,<,2/7
+mina,tinder,Did you use any of the apps?,Do you really wish for a life without romance?,<,1/14
+mina,date,Did you go out on a date?,Do the previous steps then! What are you waiting for?!,<,1/28
+,,,,,
+social,cats,Did you see your cats?,If your life is already too shortimagine theirs...,<,1/21
+social,family,Did you see your cats?,If your life is already too shortimagine theirs...,<,1/56
+social,friends,Did you see your cats?,This is the best time to make some memories.,<,1/21
+social,new people,Did you see your cats?,Do you really think there are no interesting people out there?,<,1/28
+,,,,,
+bonus,posture,Did you do something for your posture?,You only have on back. Better take care of it.,<,1/14
+bonus,tea,Did you drink tea,It has some worhwhile benefits and you could really use a replacement for eating.,<,1/14
+bonus,hair care,Did you take care of your hair?,Do you literally want to be bald?,<,1/7
+,,,,,
+bonus-not,stay inside,Did you go outside?,It might be a good change of pace.,<,1/7
+bonus-not,eat & watch,Did you manage to not watch while eating?,It might be a good experience.,<,1/7
+bonus-not,toilet & watchDid you avoid watching youtube in the toilet?It might be good for the mind.,<,1/21

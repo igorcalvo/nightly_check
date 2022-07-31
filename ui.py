@@ -4,7 +4,7 @@ import matplotlib.colors as clr
 # Button icon
 # sg.Button('', image_data=flower_base64,
 from core import GetMatrixDataByHeaderIndexes
-from utils import PadString, Transpose
+from utils import PadString, Transpose, FlattenList
 
 # | hue_offset | < 1
 hue_base = 0.59
@@ -42,6 +42,7 @@ colors = {
 }
 
 fonts = {
+    # "cat": ("Cascadia Mono", 11, "bold"),
     "cat": ("Helvetica", 11, "bold"),
     "ckb": ('Consolas', 11),
     "btn": ("Verdana", 9, "bold"),
@@ -74,26 +75,31 @@ def UpdateColors(hue_offset: float):
 def InitUi(hueOffset: float):
     UpdateColors(hueOffset)
 
-def CreateCheckBoxes(descriptions: list, header: list) -> list:
-    return [[(sg.Checkbox(text=PadString(' ' + item, 30),
+def CreateCheckBoxes(descriptions: list, header: list, size: int) -> list:
+    columnCorrection = 2 * size + 7
+    return [[(sg.Checkbox(text=' ' + item,
                           default=False,
                           key=item,
-                          size=15,
+                          size=size,
                           font=fonts["ckb"],
                           checkbox_color=colors["ckb_bkg"],
                           text_color=colors["ckb_txt"],
                           background_color=colors["win_bkg"],
                           pad=((15, 0), (2, 2)),
-                          tooltip=GetMatrixDataByHeaderIndexes(descriptions, header, item)) if item != '' else sg.Text(PadString('', 37), background_color=colors["win_bkg"])) for item in splitList] for splitList in Transpose(header)]
+                          tooltip=GetMatrixDataByHeaderIndexes(descriptions, header, item)) if item != '' else sg.Text(PadString('', columnCorrection), background_color=colors["win_bkg"])) for item in splitList] for splitList in Transpose(header)]
 #                                                                                                                      Fixes floating checkbox on a column
-def CreateLayout(categories: list, header: list, descriptions: list, doneButtonText: str, styleButtonText: str, dataButtonText: str) -> list:
+def CreateLayout(categories: list, header: list, descriptions: list, doneButtonText: str, styleButtonText: str, dataButtonText: str, longestText: int) -> list:
+    # 10 -> size 15 -> 37
+    # 16 -> size 20 -> 47
+    size = int(18 * longestText / 16)
     #                        Spacing between categories
-    categoryTitles = [sg.Text(PadString(c.upper(), 27),
+    categoryTitles = [sg.Text(PadString(c.upper(), int(size * 1.66)),
                               text_color=colors["cat_txt"],
                               background_color=colors["cat_bkg"],
-                              pad=((15, 0), (10, 10)),
+                              pad=((15, 10), (10, 10)),
                               font=fonts["cat"]) for c in categories]
-    checkboxes = CreateCheckBoxes(descriptions, header)
+    checkboxes = CreateCheckBoxes(descriptions, header, size)
+    buttonSpacing = 11 * longestText
     return [categoryTitles,
             checkboxes,
             [sg.Button(styleButtonText,
@@ -102,20 +108,21 @@ def CreateLayout(categories: list, header: list, descriptions: list, doneButtonT
                        button_color=(colors["stl_bkg"], colors["stl_txt"]),
                        pad=((15, 0), (10, 10))),
     #                Button's distance from the left
-             sg.Text(PadString("", 65), background_color=colors["win_bkg"]),
+             sg.Text(PadString("", buttonSpacing), background_color=colors["win_bkg"]),
              sg.Button(dataButtonText,
                        font=fonts["btn"],
                        size=7,
                        button_color=(colors["dtb_bkg"], colors["dtb_txt"])),
     #                Button's distance from the left
-             sg.Text(PadString("", 65), background_color=colors["win_bkg"]),
+             sg.Text(PadString("", buttonSpacing), background_color=colors["win_bkg"]),
              sg.Button(doneButtonText,
                        font=fonts["btn"],
                        size=7,
                        button_color=(colors["dnb_bkg"], colors["dnb_txt"]))]]
 
 def MainWindow(categories: list, header: list, descriptions: list, doneButtonText: str, styleButtonText: str, dataButtonText: str):
-    layout = CreateLayout(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText)
+    longestText = max([len(x) for x in FlattenList(header)])
+    layout = CreateLayout(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText, longestText)
     return sg.Window(title="Argus",
                      icon="assets\icons\icon64.ico",
                      layout=layout,
@@ -124,7 +131,8 @@ def MainWindow(categories: list, header: list, descriptions: list, doneButtonTex
                      titlebar_text_color=colors["bar_txt"],
                      titlebar_icon="assets\icons\icon16.png",
                      background_color=colors["win_bkg"],
-                     size=(153 * len(categories), 40 * max(len(h) for h in header) + 70))
+                     # size=(153 * len(categories), 40 * max(len(h) for h in header) + 70))
+                     size=(int(11.7 * longestText * len(categories)), 40 * max([len(h) for h in header]) + 70))
 
 def PopUp(message: str):
     sg.PopupNoButtons(message,

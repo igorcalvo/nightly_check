@@ -85,9 +85,9 @@ try:
                 SaveData(data, valuesDic, csvFileName)
 
                 message = GetPopUpMessage(frequencies, habitMessages, header, data, msgFileName)
-                SaveMessageFile(msgFileName, message)
-
-                PopUp(message)
+                if message and settings.displayMessages:
+                    SaveMessageFile(msgFileName, message)
+                    PopUp(message)
             break
     window.close()
 except Exception as e:
@@ -103,18 +103,27 @@ finally:
     log.close()
 
 # TODO LIST
-# HABITS
-#   redefine when living alone
-
-# MISC
-#   export image modal
-#       remove var exportImageFileName
-#   move 'data\' to const and create folder if it does not exist
+# bad new csv file
+# delete existing files to reset
+# variables to csv and forget about ui
+# function to validate variables
+# fix ui
+# remove var exportImageFileName (date?)
+# move 'data\' to const and create folder if it does not exist
+# handle img with no data
+# notificacao on startup
+#   if esqueceu y-terday entry
+# feature edit yday
 
 # EDIT DATA
 #   methods
 #   ui
+#       display: message from {date}
+#       main window without buttons
 #   limit to y-day
+
+# TAG FEATURE? LATEST TIME TAG
+#   separete file
 
 #   FUTURE
 #   have an indicator on the side of each row based on frequencies:
@@ -128,7 +137,15 @@ finally:
 #   improve style's ui
 #   have some sort of readme?
 #   write reddit post
-
+#   (week challenge?!?!?!?!)
+#       reward for completing challenge!!
+#       or completing streaks(i.e. 30 days working out)
+#
+#   alerta baseado em tema conta mais:
+#       exemplo: nao malhar e comer a mais
+#       	 cel no trabalho e nao meditar
+#       	 anime fap e jogar
+#
 #   COMPILED CODE
 #   run: python -m PyInstaller --onefile main.py
 #   solution to assets problem: https://stackoverflow.com/q/31836104
@@ -139,3 +156,5 @@ finally:
 #       assets folder -> check if folder exists and maybe unzip automatically?
 #       variables.txt -> handle msg, or create with ui
 #       create data folder -> check if folder exists and maybe unzip automatically?
+#   icon
+#       make icon change color
