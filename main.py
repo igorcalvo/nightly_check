@@ -3,13 +3,13 @@ from core import *
 from imggen import *
 
 from sys import exc_info
-from os import path as ospath
 
-csvFileName = 'data\data.csv'
-headerFileName = 'variables.txt'
-msgFileName = 'data\msg.txt'
-settingsFileName = 'data\settings.txt'
-logFileName = 'data\log.txt'
+dataFolder = 'data'
+csvFileName = f'{dataFolder}\data.csv'
+msgFileName = f'{dataFolder}\msg.txt'
+settingsFileName = f'{dataFolder}\settings.txt'
+logFileName = f'{dataFolder}\log.txt'
+headerFileName = 'variables.csv'
 exportImageFileName = 'image.png'
 
 doneButtonText = 'Done'
@@ -24,18 +24,19 @@ exportButtonText = 'Export'
 valuesDic = {}
 hueOffset = 0
 
+CreteFolderIfDoesntExist(dataFolder)
 CreateFileIfDoesntExist(logFileName)
 log = open(logFileName, 'r+')
-exceptionText = ''
 try:
-    with open(headerFileName) as h:
-        lines = h.readlines()
-        frequencies, categories, header, descriptions, habitMessages = ParseHeaderFile(lines)
-        h.close()
+    if not exists(headerFileName):
+        raise Exception(f"No header file found, create the file {headerFileName}")
+    variablesFile = ReadCsv(headerFileName)
+    frequencies, habitMessages, descriptions, header, categories = GetData(variablesFile)
 
     if not exists(csvFileName):
-        cols = [ToLowerUnderScored(item) for item in FlattenList(header)]
-        cols.insert(0, 'date')
+        cols = [item for item in FlattenList(header)]
+        # fix empty date
+        cols.insert(0, dateHeader)
         data = pd.DataFrame(columns=cols)
     else:
         data = ReadCsv(csvFileName)
@@ -48,7 +49,7 @@ try:
     # PrintFonts()
     settings = ReadSettings(settingsFileName)
     InitUi(settings.hueOffset)
-    window = MainWindow(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText)
+    window = MainWindow(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText, len(data) > 1)
     while True:
         event, valuesDic = window.read()
         if event == styleButtonText:
@@ -76,7 +77,7 @@ try:
             while True:
                 dataEvent, dataValuesDic = dataWindow.read()
                 if dataEvent == exportButtonText:
-                    img.save(exportImageFileName)
+                    img.save(GetFileName(exportImageFileName))
                 if dataEvent == sg.WIN_CLOSED or dataEvent == exportButtonText:
                     dataWindow.close()
                     break
@@ -92,7 +93,7 @@ try:
     window.close()
 except Exception as e:
     e_type, e_obj, e_tb = exc_info()
-    e_filename = ospath.split(e_tb.tb_frame.f_code.co_filename)[1]
+    e_filename = path.split(e_tb.tb_frame.f_code.co_filename)[1]
     LogWrite(log, f"\n{e_obj} at line {e_tb.tb_lineno} of {e_filename}\n\n")
 finally:
     finallyString = f"***** {date.today()} - {datetime.now().time().replace(microsecond=0)} *****\n"
@@ -103,17 +104,16 @@ finally:
     log.close()
 
 # TODO LIST
-# bad new csv file
-# delete existing files to reset
-# variables to csv and forget about ui
-# function to validate variables
+    # better data structures
+    # no need to zip frequencies
+    # function to validate variables
+    # setting for expected value
+    # change argus' eye color
 # fix ui
-# remove var exportImageFileName (date?)
-# move 'data\' to const and create folder if it does not exist
-# handle img with no data
 # notificacao on startup
 #   if esqueceu y-terday entry
 # feature edit yday
+# what if no message in variobles?
 
 # EDIT DATA
 #   methods

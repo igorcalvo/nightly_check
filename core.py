@@ -1,11 +1,14 @@
 from datetime import date, timedelta, datetime
-from os.path import exists, getsize
+from os.path import exists, getsize, isdir
+from os import makedirs, path
 from random import choice
 from utils import *
+
 import pandas as pd
 import json
 
 wakeup_time = 6
+dateHeader = "Date"
 
 # .csv
 
@@ -14,9 +17,37 @@ def ReadCsv(dataFileName: str):
         lines = dataFile.readlines()
         dataFile.close()
     header = lines[0].replace('\n', '').split(',')
-    content = [stringLine.replace('\n', '').split(', ') for stringLine in lines[1:]]
+    content = [stringLine.replace('\n', '').split(',') for stringLine in lines[1:]]
     df = pd.DataFrame(content, columns=header)
     return df
+
+def GroupByCategory(dataframe, column: str) -> list:
+    categoryColumn = "category"
+    captalizedColumns = ["header"]
+    categories = RemoveDuplicates(dataframe[categoryColumn])
+    result = []
+    for category in categories:
+        result.append([ToCapitalized(x) if column in captalizedColumns else x for x in list(dataframe.loc[dataframe[categoryColumn] == category][column])])
+    return result
+
+def ZipFrequencies(fractions: list, conditions: list) -> list:
+    result = []
+    for idx1, sublist in enumerate(fractions):
+        result.append([])
+        for idx2, element in enumerate(sublist):
+            result[idx1].append(conditions[idx1][idx2] + ',' + fractions[idx1][idx2])
+    return result
+
+def GetData(variablesFile):
+    fractions = GroupByCategory(variablesFile, "frequency")
+    condition = GroupByCategory(variablesFile, "condition")
+    frequencies = ZipFrequencies(fractions, condition)
+
+    habitMessages = GroupByCategory(variablesFile, "message")
+    descriptions = GroupByCategory(variablesFile, "tooltip")
+    header = GroupByCategory(variablesFile, "header")
+    categories = RemoveDuplicates(FlattenList(GroupByCategory(variablesFile, "category")))
+    return frequencies, habitMessages, descriptions, header, categories
 
 def WriteCsv(dataFileName: str, data):
     cols = ','.join([col for col in data.columns])
@@ -40,14 +71,14 @@ def CheckForTodaysEntry(lastDate: str) -> int:
     return delta.days
 
 def GetLatestDate(data) -> str:
-    return data.iloc[-1]['date']
+    return data.iloc[-1][dateHeader]
 
 def CreateEntry(data):
     deltaDays = None
     lastDate = None
     try:
         lastDate = GetLatestDate(data)
-        deltaDays = CheckForTodaysEntry(data.iloc[-1]['date'])
+        deltaDays = CheckForTodaysEntry(data.iloc[-1][dateHeader])
     except:
         print("CreateEntry: .csv seems to be empty.")
     finally:
@@ -60,7 +91,7 @@ def CreateEntry(data):
         di = dict.fromkeys(data.columns.values, '')
         for day in range(deltaDays):
             newDate = date.fromisoformat(lastDate)
-            di['date'] = str(newDate + timedelta(days=(day + 1)))
+            di[dateHeader] = str(newDate + timedelta(days=(day + 1)))
             data = data.append(di, ignore_index=True)
     return data
 
@@ -77,30 +108,6 @@ def SaveData(data, checkboxDict: dict, csvFileName):
 
 # .txt
 
-def ParseHeader(field: str, tags: list) -> str:
-    parts = field.split("_")
-    for p in parts:
-        if p in tags:
-            parts.pop(parts.index(p))
-    for i, p in enumerate(parts):
-        parts[i] = p.replace("\n", "").capitalize()
-    result = " ".join(parts)
-    return result
-
-def ParseHeaderLine(content: list, index: int) -> list:
-    return [line.split(';')[index].strip() if line.find(';') > -1 else '' for line in content]
-
-def ParseHeaderFile(content: list) -> tuple:
-    categories = [field.split(';')[1].split('_')[0].strip() if field.find(';') > -1 else '\n' for field in content]
-    tags = RemoveDuplicates(categories)
-    if '\n' in tags:
-        tags.remove('\n')
-    frequencies = ParseHeaderLine(content, 0)
-    header = [ParseHeader(line.split(';')[1].strip(), tags) if line.find(';') > -1 else '' for line in content]
-    descriptions = ParseHeaderLine(content, 2)
-    habitMessages = ParseHeaderLine(content, 3)
-    return GroupListIfChar(frequencies, ''), tags, GroupListIfChar(header, ''), GroupListIfChar(descriptions, ''), GroupListIfChar(habitMessages, '')
-
 def GetMatrixDataByHeaderIndexes(otherMatrix: list, headerMatrix: list, headerValue: str) -> str:
     for idx1, sublist in enumerate(headerMatrix):
         for idx2, item in enumerate(sublist):
@@ -115,6 +122,10 @@ def LogWrite(logFile, newLines: str):
     content.insert(0, newLines)
     logFile.seek(0)
     logFile.write(''.join(content))
+
+def CreteFolderIfDoesntExist(folderName: str):
+    if not isdir(folderName):
+        makedirs(folderName)
 
 def CreateFileIfDoesntExist(fileName: str):
     if not exists(fileName):
@@ -242,8 +253,10 @@ class Settings:
         json_dict = json.loads(jsonString)
         hueOffset = float(json_dict['hueOffset'])
         dataDays = int(json_dict['dataDays'])
+        displayMessages = bool(json_dict['displayMessages'])
         return Settings(hueOffset,
-                        dataDays)
+                        dataDays,
+                        displayMessages)
 
 def ReadSettings(settingsFileName: str) -> Settings:
     settings: Settings = Settings()
@@ -278,13 +291,13 @@ def GetExpectedValue(header: str, headerList: list, frequencies: list) -> bool:
 
 def GetHeaderData(data, dateArray: list, squares: int, header: str, expectedValue: bool = True) -> list:
     columnHeader = ToLowerUnderScored(header)
-    headerData = data[["date", columnHeader]]
+    headerData = data[[dateHeader, columnHeader]]
     headerData = headerData.reset_index()
 
     result = [not expectedValue for item in range(squares)]
     for index, dateValue in enumerate(dateArray):
         try:
-            dataValue = GetValueFromDFByValue("date", dateValue, headerData)
+            dataValue = GetValueFromDFByValue(dateHeader, dateValue, headerData)
             value = dataValue[columnHeader].values[0]
             if value == str(expectedValue):
                 result[index] = expectedValue
@@ -299,3 +312,7 @@ def GetFailIndexesList(headerData: list, expectedValue: bool = True) -> list:
         if item != expectedValue:
             result.append(index)
     return result
+
+def GetFileName(exportImageFileName: str) -> str:
+    name, extension = exportImageFileName.split('.')
+    return f"{name}-{date.today()}.{extension}"

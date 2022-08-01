@@ -1,11 +1,13 @@
 import PySimpleGUI as sg
 import tkinter as tk
 import matplotlib.colors as clr
+import numpy as np
 # Button icon
-# sg.Button('', image_data=flower_base64,
 from core import GetMatrixDataByHeaderIndexes
 from utils import PadString, Transpose, FlattenList
+from PIL import Image
 
+coloredIconPath = "assets\icons\iconColored.png"
 # | hue_offset | < 1
 hue_base = 0.59
 
@@ -72,7 +74,27 @@ def UpdateColors(hue_offset: float):
     for key in colors.keys():
         colors[key] = ApplyHueOffset(colors[key], hue_offset)
 
+def GenerateIcon(hue_offset: float):
+    icon = Image.open("assets\icons\icon16.png")
+    icon.save(coloredIconPath)
+    # hsvArr = [[0 for y in range(icon.size[1])] for x in range(icon.size[0])]
+    # for x in range(icon.size[0]):
+    #     for y in range(icon.size[1]):
+    #         hsvArr[x][y] = list(clr.rgb_to_hsv(icon.getpixel((x, y))[:3]))
+    #         if hsvArr[x][y][0] + hue_offset > 1:
+    #             hsvArr[x][y][0] = [x][y][0] + hue_offset - 1
+    #         elif hsvArr[x][y][0] + hue_offset < 0:
+    #             hsvArr[x][y][0] = hsvArr[x][y][0] + hue_offset + 1
+    #         else:
+    #             hsvArr[x][y][0] = hsvArr[x][y][0] + hue_offset
+    #         hsvArr[x][y] = np.array(hsvArr[x][y])
+    #     hsvArr[x] = np.array(hsvArr[x])
+    # hsvArr = np.array(hsvArr)
+    # hsvImage = Image.fromarray(hsvArr, "HSV")
+    # hsvImage.convert("RGB").save(coloredIconPath)
+
 def InitUi(hueOffset: float):
+    GenerateIcon(hueOffset)
     UpdateColors(hueOffset)
 
 def CreateCheckBoxes(descriptions: list, header: list, size: int) -> list:
@@ -88,7 +110,7 @@ def CreateCheckBoxes(descriptions: list, header: list, size: int) -> list:
                           pad=((15, 0), (2, 2)),
                           tooltip=GetMatrixDataByHeaderIndexes(descriptions, header, item)) if item != '' else sg.Text(PadString('', columnCorrection), background_color=colors["win_bkg"])) for item in splitList] for splitList in Transpose(header)]
 #                                                                                                                      Fixes floating checkbox on a column
-def CreateLayout(categories: list, header: list, descriptions: list, doneButtonText: str, styleButtonText: str, dataButtonText: str, longestText: int) -> list:
+def CreateLayout(categories: list, header: list, descriptions: list, doneButtonText: str, styleButtonText: str, dataButtonText: str, longestText: int, csvNotEmpty: bool) -> list:
     # 10 -> size 15 -> 37
     # 16 -> size 20 -> 47
     size = int(18 * longestText / 16)
@@ -112,6 +134,7 @@ def CreateLayout(categories: list, header: list, descriptions: list, doneButtonT
              sg.Button(dataButtonText,
                        font=fonts["btn"],
                        size=7,
+                       disabled=not csvNotEmpty,
                        button_color=(colors["dtb_bkg"], colors["dtb_txt"])),
     #                Button's distance from the left
              sg.Text(PadString("", buttonSpacing), background_color=colors["win_bkg"]),
@@ -120,16 +143,15 @@ def CreateLayout(categories: list, header: list, descriptions: list, doneButtonT
                        size=7,
                        button_color=(colors["dnb_bkg"], colors["dnb_txt"]))]]
 
-def MainWindow(categories: list, header: list, descriptions: list, doneButtonText: str, styleButtonText: str, dataButtonText: str):
+def MainWindow(categories: list, header: list, descriptions: list, doneButtonText: str, styleButtonText: str, dataButtonText: str, csvNotEmpty: bool):
     longestText = max([len(x) for x in FlattenList(header)])
-    layout = CreateLayout(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText, longestText)
+    layout = CreateLayout(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText, longestText, csvNotEmpty)
     return sg.Window(title="Argus",
-                     icon="assets\icons\icon64.ico",
                      layout=layout,
                      use_custom_titlebar=True,
                      titlebar_background_color=colors["bar_bkg"],
                      titlebar_text_color=colors["bar_txt"],
-                     titlebar_icon="assets\icons\icon16.png",
+                     titlebar_icon=coloredIconPath,
                      background_color=colors["win_bkg"],
                      # size=(153 * len(categories), 40 * max(len(h) for h in header) + 70))
                      size=(int(11.7 * longestText * len(categories)), 40 * max([len(h) for h in header]) + 70))

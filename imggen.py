@@ -3,7 +3,7 @@ from PIL import Image, ImageFont, ImageDraw
 import matplotlib.colors as clr
 
 from utils import FlattenList, AlignRight, CycleIndex, GetValueFromDFByRow
-from core import GetHeaderData, GetDateArray, GetFailIndexesList, GetExpectedValue
+from core import GetHeaderData, GetDateArray, GetFailIndexesList, GetExpectedValue, dateHeader
 
 fontFamilies = {
     "consolas": r"assets\fonts\consola.ttf",
@@ -113,7 +113,7 @@ def WriteAll(image, categories: list, headerList: list, frequencies: list, data,
                     sqrSize,
                     sqrBorder,
                     squares,
-                    GetValueFromDFByRow("date", -1, data))
+                    GetValueFromDFByRow(dateHeader, -1, data))
 
 def GenerateImage(categories: list, header: list, frequencies: list, dataDays: int, data):
     flatHeaderList = FlattenList(header)
