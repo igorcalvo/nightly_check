@@ -1,11 +1,11 @@
 import PySimpleGUI as sg
 import tkinter as tk
 import matplotlib.colors as clr
-import numpy as np
+import cv2 as cv
+
 # Button icon
 from core import GetMatrixDataByHeaderIndexes
 from utils import PadString, Transpose, FlattenList
-from PIL import Image
 
 coloredIconPath = "assets\icons\iconColored.png"
 # | hue_offset | < 1
@@ -75,23 +75,22 @@ def UpdateColors(hue_offset: float):
         colors[key] = ApplyHueOffset(colors[key], hue_offset)
 
 def GenerateIcon(hue_offset: float):
-    icon = Image.open("assets\icons\icon16.png")
-    icon.save(coloredIconPath)
-    # hsvArr = [[0 for y in range(icon.size[1])] for x in range(icon.size[0])]
-    # for x in range(icon.size[0]):
-    #     for y in range(icon.size[1]):
-    #         hsvArr[x][y] = list(clr.rgb_to_hsv(icon.getpixel((x, y))[:3]))
-    #         if hsvArr[x][y][0] + hue_offset > 1:
-    #             hsvArr[x][y][0] = [x][y][0] + hue_offset - 1
-    #         elif hsvArr[x][y][0] + hue_offset < 0:
-    #             hsvArr[x][y][0] = hsvArr[x][y][0] + hue_offset + 1
-    #         else:
-    #             hsvArr[x][y][0] = hsvArr[x][y][0] + hue_offset
-    #         hsvArr[x][y] = np.array(hsvArr[x][y])
-    #     hsvArr[x] = np.array(hsvArr[x])
-    # hsvArr = np.array(hsvArr)
-    # hsvImage = Image.fromarray(hsvArr, "HSV")
-    # hsvImage.convert("RGB").save(coloredIconPath)
+    icon = cv.imread("assets\icons\icon16.png", cv.IMREAD_UNCHANGED)
+    a = icon[:, :, 3]
+
+    bgr = cv.imread("assets\icons\icon16.png")
+    hsv = cv.cvtColor(bgr, cv.COLOR_BGR2HSV)
+    h = hsv[:, :, 0]
+    s = hsv[:, :, 1]
+    v = hsv[:, :, 2]
+
+    hsvDelta = 180 * (hue_offset)
+    h2 = cv.add(h, hsvDelta)
+    hsv2 = cv.merge([h2, s, v])
+
+    result = cv.cvtColor(hsv2, cv.COLOR_HSV2BGR)
+    result = cv.merge([result[:,:,0], result[:,:,1], result[:,:,2], a])
+    cv.imwrite(coloredIconPath, result)
 
 def InitUi(hueOffset: float):
     GenerateIcon(hueOffset)
@@ -237,19 +236,30 @@ def PreviewWindow(previewWindowText: str, previewCloseKey: str, hueOffset: float
      relative_location=(240, 0)
      ).Finalize()
 
-def DataWindow(dataButtonText: str, exportImageButtonText: str, imgBase64: str):
-    return sg.Window(dataButtonText, [
+def DataWindow(dataButtonText: str, exportImageFileNameKey: str, exportButtonText: str, imgBase64: str):
+    layout = [
         [sg.Image(data=imgBase64)],
-        [sg.Button(exportImageButtonText,
-                   font=fonts["btn"],
-                   size=7,
-                   key=exportImageButtonText,
-                   pad=((5, 0), (5, 5)),
-                   button_color=(colors["exp_bkg"], colors["exp_txt"]))]
-        # [sg.FileSaveAs(
-        #     key=exportImageButtonText,
-        #     file_types=(('PNG', '.png'), ('JPG', '.jpg'))
-        # )]
+        # [sg.Button(exportImageButtonText,
+        #            font=fonts["btn"],
+        #            size=7,
+        #            key=exportImageButtonText,
+        #            pad=((5, 0), (5, 5)),
+        #            button_color=(colors["exp_bkg"], colors["exp_txt"]))],
+        [
+            sg.InputText(key=exportImageFileNameKey, default_text='filename', enable_events=True, size=(20, 5)),
+            sg.InputText(key=exportButtonText, do_not_clear=False, enable_events=True, visible=False),
+            sg.FileSaveAs(
+                button_text="Export",
+                font=fonts["btn"],
+                initial_folder='%HomeDrive%',
+                file_types=(('PNG', '.png'), ('JPG', '.jpg')),
+                pad=((5, 0), (5, 5)),
+                button_color=(colors["exp_bkg"], colors["exp_txt"])
+            )]
+    ]
+    return sg.Window(dataButtonText, [
+        # [sg.Column(layout, size=(200, 200), scrollable=True, key='Column')]
+        [sg.Column(layout, scrollable=True, key='Column')]
     ],
      return_keyboard_events=True,
      use_custom_titlebar=True,

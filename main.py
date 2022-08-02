@@ -10,7 +10,6 @@ msgFileName = f'{dataFolder}\msg.txt'
 settingsFileName = f'{dataFolder}\settings.txt'
 logFileName = f'{dataFolder}\log.txt'
 headerFileName = 'variables.csv'
-exportImageFileName = 'image.png'
 
 doneButtonText = 'Done'
 styleButtonText = 'Style'
@@ -20,6 +19,7 @@ previewWindowText = 'Preview'
 previewCloseKey = 'ClosePreview'
 dataButtonText = 'Data'
 exportButtonText = 'Export'
+exportImageFileNameKey = 'ExportFileName'
 
 valuesDic = {}
 hueOffset = 0
@@ -31,11 +31,10 @@ try:
     if not exists(headerFileName):
         raise Exception(f"No header file found, create the file {headerFileName}")
     variablesFile = ReadCsv(headerFileName)
-    frequencies, habitMessages, descriptions, header, categories = GetData(variablesFile)
+    conditions, fractions, habitMessages, descriptions, header, categories = GetData(variablesFile)
 
     if not exists(csvFileName):
         cols = [item for item in FlattenList(header)]
-        # fix empty date
         cols.insert(0, dateHeader)
         data = pd.DataFrame(columns=cols)
     else:
@@ -72,12 +71,15 @@ try:
                     styleWindow.close()
                     break
         elif event == dataButtonText:
-            img = GenerateImage(categories, header, frequencies, settings.dataDays, CleanDF(data))
-            dataWindow = DataWindow(dataButtonText, exportButtonText, ImageBytesToBase64(img))
+            img = GenerateImage(categories, header, conditions, settings.dataDays, settings.graphExpectedValue, CleanDF(data))
+            dataWindow = DataWindow(dataButtonText, exportImageFileNameKey, exportButtonText, ImageBytesToBase64(img))
             while True:
                 dataEvent, dataValuesDic = dataWindow.read()
                 if dataEvent == exportButtonText:
-                    img.save(GetFileName(exportImageFileName))
+                    exportImageFileName = dataValuesDic[exportButtonText]
+                    if exportImageFileName:
+                        dataWindow[exportImageFileNameKey].update(value=exportImageFileName)
+                        img.save(exportImageFileName)
                 if dataEvent == sg.WIN_CLOSED or dataEvent == exportButtonText:
                     dataWindow.close()
                     break
@@ -85,7 +87,7 @@ try:
             if event == doneButtonText:
                 SaveData(data, valuesDic, csvFileName)
 
-                message = GetPopUpMessage(frequencies, habitMessages, header, data, msgFileName)
+                message = GetPopUpMessage(conditions, fractions, habitMessages, header, data, msgFileName)
                 if message and settings.displayMessages:
                     SaveMessageFile(msgFileName, message)
                     PopUp(message)
@@ -102,14 +104,11 @@ finally:
     else:
         LogWrite(log, f"{finallyString}")
     log.close()
-
 # TODO LIST
-    # better data structures
-    # no need to zip frequencies
     # function to validate variables
-    # setting for expected value
-    # change argus' eye color
-# fix ui
+    # fix ui
+    # fix image header alignment
+    # fix image too tall to fit the screen
 # notificacao on startup
 #   if esqueceu y-terday entry
 # feature edit yday

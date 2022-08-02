@@ -8,7 +8,7 @@ import pandas as pd
 import json
 
 wakeup_time = 6
-dateHeader = "Date"
+dateHeader = "date"
 
 # .csv
 
@@ -30,31 +30,21 @@ def GroupByCategory(dataframe, column: str) -> list:
         result.append([ToCapitalized(x) if column in captalizedColumns else x for x in list(dataframe.loc[dataframe[categoryColumn] == category][column])])
     return result
 
-def ZipFrequencies(fractions: list, conditions: list) -> list:
-    result = []
-    for idx1, sublist in enumerate(fractions):
-        result.append([])
-        for idx2, element in enumerate(sublist):
-            result[idx1].append(conditions[idx1][idx2] + ',' + fractions[idx1][idx2])
-    return result
-
 def GetData(variablesFile):
     fractions = GroupByCategory(variablesFile, "frequency")
-    condition = GroupByCategory(variablesFile, "condition")
-    frequencies = ZipFrequencies(fractions, condition)
-
+    conditions = GroupByCategory(variablesFile, "condition")
     habitMessages = GroupByCategory(variablesFile, "message")
     descriptions = GroupByCategory(variablesFile, "tooltip")
     header = GroupByCategory(variablesFile, "header")
     categories = RemoveDuplicates(FlattenList(GroupByCategory(variablesFile, "category")))
-    return frequencies, habitMessages, descriptions, header, categories
+    return conditions, fractions, habitMessages, descriptions, header, categories
 
 def WriteCsv(dataFileName: str, data):
     cols = ','.join([col for col in data.columns])
     content = ''
     for index, row in data.iterrows():
         rowData = [str(item) for item in list(row)]
-        content += f'\n{rowData}'.replace("[", "").replace("]", "").replace("'", "")
+        content += f'\n{rowData}'.replace("[", "").replace("]", "").replace("'", "").replace(" ", "")
     with open(dataFileName, 'w') as dataFile:
         dataFile.seek(0)
         dataFile.write(f'{cols}')
@@ -159,13 +149,13 @@ def CalculateFrequency(dataFrequency: float, nominalFrequency: float, condition:
         case _:
             raise Exception(f"CalculateFrequency: Condition {condition}{nominalFrequency} is not defined.")
 
-def ParseFrequency(column: str, frequencies: list, header: list) -> tuple:
-    freqString = GetMatrixDataByHeaderIndexes(frequencies, header, column)
-    condition, fraction = tuple(freqString.split(','))
+def ParseFrequency(column: str, conditions: list, fractions: list, header: list) -> tuple:
+    condition = GetMatrixDataByHeaderIndexes(conditions, header, column)
+    fraction = GetMatrixDataByHeaderIndexes(fractions, header, column)
     return condition, int(fraction.split('/')[0]), int(fraction.split('/')[1])
 
-def CheckHabit(column: str, frequencies: list, header: list, data) -> tuple:
-    condition, num, den = ParseFrequency(column, frequencies, header)
+def CheckHabit(column: str, conditions: list, fractions: list, header: list, data) -> tuple:
+    condition, num, den = ParseFrequency(column, conditions, fractions, header)
     nominal = num/den
     if data.loc[:, ToLowerUnderScored(column)].count() >= den:
         trues = [1 if x is True else 0 for x in data.loc[:, ToLowerUnderScored(column)].tail(den)]
@@ -174,9 +164,8 @@ def CheckHabit(column: str, frequencies: list, header: list, data) -> tuple:
         return 0, 0
     return (frequency, nominal) if CalculateFrequency(frequency, nominal, condition) else (0, nominal)
 
-def DetermineSuccessfulToday(data, frequencies: list, header: list, habitMessages: list) -> list:
-    direction = [[x.split(',')[0] for x in arr] for arr in frequencies]
-    expectation = [[False if d == '>' else True for d in arr] for arr in direction]
+def DetermineSuccessfulToday(data, conditions: list, header: list, habitMessages: list) -> list:
+    expectation = [[False if d == '>' else True for d in arr] for arr in conditions]
 
     reality = [[] for item in range(len(header))]
     for idx1, sublist in enumerate(header):
@@ -191,9 +180,9 @@ def DetermineSuccessfulToday(data, frequencies: list, header: list, habitMessage
     return missionAccomplishedMessages
 
 # TODO speed this method up (taking 11 sec before update)
-def GetPopUpMessage(frequencies: list, habitMessages: list, header: list, data, msgFileName: str) -> str | None:
+def GetPopUpMessage(conditions: list, fractions: list, habitMessages: list, header: list, data, msgFileName: str) -> str | None:
     flatHeader = FlattenList(header)
-    messageData = [(CheckHabit(h, frequencies, header, data), h, GetMatrixDataByHeaderIndexes(habitMessages, header, h)) for h in flatHeader]
+    messageData = [(CheckHabit(h, conditions, fractions, header, data), h, GetMatrixDataByHeaderIndexes(habitMessages, header, h)) for h in flatHeader]
 
     candidateMessages = set([f"{GetMatrixDataByHeaderIndexes(header, habitMessages, m[2])}\n{m[2]}" if m[0][1] > 0 else '' for m in messageData])
     if len(candidateMessages.intersection({''})) > 0:
@@ -203,7 +192,7 @@ def GetPopUpMessage(frequencies: list, habitMessages: list, header: list, data, 
     if previousMessage != '' and len(candidateMessages.intersection({previousMessage})) > 0:
         candidateMessages.remove(previousMessage)
 
-    successMessages = DetermineSuccessfulToday(data, frequencies, header, habitMessages)
+    successMessages = DetermineSuccessfulToday(data, conditions, header, habitMessages)
     successesToRemove = [c for c in candidateMessages for s in successMessages if s in c]
     candidateMessages.difference_update(successesToRemove)
 
@@ -240,10 +229,12 @@ class Settings:
                  hueOffset: float = 0,
                  dataDays: int = 21,
                  displayMessages: bool = True,
+                 graphExpectedValue: bool = False,
                  ):
         self.hueOffset = hueOffset
         self.dataDays = dataDays
         self.displayMessages = displayMessages
+        self.graphExpectedValue = graphExpectedValue
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
@@ -254,9 +245,12 @@ class Settings:
         hueOffset = float(json_dict['hueOffset'])
         dataDays = int(json_dict['dataDays'])
         displayMessages = bool(json_dict['displayMessages'])
+        graphExpectedValue = bool(json_dict['graphExpectedValue'])
         return Settings(hueOffset,
                         dataDays,
-                        displayMessages)
+                        displayMessages,
+                        graphExpectedValue,
+                        )
 
 def ReadSettings(settingsFileName: str) -> Settings:
     settings: Settings = Settings()
@@ -284,10 +278,9 @@ def GetDateArray(data, squares: int) -> list:
     result = [(latestDateValue + timedelta(days=-day)).strftime("%Y-%m-%d") for day in range(squares)]
     return result
 
-def GetExpectedValue(header: str, headerList: list, frequencies: list) -> bool:
-    frequency = GetMatrixDataByHeaderIndexes(frequencies, headerList, header)
-    direction = frequency.split(',')[0]
-    return False if direction == '>' else True
+def GetExpectedValue(header: str, headerList: list, conditions: list) -> bool:
+    condition = GetMatrixDataByHeaderIndexes(conditions, headerList, header)
+    return False if condition == '>' else True
 
 def GetHeaderData(data, dateArray: list, squares: int, header: str, expectedValue: bool = True) -> list:
     columnHeader = ToLowerUnderScored(header)
@@ -312,7 +305,3 @@ def GetFailIndexesList(headerData: list, expectedValue: bool = True) -> list:
         if item != expectedValue:
             result.append(index)
     return result
-
-def GetFileName(exportImageFileName: str) -> str:
-    name, extension = exportImageFileName.split('.')
-    return f"{name}-{date.today()}.{extension}"

@@ -67,8 +67,8 @@ def WriteFooter(image, position: tuple, squareSize: int, squareBorder: int, squa
               (0, 0, 0),
               "noto")
 
-def WriteAll(image, categories: list, headerList: list, frequencies: list, data, position: tuple, squares: int, sqrSize: int, sqrBorder: int, maxXDelta: int,
-             textSquaresXSpacing: int, textSquaresYOffset: int, categoryYSpacing: int, categoryTextOffset: tuple):
+def WriteAll(image, categories: list, headerList: list, conditions: list, data, position: tuple, squares: int, sqrSize: int, sqrBorder: int, maxXDelta: int,
+             textSquaresXSpacing: int, textSquaresYOffset: int, categoryYSpacing: int, categoryTextOffset: tuple, graphExpectedValue: bool):
 
     maxHeaderLen = max([len(h) for h in FlattenList(headerList)])
     maxCategoryLen = max([len(c) for c in categories])
@@ -86,9 +86,9 @@ def WriteAll(image, categories: list, headerList: list, frequencies: list, data,
               "liberation",
               12)
         for headerIndex, header in enumerate(headerList[categoryIndex]):
-            expectedValue = GetExpectedValue(header, headerList, frequencies)
-            headerData = GetHeaderData(data, dateArray, squares, header)
-            failList = GetFailIndexesList(headerData)
+            expectedValue = GetExpectedValue(header, headerList, conditions)
+            headerData = GetHeaderData(data, dateArray, squares, header, expectedValue if graphExpectedValue else True)
+            failList = GetFailIndexesList(headerData, expectedValue if graphExpectedValue else True)
             # print(header, headerData)
             hueOffset = (hues[1] - hues[0]) / (len(headerList[categoryIndex]) + 1)
             Write(image,
@@ -115,7 +115,7 @@ def WriteAll(image, categories: list, headerList: list, frequencies: list, data,
                     squares,
                     GetValueFromDFByRow(dateHeader, -1, data))
 
-def GenerateImage(categories: list, header: list, frequencies: list, dataDays: int, data):
+def GenerateImage(categories: list, header: list, conditions: list, dataDays: int, graphExpectedValue: bool, data):
     flatHeaderList = FlattenList(header)
     initialX = 75
     initialY = 75
@@ -139,8 +139,8 @@ def GenerateImage(categories: list, header: list, frequencies: list, dataDays: i
                    # rows * (rowsYSpacing + sqrSize + sqrBorder) + (categoriesLength - 1) * (categoryYSpacing - rowsYSpacing) + initialY)
                    rows * (rowsYSpacing + sqrSize + sqrBorder) + (categoriesLength - 1) * (categoryYSpacing + rowsYSpacing) + initialY)
     # DrawLineOfSquares(img, (2 * sqrSize, 2 * sqrSize), sqrSize, sqrBorder, days, [5, 10, 13], GetRGBColor(0.5, 0.75, 1), (150, 150, 150))
-    WriteAll(img, categories, header, frequencies, data, (50, 50), squares, sqrSize, sqrBorder,
-             maxXDelta, textSquaresXSpacing, textSquaresYOffset, categoryYSpacing, categoryTextOffset)
+    WriteAll(img, categories, header, conditions, data, (50, 50), squares, sqrSize, sqrBorder,
+             maxXDelta, textSquaresXSpacing, textSquaresYOffset, categoryYSpacing, categoryTextOffset, graphExpectedValue)
     # img.show()
     # img.save(r'assets\data\test.png')
     return img
