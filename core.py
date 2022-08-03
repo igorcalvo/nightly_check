@@ -12,10 +12,10 @@ dateHeader = "date"
 
 # .csv
 
-def ReadCsv(dataFileName: str):
-    with open(dataFileName, 'r') as dataFile:
-        lines = dataFile.readlines()
-        dataFile.close()
+def ReadCsv(fileName: str):
+    with open(fileName, 'r') as file:
+        lines = file.readlines()
+        file.close()
     header = lines[0].replace('\n', '').split(',')
     content = [stringLine.replace('\n', '').split(',') for stringLine in lines[1:]]
     df = pd.DataFrame(content, columns=header)
@@ -39,13 +39,13 @@ def GetData(variablesFile):
     categories = RemoveDuplicates(FlattenList(GroupByCategory(variablesFile, "category")))
     return conditions, fractions, habitMessages, descriptions, header, categories
 
-def WriteCsv(dataFileName: str, data):
+def WriteCsv(fileName: str, data):
     cols = ','.join([col for col in data.columns])
     content = ''
     for index, row in data.iterrows():
         rowData = [str(item) for item in list(row)]
         content += f'\n{rowData}'.replace("[", "").replace("]", "").replace("'", "").replace(" ", "")
-    with open(dataFileName, 'w') as dataFile:
+    with open(fileName, 'w') as dataFile:
         dataFile.seek(0)
         dataFile.write(f'{cols}')
         dataFile.write(f'{content}')
@@ -123,7 +123,7 @@ def CreateFileIfDoesntExist(fileName: str):
             file.write('')
             file.close()
 
-# Combining both
+# Verifying
 
 def VerifyHeaderAndData(header: list, dataVariables: list, csvFileName: str, data):
     flatHeader = [ToLowerUnderScored(item) for sublist in header for item in sublist]
@@ -138,6 +138,21 @@ def VerifyHeaderAndData(header: list, dataVariables: list, csvFileName: str, dat
                 print("header " + h + " was added")
                 data[h] = [None for item in range(data.shape[0])]
 
+def VerifyVariables(variablesFileName):
+    try:
+        with open(variablesFileName, 'r') as file:
+            lines = file.readlines()
+            file.close()
+        header = lines[0].replace('\n', '').split(',')
+        content = [stringLine.replace('\n', '').split(',') for stringLine in lines[1:]]
+        for idx, line in enumerate(content):
+            if len(line) != len(header):
+                raise Exception(f"VerifyVariables - Length of line {idx} and header is different from {len(header)}\n{line}")
+            if line[0] == '' or line[1] == '':
+                raise Exception(f"VerifyVariables - Cannot have empty value for line {idx} at the first two columns\n{line}")
+        df = pd.DataFrame(content, columns=header)
+    except Exception as e:
+        raise e
 # Habit messages
 
 def CalculateFrequency(dataFrequency: float, nominalFrequency: float, condition: str) -> bool:
@@ -146,12 +161,17 @@ def CalculateFrequency(dataFrequency: float, nominalFrequency: float, condition:
             return dataFrequency < nominalFrequency
         case '>':
             return dataFrequency > nominalFrequency
+        # Skips this message
+        case '':
+            return True
         case _:
             raise Exception(f"CalculateFrequency: Condition {condition}{nominalFrequency} is not defined.")
 
 def ParseFrequency(column: str, conditions: list, fractions: list, header: list) -> tuple:
     condition = GetMatrixDataByHeaderIndexes(conditions, header, column)
     fraction = GetMatrixDataByHeaderIndexes(fractions, header, column)
+    if '/' not in fraction:
+        return condition, 0, 1
     return condition, int(fraction.split('/')[0]), int(fraction.split('/')[1])
 
 def CheckHabit(column: str, conditions: list, fractions: list, header: list, data) -> tuple:
@@ -230,11 +250,13 @@ class Settings:
                  dataDays: int = 21,
                  displayMessages: bool = True,
                  graphExpectedValue: bool = False,
+                 scrollableImage: bool = False,
                  ):
         self.hueOffset = hueOffset
         self.dataDays = dataDays
         self.displayMessages = displayMessages
         self.graphExpectedValue = graphExpectedValue
+        self.scrollableImage = scrollableImage
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
@@ -246,10 +268,12 @@ class Settings:
         dataDays = int(json_dict['dataDays'])
         displayMessages = bool(json_dict['displayMessages'])
         graphExpectedValue = bool(json_dict['graphExpectedValue'])
+        scrollableImage = bool(json_dict['scrollableImage'])
         return Settings(hueOffset,
                         dataDays,
                         displayMessages,
                         graphExpectedValue,
+                        scrollableImage
                         )
 
 def ReadSettings(settingsFileName: str) -> Settings:

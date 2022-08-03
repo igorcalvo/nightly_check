@@ -72,6 +72,7 @@ def WriteAll(image, categories: list, headerList: list, conditions: list, data, 
 
     maxHeaderLen = max([len(h) for h in FlattenList(headerList)])
     maxCategoryLen = max([len(c) for c in categories])
+    maxCategoryTextOffset = TextListMaxLenToPixels(categories)
     initialPos = [position[0], position[1]]
     footerTextOffset = (12, 6)
     hues = SegmentUnitIntoList(len(categories))
@@ -80,7 +81,7 @@ def WriteAll(image, categories: list, headerList: list, conditions: list, data, 
     for categoryIndex, category in enumerate(categories):
         categoryPositions, nextCategoryPosition = GenerateYPositions((initialPos[0], initialPos[1]), sqrSize, 2,len(headerList[categoryIndex]))
         Write(image,
-              (initialPos[0] + categoryTextOffset[0], categoryPositions[0][1] - categoryTextOffset[1]),
+              (initialPos[0] + categoryTextOffset[0] - maxCategoryTextOffset, categoryPositions[0][1] - categoryTextOffset[1]),
               AlignRight(category.upper(), maxCategoryLen),
               (0, 0, 0),
               "liberation",
@@ -117,8 +118,8 @@ def WriteAll(image, categories: list, headerList: list, conditions: list, data, 
 
 def GenerateImage(categories: list, header: list, conditions: list, dataDays: int, graphExpectedValue: bool, data):
     flatHeaderList = FlattenList(header)
-    initialX = 75
-    initialY = 75
+    initialX = 25
+    initialY = 50
     rows = len(flatHeaderList)
     rowsYSpacing = 2
     categoriesLength = len(categories)
@@ -133,13 +134,13 @@ def GenerateImage(categories: list, header: list, conditions: list, dataDays: in
     textSquaresYOffset = int(0.25 * sqrSize)
 
     categoryYSpacing = int(2 * sqrSize)
-    categoryTextOffset = (int(0.3 * sqrSize), int(1.2 * sqrSize))
+    categoryTextOffset = (maxXDelta - 0, int(1.2 * sqrSize))
 
-    img = NewImage(squares * (sqrSize + sqrBorder) + maxXDelta + textSquaresXSpacing + initialX,
+    img = NewImage(squares * (sqrSize + sqrBorder) + maxXDelta + textSquaresXSpacing + 2 * initialX,
                    # rows * (rowsYSpacing + sqrSize + sqrBorder) + (categoriesLength - 1) * (categoryYSpacing - rowsYSpacing) + initialY)
                    rows * (rowsYSpacing + sqrSize + sqrBorder) + (categoriesLength - 1) * (categoryYSpacing + rowsYSpacing) + initialY)
     # DrawLineOfSquares(img, (2 * sqrSize, 2 * sqrSize), sqrSize, sqrBorder, days, [5, 10, 13], GetRGBColor(0.5, 0.75, 1), (150, 150, 150))
-    WriteAll(img, categories, header, conditions, data, (50, 50), squares, sqrSize, sqrBorder,
+    WriteAll(img, categories, header, conditions, data, (initialX, initialY), squares, sqrSize, sqrBorder,
              maxXDelta, textSquaresXSpacing, textSquaresYOffset, categoryYSpacing, categoryTextOffset, graphExpectedValue)
     # img.show()
     # img.save(r'assets\data\test.png')

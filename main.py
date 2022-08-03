@@ -9,7 +9,7 @@ csvFileName = f'{dataFolder}\data.csv'
 msgFileName = f'{dataFolder}\msg.txt'
 settingsFileName = f'{dataFolder}\settings.txt'
 logFileName = f'{dataFolder}\log.txt'
-headerFileName = 'variables.csv'
+variablesFileName = 'variables.csv'
 
 doneButtonText = 'Done'
 styleButtonText = 'Style'
@@ -28,13 +28,14 @@ CreteFolderIfDoesntExist(dataFolder)
 CreateFileIfDoesntExist(logFileName)
 log = open(logFileName, 'r+')
 try:
-    if not exists(headerFileName):
-        raise Exception(f"No header file found, create the file {headerFileName}")
-    variablesFile = ReadCsv(headerFileName)
+    if not exists(variablesFileName):
+        raise Exception(f"No header file found, create the file {variablesFileName}")
+    VerifyVariables(variablesFileName)
+    variablesFile = ReadCsv(variablesFileName)
     conditions, fractions, habitMessages, descriptions, header, categories = GetData(variablesFile)
 
     if not exists(csvFileName):
-        cols = [item for item in FlattenList(header)]
+        cols = [ToLowerUnderScored(item) for item in FlattenList(header)]
         cols.insert(0, dateHeader)
         data = pd.DataFrame(columns=cols)
     else:
@@ -72,7 +73,7 @@ try:
                     break
         elif event == dataButtonText:
             img = GenerateImage(categories, header, conditions, settings.dataDays, settings.graphExpectedValue, CleanDF(data))
-            dataWindow = DataWindow(dataButtonText, exportImageFileNameKey, exportButtonText, ImageBytesToBase64(img))
+            dataWindow = DataWindow(dataButtonText, exportImageFileNameKey, exportButtonText, settings.scrollableImage, ImageBytesToBase64(img))
             while True:
                 dataEvent, dataValuesDic = dataWindow.read()
                 if dataEvent == exportButtonText:
@@ -105,14 +106,11 @@ finally:
         LogWrite(log, f"{finallyString}")
     log.close()
 # TODO LIST
-    # function to validate variables
     # fix ui
-    # fix image header alignment
-    # fix image too tall to fit the screen
 # notificacao on startup
 #   if esqueceu y-terday entry
 # feature edit yday
-# what if no message in variobles?
+# TEST - what if no message in variobles?
 
 # EDIT DATA
 #   methods
