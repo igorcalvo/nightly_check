@@ -114,16 +114,21 @@ def CreateCheckBoxes(descriptions: list, header: list, size: int) -> list:
 def CreateLayout(categories: list, header: list, descriptions: list, doneButtonText: str, styleButtonText: str, dataButtonText: str, longestText: int, windowsXSize: int, csvNotEmpty: bool) -> list:
     # 10 -> size 15 -> 37
     # 16 -> size 20 -> 47
-    size = int(18 * longestText / 16)
+    size = int(longestText * 8 / checkboxPixelLength + 1)
+    # print("size", size)
+    # print("size", " X ", longestText * 1.0 / checkboxPixelLength)
+    # TODO CHANGE SIZE?
     #                        Spacing between categories
-# TODO                        1px error for 4 cat with pad = 14 - used to be 15
-    categoryTitles = [sg.Text(PadString(c.upper(), int(longestText * checkboxPixelLength / categoryPixelLength) + 4),
+    categoryTitles = [sg.Text(PadString(c.upper(), int(longestText * checkboxPixelLength / categoryPixelLength) + 3),
                               text_color=colors["cat_txt"],
                               background_color=colors["cat_bkg"],
-                              pad=((14, 10), (10, 10)),
+                              pad=((15, 10), (10, 10)),
                               font=fonts["cat"]) for c in categories]
     checkboxes = CreateCheckBoxes(descriptions, header, size)
-    buttonSpacing = int(0.423 * windowsXSize / checkboxPixelLength)
+    buttonSpacing = int(0.333 * (windowsXSize / checkboxPixelLength) + size + 1)
+#   TODO REVIEW FORMULA
+    # print("buttonSpacing", buttonSpacing)
+    # print("buttonSpacing", " X ", windowsXSize * 1.0 / checkboxPixelLength)
 #   TODO               may be missing linear component
     return [categoryTitles,
             checkboxes,
@@ -148,8 +153,12 @@ def CreateLayout(categories: list, header: list, descriptions: list, doneButtonT
 
 def MainWindow(categories: list, header: list, descriptions: list, doneButtonText: str, styleButtonText: str, dataButtonText: str, csvNotEmpty: bool):
     longestText = max([len(x) for x in FlattenList(header)])
-    windowSize = (int(1.4 * checkboxPixelLength * longestText * len(categories) + 64), 40 * max([len(h) for h in header]) + 70)
+    # windowSize = (int(0.72 * (checkboxPixelLength * longestText * len(categories)) + 770), 40 * max([len(h) for h in header]) + 70)
+    windowSize = (int((longestText * checkboxPixelLength + 47) * len(categories) + 30), 40 * max([len(h) for h in header]) + 70)
+    # print("windowSize", windowSize[0])
+    # print("windowSize", " X ", 1.0 * checkboxPixelLength * longestText * len(categories))
 #   TODO spacing + borders? missing
+#   TODO REVIEW FORMULA
     layout = CreateLayout(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText, longestText, windowSize[0], csvNotEmpty)
     return sg.Window(title="Argus",
                      layout=layout,

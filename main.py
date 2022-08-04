@@ -106,7 +106,6 @@ finally:
         LogWrite(log, f"{finallyString}")
     log.close()
 # TODO LIST
-    # fix ui
 # notificacao on startup
 #   if esqueceu y-terday entry
 # feature edit yday
@@ -121,6 +120,7 @@ finally:
 
 # TAG FEATURE? LATEST TIME TAG
 #   separete file
+# TODO fix ui
 
 #   FUTURE
 #   have an indicator on the side of each row based on frequencies:
