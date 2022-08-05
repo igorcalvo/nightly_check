@@ -120,7 +120,6 @@ finally:
 
 # TAG FEATURE? LATEST TIME TAG
 #   separete file
-# TODO fix ui
 
 #   FUTURE
 #   have an indicator on the side of each row based on frequencies:
@@ -142,6 +141,7 @@ finally:
 #       exemplo: nao malhar e comer a mais
 #       	 cel no trabalho e nao meditar
 #       	 anime fap e jogar
+# TODO fix ui
 #
 #   COMPILED CODE
 #   run: python -m PyInstaller --onefile main.py

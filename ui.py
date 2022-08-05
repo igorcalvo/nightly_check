@@ -112,12 +112,7 @@ def CreateCheckBoxes(descriptions: list, header: list, size: int) -> list:
                           tooltip=GetMatrixDataByHeaderIndexes(descriptions, header, item)) if item != '' else sg.Text(PadString('', columnCorrection), background_color=colors["win_bkg"])) for item in splitList] for splitList in Transpose(header)]
 #                                                                                                                      Fixes floating checkbox on a column
 def CreateLayout(categories: list, header: list, descriptions: list, doneButtonText: str, styleButtonText: str, dataButtonText: str, longestText: int, windowsXSize: int, csvNotEmpty: bool) -> list:
-    # 10 -> size 15 -> 37
-    # 16 -> size 20 -> 47
     size = int(longestText * 8 / checkboxPixelLength + 1)
-    # print("size", size)
-    # print("size", " X ", longestText * 1.0 / checkboxPixelLength)
-    # TODO CHANGE SIZE?
     #                        Spacing between categories
     categoryTitles = [sg.Text(PadString(c.upper(), int(longestText * checkboxPixelLength / categoryPixelLength) + 3),
                               text_color=colors["cat_txt"],
@@ -125,10 +120,14 @@ def CreateLayout(categories: list, header: list, descriptions: list, doneButtonT
                               pad=((15, 10), (10, 10)),
                               font=fonts["cat"]) for c in categories]
     checkboxes = CreateCheckBoxes(descriptions, header, size)
-    buttonSpacing = int(0.333 * (windowsXSize / checkboxPixelLength) + size + 1)
+    # buttonSpacing = int(0.333 * (windowsXSize / checkboxPixelLength) + size + 1)
+    # buttonSpacing = int(0.50484 * (windowsXSize / checkboxPixelLength) - 0.05307 * size - 16.3815)
+    buttonSpacing = int(0.5 * (windowsXSize / checkboxPixelLength) - 0.05 * size - 15)
 #   TODO REVIEW FORMULA
+
     # print("buttonSpacing", buttonSpacing)
-    # print("buttonSpacing", " X ", windowsXSize * 1.0 / checkboxPixelLength)
+    # print("buttonSpacing", " X1 ", windowsXSize / checkboxPixelLength)
+    # print("buttonSpacing", " X2 ", size)
 #   TODO               may be missing linear component
     return [categoryTitles,
             checkboxes,
@@ -143,7 +142,8 @@ def CreateLayout(categories: list, header: list, descriptions: list, doneButtonT
                        font=fonts["btn"],
                        size=7,
                        disabled=not csvNotEmpty,
-                       button_color=(colors["dtb_bkg"], colors["dtb_txt"])),
+                       button_color=(colors["dtb_bkg"], colors["dtb_txt"]),
+                       ),
     #                Button's distance from the left
              sg.Text(PadString("", buttonSpacing), background_color=colors["win_bkg"], font=fonts["ckb"]),
              sg.Button(doneButtonText,
@@ -153,10 +153,11 @@ def CreateLayout(categories: list, header: list, descriptions: list, doneButtonT
 
 def MainWindow(categories: list, header: list, descriptions: list, doneButtonText: str, styleButtonText: str, dataButtonText: str, csvNotEmpty: bool):
     longestText = max([len(x) for x in FlattenList(header)])
-    # windowSize = (int(0.72 * (checkboxPixelLength * longestText * len(categories)) + 770), 40 * max([len(h) for h in header]) + 70)
-    windowSize = (int((longestText * checkboxPixelLength + 47) * len(categories) + 30), 40 * max([len(h) for h in header]) + 70)
+    # windowSize = (int((0.91848 * longestText * checkboxPixelLength + 57.09) * len(categories) - 14.61), 40 * max([len(h) for h in header]) + 75)
+    windowSize = (int((0.93 * longestText * checkboxPixelLength + 60) * len(categories) - 15), 40 * max([len(h) for h in header]) + 75)
     # print("windowSize", windowSize[0])
-    # print("windowSize", " X ", 1.0 * checkboxPixelLength * longestText * len(categories))
+    # print("windowSize", "X1X2", checkboxPixelLength * longestText * len(categories))
+    # print("windowSize", "X2", len(categories))
 #   TODO spacing + borders? missing
 #   TODO REVIEW FORMULA
     layout = CreateLayout(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText, longestText, windowSize[0], csvNotEmpty)
