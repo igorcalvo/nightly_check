@@ -91,9 +91,12 @@ def BackUpData(csvfileName: str, data):
         raise Exception(f"File {fileName} already exists.")
     WriteCsv(fileName, data)
 
-def SaveData(data, checkboxDict: dict, csvFileName):
+def SaveData(data, checkboxDict: dict, csvFileName: str, fillInYesterday: bool = False):
+    if fillInYesterday and any(checkboxDict.values()):
+        dictData = "; ".join(checkboxDict.values())
+        raise Exception(f"SaveData data from yesterday is not empty!\n{dictData}")
     for key in checkboxDict.keys():
-        data.iloc[-1, data.columns.get_loc(ToLowerUnderScored(key))] = checkboxDict[key]
+        data.iloc[-2 if fillInYesterday else -1, data.columns.get_loc(ToLowerUnderScored(key))] = checkboxDict[key]
     WriteCsv(csvFileName, data)
 
 # .txt
@@ -153,6 +156,14 @@ def VerifyVariables(variablesFileName):
         df = pd.DataFrame(content, columns=header)
     except Exception as e:
         raise e
+
+def NoDataFromYesterday(data):
+    yesterday = (date.today() + timedelta(days=-1)).isoformat()
+    lastColumnValue = data.loc[data[dateHeader] == yesterday].values[0][-1]
+    if lastColumnValue == '':
+        return True
+    return False
+
 # Habit messages
 
 def CalculateFrequency(dataFrequency: float, nominalFrequency: float, condition: str) -> bool:

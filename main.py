@@ -20,6 +20,8 @@ previewCloseKey = 'ClosePreview'
 dataButtonText = 'Data'
 exportButtonText = 'Export'
 exportImageFileNameKey = 'ExportFileName'
+neglectedAcceptText = "Yes"
+neglectedRejectText = "No"
 
 valuesDic = {}
 hueOffset = 0
@@ -49,6 +51,15 @@ try:
     # PrintFonts()
     settings = ReadSettings(settingsFileName)
     InitUi(settings.hueOffset)
+    if NoDataFromYesterday(data):
+        neglectedWindow = NeglectedPopUp(neglectedAcceptText, neglectedRejectText)
+        while True:
+            neglectedEvent, neglectedValuesDic = neglectedWindow.read()
+            if neglectedEvent == neglectedAcceptText:
+                print("OPEN THE TCHEKA")
+            if neglectedEvent == sg.WIN_CLOSED or neglectedEvent == neglectedRejectText:
+                neglectedWindow.close()
+                break
     window = MainWindow(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText, len(data) > 1)
     while True:
         event, valuesDic = window.read()
@@ -106,8 +117,6 @@ finally:
         LogWrite(log, f"{finallyString}")
     log.close()
 # TODO LIST
-# notificacao on startup
-#   if esqueceu y-terday entry
 # feature edit yday
 # TEST - what if no message in variobles?
 

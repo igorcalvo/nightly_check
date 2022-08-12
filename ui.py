@@ -111,7 +111,7 @@ def CreateCheckBoxes(descriptions: list, header: list, size: int) -> list:
                           pad=((15, 0), (2, 2)),
                           tooltip=GetMatrixDataByHeaderIndexes(descriptions, header, item)) if item != '' else sg.Text(PadString('', columnCorrection), background_color=colors["win_bkg"])) for item in splitList] for splitList in Transpose(header)]
 #                                                                                                                      Fixes floating checkbox on a column
-def CreateLayout(categories: list, header: list, descriptions: list, doneButtonText: str, styleButtonText: str, dataButtonText: str, longestText: int, windowsXSize: int, csvNotEmpty: bool) -> list:
+def CreateMainLayout(categories: list, header: list, descriptions: list, doneButtonText: str, styleButtonText: str, dataButtonText: str, longestText: int, windowsXSize: int, csvNotEmpty: bool) -> list:
     size = int(longestText * 8 / checkboxPixelLength + 1)
     #                        Spacing between categories
     categoryTitles = [sg.Text(PadString(c.upper(), int(longestText * checkboxPixelLength / categoryPixelLength) + 3),
@@ -160,7 +160,7 @@ def MainWindow(categories: list, header: list, descriptions: list, doneButtonTex
     # print("windowSize", "X2", len(categories))
 #   TODO spacing + borders? missing
 #   TODO REVIEW FORMULA
-    layout = CreateLayout(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText, longestText, windowSize[0], csvNotEmpty)
+    layout = CreateMainLayout(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText, longestText, windowSize[0], csvNotEmpty)
     return sg.Window(title="Argus",
                      layout=layout,
                      use_custom_titlebar=True,
@@ -279,3 +279,42 @@ def DataWindow(dataButtonText: str, exportImageFileNameKey: str, exportButtonTex
      background_color=colors["dat_bkg"],
      relative_location=(0, 0)
      ).Finalize()
+
+def NeglectedPopUp(acceptText: str, rejectText: str):
+    layout = [
+        [sg.Text("It looks like you haven't input yesterday's data. Would you like to add it now?",
+                 text_color=colors["pop_txt"],
+                 background_color=colors["pop_bkg"],
+                 pad=((15, 15), (10, 10)),
+                 font=fonts["pop"])],
+        [
+            sg.Button(acceptText,
+                      font=fonts["btn"],
+                      size=7,
+                      key=acceptText,
+                      pad=((15, 0), (15, 15)),
+                      button_color=(colors["dnb_txt"], colors["dnb_bkg"])),
+            sg.Text(PadString("", 29),
+                    text_color=colors["pop_txt"],
+                    background_color=colors["pop_bkg"],
+                    font=fonts["pop"]),
+            sg.Button(rejectText,
+                      font=fonts["btn"],
+                      size=7,
+                      key=rejectText,
+                      pad=((0, 15), (15, 15)),
+                      button_color=(colors["dnb_txt"], colors["dnb_bkg"]))
+        ]
+    ]
+    return sg.Window("Yesterday",
+                     layout,
+                     return_keyboard_events=True,
+                     use_custom_titlebar=True,
+                     titlebar_background_color=colors["bar_bkg"],
+                     titlebar_text_color=colors["bar_txt"],
+                     titlebar_icon="assets\icons\yesterday16.png",
+                     background_color=colors["pop_bkg"],
+                     relative_location=(0, 0),
+                     element_justification='c'
+                     ).Finalize()
+
