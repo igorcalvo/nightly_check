@@ -8,11 +8,11 @@ import pandas as pd
 import json
 
 wakeup_time = 6
-dateHeader = "date"
+date_header = "date"
 
 # .csv
 
-def ReadCsv(fileName: str):
+def read_csv(fileName: str):
     with open(fileName, 'r') as file:
         lines = file.readlines()
         file.close()
@@ -21,235 +21,235 @@ def ReadCsv(fileName: str):
     df = pd.DataFrame(content, columns=header)
     return df
 
-def GroupByCategory(dataframe, column: str) -> list:
-    categoryColumn = "category"
-    captalizedColumns = ["header"]
-    categories = RemoveDuplicates(dataframe[categoryColumn])
+def group_by_category(dataframe, column: str) -> list:
+    category_column = "category"
+    captalized_columns = ["header"]
+    categories = remove_duplicates(dataframe[category_column])
     result = []
     for category in categories:
-        result.append([ToCapitalized(x) if column in captalizedColumns else x for x in list(dataframe.loc[dataframe[categoryColumn] == category][column])])
+        result.append([to_capitalized(x) if column in captalized_columns else x for x in list(dataframe.loc[dataframe[category_column] == category][column])])
     return result
 
-def GetData(variablesFile):
-    fractions = GroupByCategory(variablesFile, "frequency")
-    conditions = GroupByCategory(variablesFile, "condition")
-    habitMessages = GroupByCategory(variablesFile, "message")
-    descriptions = GroupByCategory(variablesFile, "tooltip")
-    header = GroupByCategory(variablesFile, "header")
-    categories = RemoveDuplicates(FlattenList(GroupByCategory(variablesFile, "category")))
-    return conditions, fractions, habitMessages, descriptions, header, categories
+def get_data(variables_file):
+    fractions = group_by_category(variables_file, "frequency")
+    conditions = group_by_category(variables_file, "condition")
+    habit_messages = group_by_category(variables_file, "message")
+    descriptions = group_by_category(variables_file, "tooltip")
+    header = group_by_category(variables_file, "header")
+    categories = remove_duplicates(flatten_list(group_by_category(variables_file, "category")))
+    return conditions, fractions, habit_messages, descriptions, header, categories
 
-def WriteCsv(fileName: str, data):
+def write_csv(file_name: str, data):
     cols = ','.join([col for col in data.columns])
     content = ''
     for index, row in data.iterrows():
-        rowData = [str(item) for item in list(row)]
-        content += f'\n{rowData}'.replace("[", "").replace("]", "").replace("'", "").replace(" ", "")
-    with open(fileName, 'w') as dataFile:
-        dataFile.seek(0)
-        dataFile.write(f'{cols}')
-        dataFile.write(f'{content}')
-        dataFile.close()
+        row_data = [str(item) for item in list(row)]
+        content += f'\n{row_data}'.replace("[", "").replace("]", "").replace("'", "").replace(" ", "")
+    with open(file_name, 'w') as data_file:
+        data_file.seek(0)
+        data_file.write(f'{cols}')
+        data_file.write(f'{content}')
+        data_file.close()
 
-def CheckForTodaysEntry(lastDate: str) -> int:
+def check_for_todays_entry(lastDate: str) -> int:
     try:
         # Fixes inputting data after midnight
-        currentDate = date.today() + timedelta(days=-1) if datetime.now().hour < wakeup_time else date.today()
-        delta = currentDate - date.fromisoformat(lastDate)
+        current_date = date.today() + timedelta(days=-1) if datetime.now().hour < wakeup_time else date.today()
+        delta = current_date - date.fromisoformat(lastDate)
     except:
-        raise Exception("Can't parse the data, it needs to be in the format 'yyyy-mm-dd'. \nDatabase probably got corrupted.")
+        raise Exception("check_for_todays_entry: Can't parse the data, it needs to be in the format 'yyyy-mm-dd'. \nDatabase probably got corrupted.")
     return delta.days
 
-def GetLatestDate(data) -> str:
-    return data.iloc[-1][dateHeader]
+def get_latest_date(data) -> str:
+    return data.iloc[-1][date_header]
 
-def CreateEntry(data):
-    deltaDays = None
-    lastDate = None
+def create_entry(data):
+    delta_days = None
+    last_date = None
     try:
-        lastDate = GetLatestDate(data)
-        deltaDays = CheckForTodaysEntry(data.iloc[-1][dateHeader])
+        last_date = get_latest_date(data)
+        delta_days = check_for_todays_entry(data.iloc[-1][date_header])
     except:
-        print("CreateEntry: .csv seems to be empty.")
+        print("create_entry: .csv seems to be empty.")
     finally:
-        deltaDays = 1 if deltaDays is None else deltaDays
+        delta_days = 1 if delta_days is None else delta_days
         # Fixes inputting data after midnight
-        currentDate = date.today() + timedelta(days=-1) if datetime.now().hour < wakeup_time else date.today()
-        lastDate = (currentDate + timedelta(days=-1)).isoformat() if lastDate is None else lastDate
+        current_date = date.today() + timedelta(days=-1) if datetime.now().hour < wakeup_time else date.today()
+        last_date = (current_date + timedelta(days=-1)).isoformat() if last_date is None else last_date
 
-    if deltaDays > 0:
+    if delta_days > 0:
         di = dict.fromkeys(data.columns.values, '')
-        for day in range(deltaDays):
-            newDate = date.fromisoformat(lastDate)
-            di[dateHeader] = str(newDate + timedelta(days=(day + 1)))
+        for day in range(delta_days):
+            new_date = date.fromisoformat(last_date)
+            di[date_header] = str(new_date + timedelta(days=(day + 1)))
             data = data.append(di, ignore_index=True)
     return data
 
-def BackUpData(csvfileName: str, data):
-    fileName = csvfileName.replace('.csv', '_' + str(date.today()) + '.csv')
-    if exists(fileName):
-        raise Exception(f"File {fileName} already exists.")
-    WriteCsv(fileName, data)
+def backup_data(csv_file_name: str, data):
+    file_name = csv_file_name.replace('.csv', '_' + str(date.today()) + '.csv')
+    if exists(file_name):
+        raise Exception(f"File {file_name} already exists.")
+    write_csv(file_name, data)
 
-def SaveData(data, checkboxDict: dict, csvFileName: str, fillInYesterday: bool = False):
-    if fillInYesterday and any(checkboxDict.values()):
-        dictData = "; ".join(checkboxDict.values())
-        raise Exception(f"SaveData data from yesterday is not empty!\n{dictData}")
-    for key in checkboxDict.keys():
-        data.iloc[-2 if fillInYesterday else -1, data.columns.get_loc(ToLowerUnderScored(key))] = checkboxDict[key]
-    WriteCsv(csvFileName, data)
+def save_data(data, checkbox_dict: dict, csv_file_name: str, fill_in_yesterday: bool = False):
+    if fill_in_yesterday and any(checkbox_dict.values()):
+        dict_data = "; ".join(checkbox_dict.values())
+        raise Exception(f"save_data data from yesterday is not empty!\n{dict_data}")
+    for key in checkbox_dict.keys():
+        data.iloc[-2 if fill_in_yesterday else -1, data.columns.get_loc(to_lower_underscored(key))] = checkbox_dict[key]
+    write_csv(csv_file_name, data)
 
 # .txt
 
-def GetMatrixDataByHeaderIndexes(otherMatrix: list, headerMatrix: list, headerValue: str) -> str:
-    for idx1, sublist in enumerate(headerMatrix):
+def get_matrix_data_by_header_indexes(other_matrix: list, header_matrix: list, header_value: str) -> str:
+    for idx1, sublist in enumerate(header_matrix):
         for idx2, item in enumerate(sublist):
-            if item == headerValue:
-                return otherMatrix[idx1][idx2]
-    print("GetMatrixDataByHeaderIndexes: Couldn't find description for: " + headerValue)
+            if item == header_value:
+                return other_matrix[idx1][idx2]
+    print("get_matrix_data_by_header_indexes: Couldn't find description for: " + header_value)
     return ''
 
-def LogWrite(logFile, newLines: str):
-    logFile.seek(0)
-    content: list = logFile.readlines()
-    content.insert(0, newLines)
-    logFile.seek(0)
-    logFile.write(''.join(content))
+def log_write(log_file, new_lines: str):
+    log_file.seek(0)
+    content: list = log_file.readlines()
+    content.insert(0, new_lines)
+    log_file.seek(0)
+    log_file.write(''.join(content))
 
-def CreteFolderIfDoesntExist(folderName: str):
-    if not isdir(folderName):
-        makedirs(folderName)
+def create_folder_if_doesnt_exist(folder_name: str):
+    if not isdir(folder_name):
+        makedirs(folder_name)
 
-def CreateFileIfDoesntExist(fileName: str):
-    if not exists(fileName):
-        with open(fileName, 'w') as file:
+def create_file_if_doesnt_exist(file_name: str):
+    if not exists(file_name):
+        with open(file_name, 'w') as file:
             file.write('')
             file.close()
 
 # Verifying
 
-def VerifyHeaderAndData(header: list, dataVariables: list, csvFileName: str, data):
-    flatHeader = [ToLowerUnderScored(item) for sublist in header for item in sublist]
-    if len([item for item in dataVariables if item not in flatHeader]) > 0 or len([item for item in flatHeader if item not in dataVariables]) > 0:
-        BackUpData(csvFileName, data)
-        for h in dataVariables:
-            if h not in flatHeader:
+def verify_header_and_data(header: list, data_variables: list, csv_file_name: str, data):
+    flat_header = [to_lower_underscored(item) for sublist in header for item in sublist]
+    if len([item for item in data_variables if item not in flat_header]) > 0 or len([item for item in flat_header if item not in data_variables]) > 0:
+        backup_data(csv_file_name, data)
+        for h in data_variables:
+            if h not in flat_header:
                 print("header " + h + " was removed")
                 data.drop(h, inplace=True, axis=1)
-        for h in flatHeader:
-            if h not in dataVariables:
+        for h in flat_header:
+            if h not in data_variables:
                 print("header " + h + " was added")
                 data[h] = [None for item in range(data.shape[0])]
 
-def VerifyVariables(variablesFileName):
+def verify_variables(variables_file_name):
     try:
-        with open(variablesFileName, 'r') as file:
+        with open(variables_file_name, 'r') as file:
             lines = file.readlines()
             file.close()
         header = lines[0].replace('\n', '').split(',')
-        content = [stringLine.replace('\n', '').split(',') for stringLine in lines[1:]]
+        content = [string_line.replace('\n', '').split(',') for string_line in lines[1:]]
         for idx, line in enumerate(content):
             if len(line) != len(header):
-                raise Exception(f"VerifyVariables - Length of line {idx} and header is different from {len(header)}\n{line}")
+                raise Exception(f"verify_variables - Length of line {idx} and header is different from {len(header)}\n{line}")
             if line[0] == '' or line[1] == '':
-                raise Exception(f"VerifyVariables - Cannot have empty value for line {idx} at the first two columns\n{line}")
+                raise Exception(f"verify_variables - Cannot have empty value for line {idx} at the first two columns\n{line}")
         df = pd.DataFrame(content, columns=header)
     except Exception as e:
         raise e
 
-def NoDataFromYesterday(data):
+def no_data_from_yesterday(data):
     yesterday = (date.today() + timedelta(days=-1)).isoformat()
-    lastColumnValue = data.loc[data[dateHeader] == yesterday].values[0][-1]
-    if lastColumnValue == '':
+    last_column_value = data.loc[data[date_header] == yesterday].values[0][-1]
+    if last_column_value == '':
         return True
     return False
 
 # Habit messages
 
-def CalculateFrequency(dataFrequency: float, nominalFrequency: float, condition: str) -> bool:
+def calculate_frequency(data_frequency: float, nominal_frequency: float, condition: str) -> bool:
     match condition:
         case '<':
-            return dataFrequency < nominalFrequency
+            return data_frequency < nominal_frequency
         case '>':
-            return dataFrequency > nominalFrequency
+            return data_frequency > nominal_frequency
         # Skips this message
         case '':
             return True
         case _:
-            raise Exception(f"CalculateFrequency: Condition {condition}{nominalFrequency} is not defined.")
+            raise Exception(f"calculate_frequency: Condition {condition}{nominal_frequency} is not defined.")
 
-def ParseFrequency(column: str, conditions: list, fractions: list, header: list) -> tuple:
-    condition = GetMatrixDataByHeaderIndexes(conditions, header, column)
-    fraction = GetMatrixDataByHeaderIndexes(fractions, header, column)
+def parse_frequency(column: str, conditions: list, fractions: list, header: list) -> tuple:
+    condition = get_matrix_data_by_header_indexes(conditions, header, column)
+    fraction = get_matrix_data_by_header_indexes(fractions, header, column)
     if '/' not in fraction:
         return condition, 0, 1
     return condition, int(fraction.split('/')[0]), int(fraction.split('/')[1])
 
-def CheckHabit(column: str, conditions: list, fractions: list, header: list, data) -> tuple:
-    condition, num, den = ParseFrequency(column, conditions, fractions, header)
+def check_habit(column: str, conditions: list, fractions: list, header: list, data) -> tuple:
+    condition, num, den = parse_frequency(column, conditions, fractions, header)
     nominal = num/den
-    if data.loc[:, ToLowerUnderScored(column)].count() >= den:
-        trues = [1 if x is True else 0 for x in data.loc[:, ToLowerUnderScored(column)].tail(den)]
+    if data.loc[:, to_lower_underscored(column)].count() >= den:
+        trues = [1 if x is True else 0 for x in data.loc[:, to_lower_underscored(column)].tail(den)]
         frequency = sum(trues)/len(trues)
     else:
         return 0, 0
-    return (frequency, nominal) if CalculateFrequency(frequency, nominal, condition) else (0, nominal)
+    return (frequency, nominal) if calculate_frequency(frequency, nominal, condition) else (0, nominal)
 
-def DetermineSuccessfulToday(data, conditions: list, header: list, habitMessages: list) -> list:
+def determine_successful_today(data, conditions: list, header: list, habit_messages: list) -> list:
     expectation = [[False if d == '>' else True for d in arr] for arr in conditions]
 
     reality = [[] for item in range(len(header))]
     for idx1, sublist in enumerate(header):
         for idx2, item in enumerate(sublist):
-            reality[idx1].append(GetValueFromDFByRow(ToLowerUnderScored(header[idx1][idx2]), -1, data))
+            reality[idx1].append(get_value_from_df_by_row(to_lower_underscored(header[idx1][idx2]), -1, data))
 
-    missionAccomplishedMessages = []
+    mission_accomplished_messages = []
     for idx1, sublist in enumerate(reality):
         for idx2, item in enumerate(sublist):
             if reality[idx1][idx2] == expectation[idx1][idx2]:
-                missionAccomplishedMessages.append(habitMessages[idx1][idx2])
-    return missionAccomplishedMessages
+                mission_accomplished_messages.append(habit_messages[idx1][idx2])
+    return mission_accomplished_messages
 
 # TODO speed this method up (taking 11 sec before update)
-def GetPopUpMessage(conditions: list, fractions: list, habitMessages: list, header: list, data, msgFileName: str) -> str | None:
-    flatHeader = FlattenList(header)
-    messageData = [(CheckHabit(h, conditions, fractions, header, data), h, GetMatrixDataByHeaderIndexes(habitMessages, header, h)) for h in flatHeader]
+def get_popup_message(conditions: list, fractions: list, habit_messages: list, header: list, data, msg_file_name: str) -> str | None:
+    flat_header = flatten_list(header)
+    message_data = [(check_habit(h, conditions, fractions, header, data), h, get_matrix_data_by_header_indexes(habit_messages, header, h)) for h in flat_header]
 
-    candidateMessages = set([f"{GetMatrixDataByHeaderIndexes(header, habitMessages, m[2])}\n{m[2]}" if m[0][1] > 0 else '' for m in messageData])
-    if len(candidateMessages.intersection({''})) > 0:
-        candidateMessages.remove('')
+    candidate_messages = set([f"{get_matrix_data_by_header_indexes(header, habit_messages, m[2])}\n{m[2]}" if m[0][1] > 0 else '' for m in message_data])
+    if len(candidate_messages.intersection({''})) > 0:
+        candidate_messages.remove('')
 
-    previousMessage = ReadLatestMessage(msgFileName)
-    if previousMessage != '' and len(candidateMessages.intersection({previousMessage})) > 0:
-        candidateMessages.remove(previousMessage)
+    previous_message = read_latest_message(msg_file_name)
+    if previous_message != '' and len(candidate_messages.intersection({previous_message})) > 0:
+        candidate_messages.remove(previous_message)
 
-    successMessages = DetermineSuccessfulToday(data, conditions, header, habitMessages)
-    successesToRemove = [c for c in candidateMessages for s in successMessages if s in c]
-    candidateMessages.difference_update(successesToRemove)
+    success_messages = determine_successful_today(data, conditions, header, habit_messages)
+    successes_to_remove = [c for c in candidate_messages for s in success_messages if s in c]
+    candidate_messages.difference_update(successes_to_remove)
 
     # TODO Test no data tabs
-    if len(candidateMessages) < 1:
+    if len(candidate_messages) < 1:
         return None
 
-    return choice(list(candidateMessages))
+    return choice(list(candidate_messages))
 
-def ReadLatestMessage(msgFileName: str) -> str:
-    if not exists(msgFileName):
+def read_latest_message(msg_file_name: str) -> str:
+    if not exists(msg_file_name):
         return ''
     else:
-        with open(msgFileName, 'r') as f:
+        with open(msg_file_name, 'r') as f:
             # lines = [l.split('\t')[-1].replace('\n', '') for l in f.readlines()]
             lines = [l.replace('\t\t', '\t').split('\t') for l in f.readlines()]
             f.close()
             return f"{lines[-1][1]}\n{lines[-1][2]}"
 
-def SaveMessageFile(msgFileName: str, todaysMessage: str):
+def save_message_file(msg_file_name: str, todays_message: str):
     today = date.today().isoformat()
-    message = '\t'.join(m + '\t' if len(m) < 8 else m for m in todaysMessage.split('\n'))
+    message = '\t'.join(m + '\t' if len(m) < 8 else m for m in todays_message.split('\n'))
     data = f"\n{today}\t{message}"
-    if not exists(msgFileName):
+    if not exists(msg_file_name):
         data = data.replace('\n', '')
-    with open(msgFileName, 'a') as f:
+    with open(msg_file_name, 'a') as f:
         f.write(data)
         f.close()
 
@@ -257,84 +257,84 @@ def SaveMessageFile(msgFileName: str, todaysMessage: str):
 
 class Settings:
     def __init__(self,
-                 hueOffset: float = 0,
-                 dataDays: int = 21,
-                 displayMessages: bool = True,
-                 graphExpectedValue: bool = False,
-                 scrollableImage: bool = False,
+                 hue_offset: float = 0,
+                 data_days: int = 21,
+                 display_messages: bool = True,
+                 graph_expected_value: bool = False,
+                 scrollable_image: bool = False,
                  ):
-        self.hueOffset = hueOffset
-        self.dataDays = dataDays
-        self.displayMessages = displayMessages
-        self.graphExpectedValue = graphExpectedValue
-        self.scrollableImage = scrollableImage
+        self.hue_offset = hue_offset
+        self.data_days = data_days
+        self.display_messages = display_messages
+        self.graph_expected_value = graph_expected_value
+        self.scrollable_image = scrollable_image
 
-    def toJSON(self):
+    def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
     @staticmethod
-    def fromJSON(jsonString: str):
+    def from_json(jsonString: str):
         json_dict = json.loads(jsonString)
-        hueOffset = float(json_dict['hueOffset'])
-        dataDays = int(json_dict['dataDays'])
-        displayMessages = bool(json_dict['displayMessages'])
-        graphExpectedValue = bool(json_dict['graphExpectedValue'])
-        scrollableImage = bool(json_dict['scrollableImage'])
-        return Settings(hueOffset,
-                        dataDays,
-                        displayMessages,
-                        graphExpectedValue,
-                        scrollableImage
+        hue_offset = float(json_dict['hueOffset'])
+        data_days = int(json_dict['dataDays'])
+        display_messages = bool(json_dict['displayMessages'])
+        graph_expected_value = bool(json_dict['graphExpectedValue'])
+        scrollable_image = bool(json_dict['scrollableImage'])
+        return Settings(hue_offset,
+                        data_days,
+                        display_messages,
+                        graph_expected_value,
+                        scrollable_image,
                         )
 
-def ReadSettings(settingsFileName: str) -> Settings:
+def read_settings(settings_file_name: str) -> Settings:
     settings: Settings = Settings()
-    if not exists(settingsFileName) or getsize(settingsFileName) == 0:
-        with open(settingsFileName, 'w') as s:
-            s.write(settings.toJSON())
+    if not exists(settings_file_name) or getsize(settings_file_name) == 0:
+        with open(settings_file_name, 'w') as s:
+            s.write(settings.to_json())
             s.close()
 
-    with open(settingsFileName, 'r') as s:
-        settingsFileContent = s.read()
-        settingsObj = Settings.fromJSON(settingsFileContent)
+    with open(settings_file_name, 'r') as s:
+        settings_file_content = s.read()
+        settingsObj = Settings.from_json(settings_file_content)
         s.close()
     return settingsObj
 
-def SaveSettingsFile(settings: Settings, settingsFileName: str):
-    with open(settingsFileName, 'w') as s:
-        s.write(settings.toJSON())
+def save_settings_file(settings: Settings, settings_file_name: str):
+    with open(settings_file_name, 'w') as s:
+        s.write(settings.to_json())
         s.close()
 
 #  Data Visualization
 
-def GetDateArray(data, squares: int) -> list:
-    latestDateIso = GetLatestDate(data)
-    latestDateValue = datetime.fromisoformat(latestDateIso)
-    result = [(latestDateValue + timedelta(days=-day)).strftime("%Y-%m-%d") for day in range(squares)]
+def get_date_array(data, squares: int) -> list:
+    latest_date_iso = get_latest_date(data)
+    latest_date_value = datetime.fromisoformat(latest_date_iso)
+    result = [(latest_date_value + timedelta(days=-day)).strftime("%Y-%m-%d") for day in range(squares)]
     return result
 
-def GetExpectedValue(header: str, headerList: list, conditions: list) -> bool:
-    condition = GetMatrixDataByHeaderIndexes(conditions, headerList, header)
+def get_expeted_value(header: str, headerList: list, conditions: list) -> bool:
+    condition = get_matrix_data_by_header_indexes(conditions, headerList, header)
     return False if condition == '>' else True
 
-def GetHeaderData(data, dateArray: list, squares: int, header: str, expectedValue: bool = True) -> list:
-    columnHeader = ToLowerUnderScored(header)
-    headerData = data[[dateHeader, columnHeader]]
-    headerData = headerData.reset_index()
+def get_header_data(data, date_array: list, squares: int, header: str, expected_value: bool = True) -> list:
+    column_header = to_lower_underscored(header)
+    header_data = data[[date_header, column_header]]
+    header_data = header_data.reset_index()
 
-    result = [not expectedValue for item in range(squares)]
-    for index, dateValue in enumerate(dateArray):
+    result = [not expected_value for item in range(squares)]
+    for index, date_value in enumerate(date_array):
         try:
-            dataValue = GetValueFromDFByValue(dateHeader, dateValue, headerData)
-            value = dataValue[columnHeader].values[0]
-            if value == str(expectedValue):
-                result[index] = expectedValue
+            data_value = get_value_from_df_by_value(date_header, date_value, header_data)
+            value = data_value[column_header].values[0]
+            if value == str(expected_value):
+                result[index] = expected_value
         except:
             continue
     result.reverse()
     return result
 
-def GetFailIndexesList(headerData: list, expectedValue: bool = True) -> list:
+def get_fail_indexes_list(headerData: list, expectedValue: bool = True) -> list:
     result = []
     for index, item in enumerate(headerData):
         if item != expectedValue:

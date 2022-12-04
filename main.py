@@ -4,119 +4,133 @@ from imggen import *
 
 from sys import exc_info
 
-dataFolder = 'data'
-csvFileName = f'{dataFolder}\data.csv'
-msgFileName = f'{dataFolder}\msg.txt'
-settingsFileName = f'{dataFolder}\settings.txt'
-logFileName = f'{dataFolder}\log.txt'
-variablesFileName = 'variables.csv'
+data_folder = 'data'
+csv_file_name = f'{data_folder}\data.csv'
+msg_file_name = f'{data_folder}\msg.txt'
+settings_file_name = f'{data_folder}\settings.txt'
+log_file_name = f'{data_folder}\log.txt'
+variables_file_name = 'variables.csv'
 
-doneButtonText = 'Done'
-styleButtonText = 'Style'
-sliderTextKey = 'Slider'
-setButtonTextKey = 'Set'
-previewWindowText = 'Preview'
-previewCloseKey = 'ClosePreview'
-dataButtonText = 'Data'
-exportButtonText = 'Export'
-exportImageFileNameKey = 'ExportFileName'
-neglectedAcceptText = "Yes"
-neglectedRejectText = "No"
+done_button_text = 'Done'
+style_button_text = 'Style'
+slider_text_key = 'Slider'
+set_button_text_key = 'Set'
+preview_window_text = 'Preview'
+preview_close_key = 'ClosePreview'
+data_button_text = 'Data'
+export_button_text = 'Export'
+export_image_file_name_key = 'ExportFileName'
+neglected_accept_text = "Yes"
+neglected_reject_text = "No"
 
-valuesDic = {}
-hueOffset = 0
+values_dict = {}
+hue_offset = 0
 
-CreteFolderIfDoesntExist(dataFolder)
-CreateFileIfDoesntExist(logFileName)
-log = open(logFileName, 'r+')
+create_folder_if_doesnt_exist(data_folder)
+create_file_if_doesnt_exist(log_file_name)
+log = open(log_file_name, 'r+')
 try:
-    if not exists(variablesFileName):
-        raise Exception(f"No header file found, create the file {variablesFileName}")
-    VerifyVariables(variablesFileName)
-    variablesFile = ReadCsv(variablesFileName)
-    conditions, fractions, habitMessages, descriptions, header, categories = GetData(variablesFile)
+    if not exists(variables_file_name):
+        raise Exception(f"No header file found, create the file {variables_file_name}")
+    verify_variables(variables_file_name)
+    variables_file = read_csv(variables_file_name)
+    conditions, fractions, habit_messages, descriptions, header, categories = get_data(variables_file)
 
-    if not exists(csvFileName):
-        cols = [ToLowerUnderScored(item) for item in FlattenList(header)]
-        cols.insert(0, dateHeader)
+    if not exists(csv_file_name):
+        cols = [to_lower_underscored(item) for item in flatten_list(header)]
+        cols.insert(0, date_header)
         data = pd.DataFrame(columns=cols)
     else:
-        data = ReadCsv(csvFileName)
+        data = read_csv(csv_file_name)
     variables = list(data.columns)
     variables.pop(0)
 
-    VerifyHeaderAndData(header, variables, csvFileName, data)
-    data = CreateEntry(data)
+    verify_header_and_data(header, variables, csv_file_name, data)
+    data = create_entry(data)
     # GenerateImage(categories, header, frequencies, CleanDF(data))
     # PrintFonts()
-    settings = ReadSettings(settingsFileName)
-    InitUi(settings.hueOffset)
-    if NoDataFromYesterday(data):
-        neglectedWindow = NeglectedPopUp(neglectedAcceptText, neglectedRejectText)
+    settings = read_settings(settings_file_name)
+    InitUi(settings.hue_offset)
+    if no_data_from_yesterday(data):
+        neglected_window = NeglectedPopUp(neglected_accept_text, neglected_reject_text)
         while True:
-            neglectedEvent, neglectedValuesDic = neglectedWindow.read()
-            if neglectedEvent == neglectedAcceptText:
+            neglected_event, neglectedValuesDic = neglected_window.read()
+            if neglected_event == neglected_accept_text:
                 print("OPEN THE TCHEKA")
-            if neglectedEvent == sg.WIN_CLOSED or neglectedEvent == neglectedRejectText:
-                neglectedWindow.close()
+            if neglected_event == sg.WIN_CLOSED or neglected_event == neglected_reject_text:
+                neglected_window.close()
                 break
-    window = MainWindow(categories, header, descriptions, doneButtonText, styleButtonText, dataButtonText, len(data) > 1)
+    window = MainWindow(categories, header, descriptions, done_button_text, style_button_text, data_button_text, len(data) > 1)
     while True:
-        event, valuesDic = window.read()
-        if event == styleButtonText:
-            styleWindow = StyleWindow(styleButtonText, sliderTextKey, previewWindowText, setButtonTextKey)
+        event, values_dict = window.read()
+        if event == style_button_text:
+            style_window = StyleWindow(style_button_text, slider_text_key, preview_window_text, set_button_text_key)
             while True:
-                styleEvent, styleValuesDic = styleWindow.read()
-                if styleEvent == sliderTextKey:
-                    hueOffset = styleValuesDic[sliderTextKey]
-                elif styleEvent == previewWindowText:
-                    previewWindow = PreviewWindow(previewWindowText, previewCloseKey, hueOffset)
+                style_event, style_values_dict = style_window.read()
+                if style_event == slider_text_key:
+                    hue_offset = style_values_dict[slider_text_key]
+                elif style_event == preview_window_text:
+                    preview_window = PreviewWindow(preview_window_text, preview_close_key, hue_offset)
                     while True:
-                        previewEvent, previewValuesDic = previewWindow.read()
-                        if previewEvent == previewCloseKey or previewEvent == sg.WIN_CLOSED:
-                            previewWindow.close()
+                        preview_event, preview_values_dict = preview_window.read()
+                        if preview_event == preview_close_key or preview_event == sg.WIN_CLOSED:
+                            preview_window.close()
                             break
-                elif styleEvent == setButtonTextKey or styleEvent == sg.WIN_CLOSED:
-                    if styleEvent == setButtonTextKey:
-                        settings.hueOffset = hueOffset
-                        SaveSettingsFile(settings, settingsFileName)
-                    styleWindow.close()
+                elif style_event == set_button_text_key or style_event == sg.WIN_CLOSED:
+                    if style_event == set_button_text_key:
+                        settings.hue_offset = hue_offset
+                        save_settings_file(settings, settings_file_name)
+                    style_window.close()
                     break
-        elif event == dataButtonText:
-            img = GenerateImage(categories, header, conditions, settings.dataDays, settings.graphExpectedValue, CleanDF(data))
-            dataWindow = DataWindow(dataButtonText, exportImageFileNameKey, exportButtonText, settings.scrollableImage, ImageBytesToBase64(img))
+        elif event == data_button_text:
+            img = generate_image(categories, header, conditions, settings.data_days, settings.graph_expected_value, clean_df(data))
+            data_window = DataWindow(data_button_text, export_image_file_name_key, export_button_text, settings.scrollable_image, image_bytes_to_base64(img))
             while True:
-                dataEvent, dataValuesDic = dataWindow.read()
-                if dataEvent == exportButtonText:
-                    exportImageFileName = dataValuesDic[exportButtonText]
-                    if exportImageFileName:
-                        dataWindow[exportImageFileNameKey].update(value=exportImageFileName)
-                        img.save(exportImageFileName)
-                if dataEvent == sg.WIN_CLOSED or dataEvent == exportButtonText:
-                    dataWindow.close()
+                data_event, data_values_dict = data_window.read()
+                if data_event == export_button_text:
+                    export_image_file_name = data_values_dict[export_button_text]
+                    if export_image_file_name:
+                        data_window[export_image_file_name_key].update(value=export_image_file_name)
+                        img.save(export_image_file_name)
+                if data_event == sg.WIN_CLOSED or data_event == export_button_text:
+                    data_window.close()
                     break
-        elif event == doneButtonText or event == sg.WIN_CLOSED:
-            if event == doneButtonText:
-                SaveData(data, valuesDic, csvFileName)
+        elif event == done_button_text or event == sg.WIN_CLOSED:
+            if event == done_button_text:
+                save_data(data, values_dict, csv_file_name)
 
-                message = GetPopUpMessage(conditions, fractions, habitMessages, header, data, msgFileName)
-                if message and settings.displayMessages:
-                    SaveMessageFile(msgFileName, message)
+                message = get_popup_message(conditions, fractions, habit_messages, header, data, msg_file_name)
+                if message and settings.display_messages:
+                    save_message_file(msg_file_name, message)
                     PopUp(message)
             break
     window.close()
 except Exception as e:
-    e_type, e_obj, e_tb = exc_info()
-    e_filename = path.split(e_tb.tb_frame.f_code.co_filename)[1]
-    LogWrite(log, f"\n{e_obj} at line {e_tb.tb_lineno} of {e_filename}\n\n")
-finally:
-    finallyString = f"***** {date.today()} - {datetime.now().time().replace(microsecond=0)} *****\n"
-    if any(valuesDic.values()):
-        LogWrite(log, f"{finallyString}{valuesDic}\n\n")
+    if True:
+        raise(e)
     else:
-        LogWrite(log, f"{finallyString}")
+        e_type, e_obj, e_tb = exc_info()
+        e_filename = path.split(e_tb.tb_frame.f_code.co_filename)[1]
+        log_write(log, f"\n{e_obj} at line {e_tb.tb_lineno} of {e_filename}\n\n")
+finally:
+    finally_string = f"***** {date.today()} - {datetime.now().time().replace(microsecond=0)} *****\n"
+    if any(values_dict.values()):
+        log_write(log, f"{finally_string}{values_dict}\n\n")
+    else:
+        log_write(log, f"{finally_string}")
     log.close()
-# TODO LIST
+
+#  TODO LIST - REAL
+# refactor files
+# use pandas
+# better ui
+# fix yesterdays popup
+# code yesterday data
+# fix settings json
+# ui for data init
+
+
+# TODO LIST - OLD
 # feature edit yday
 # TEST - what if no message in variobles?
 
@@ -126,6 +140,14 @@ finally:
 #       display: message from {date}
 #       main window without buttons
 #   limit to y-day
+
+# pop up after n days (settings) reminding to view data
+# validate variables
+#   duplicate columns
+#   empty columns
+#   handle empty tool tips
+#   handle empty direction
+#   handle empty frequency
 
 # TAG FEATURE? LATEST TIME TAG
 #   separete file
