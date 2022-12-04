@@ -1,8 +1,6 @@
-from ui import *
-from core import *
-from imggen import *
-
-from sys import exc_info
+from source.ui import *
+from source.core import *
+from source.imggen import *
 
 data_folder = 'data'
 csv_file_name = f'{data_folder}\data.csv'
@@ -19,7 +17,6 @@ preview_window_text = 'Preview'
 preview_close_key = 'ClosePreview'
 data_button_text = 'Data'
 export_button_text = 'Export'
-export_image_file_name_key = 'ExportFileName'
 neglected_accept_text = "Yes"
 neglected_reject_text = "No"
 
@@ -39,7 +36,7 @@ try:
     if not exists(csv_file_name):
         cols = [to_lower_underscored(item) for item in flatten_list(header)]
         cols.insert(0, date_header)
-        data = pd.DataFrame(columns=cols)
+        data = DataFrame(columns=cols)
     else:
         data = read_csv(csv_file_name)
     variables = list(data.columns)
@@ -84,13 +81,12 @@ try:
                     break
         elif event == data_button_text:
             img = generate_image(categories, header, conditions, settings.data_days, settings.graph_expected_value, clean_df(data))
-            data_window = DataWindow(data_button_text, export_image_file_name_key, export_button_text, settings.scrollable_image, image_bytes_to_base64(img))
+            data_window = DataWindow(data_button_text, export_button_text, settings.scrollable_image, image_bytes_to_base64(img))
             while True:
                 data_event, data_values_dict = data_window.read()
                 if data_event == export_button_text:
                     export_image_file_name = data_values_dict[export_button_text]
                     if export_image_file_name:
-                        data_window[export_image_file_name_key].update(value=export_image_file_name)
                         img.save(export_image_file_name)
                 if data_event == sg.WIN_CLOSED or data_event == export_button_text:
                     data_window.close()
@@ -128,6 +124,7 @@ finally:
 # code yesterday data
 # fix settings json
 # ui for data init
+# date if export too long imagegen
 
 
 # TODO LIST - OLD

@@ -2,9 +2,9 @@ from datetime import date, timedelta, datetime
 from os.path import exists, getsize, isdir
 from os import makedirs, path
 from random import choice
-from utils import *
+from .utils import *
 
-import pandas as pd
+from pandas import DataFrame, concat
 import json
 
 wakeup_time = 6
@@ -18,10 +18,10 @@ def read_csv(fileName: str):
         file.close()
     header = lines[0].replace('\n', '').split(',')
     content = [stringLine.replace('\n', '').split(',') for stringLine in lines[1:]]
-    df = pd.DataFrame(content, columns=header)
+    df = DataFrame(content, columns=header)
     return df
 
-def group_by_category(dataframe, column: str) -> list:
+def group_by_category(dataframe: DataFrame, column: str) -> list:
     category_column = "category"
     captalized_columns = ["header"]
     categories = remove_duplicates(dataframe[category_column])
@@ -39,7 +39,7 @@ def get_data(variables_file):
     categories = remove_duplicates(flatten_list(group_by_category(variables_file, "category")))
     return conditions, fractions, habit_messages, descriptions, header, categories
 
-def write_csv(file_name: str, data):
+def write_csv(file_name: str, data: DataFrame):
     cols = ','.join([col for col in data.columns])
     content = ''
     for index, row in data.iterrows():
@@ -60,10 +60,10 @@ def check_for_todays_entry(lastDate: str) -> int:
         raise Exception("check_for_todays_entry: Can't parse the data, it needs to be in the format 'yyyy-mm-dd'. \nDatabase probably got corrupted.")
     return delta.days
 
-def get_latest_date(data) -> str:
+def get_latest_date(data: DataFrame) -> str:
     return data.iloc[-1][date_header]
 
-def create_entry(data):
+def create_entry(data: DataFrame):
     delta_days = None
     last_date = None
     try:
@@ -82,16 +82,17 @@ def create_entry(data):
         for day in range(delta_days):
             new_date = date.fromisoformat(last_date)
             di[date_header] = str(new_date + timedelta(days=(day + 1)))
-            data = data.append(di, ignore_index=True)
+            di = DataFrame([di])
+            data = concat([data, di], ignore_index=True)
     return data
 
-def backup_data(csv_file_name: str, data):
+def backup_data(csv_file_name: str, data: DataFrame):
     file_name = csv_file_name.replace('.csv', '_' + str(date.today()) + '.csv')
     if exists(file_name):
         raise Exception(f"File {file_name} already exists.")
     write_csv(file_name, data)
 
-def save_data(data, checkbox_dict: dict, csv_file_name: str, fill_in_yesterday: bool = False):
+def save_data(data: DataFrame, checkbox_dict: dict, csv_file_name: str, fill_in_yesterday: bool = False):
     if fill_in_yesterday and any(checkbox_dict.values()):
         dict_data = "; ".join(checkbox_dict.values())
         raise Exception(f"save_data data from yesterday is not empty!\n{dict_data}")
@@ -128,7 +129,7 @@ def create_file_if_doesnt_exist(file_name: str):
 
 # Verifying
 
-def verify_header_and_data(header: list, data_variables: list, csv_file_name: str, data):
+def verify_header_and_data(header: list, data_variables: list, csv_file_name: str, data: DataFrame):
     flat_header = [to_lower_underscored(item) for sublist in header for item in sublist]
     if len([item for item in data_variables if item not in flat_header]) > 0 or len([item for item in flat_header if item not in data_variables]) > 0:
         backup_data(csv_file_name, data)
@@ -153,7 +154,7 @@ def verify_variables(variables_file_name):
                 raise Exception(f"verify_variables - Length of line {idx} and header is different from {len(header)}\n{line}")
             if line[0] == '' or line[1] == '':
                 raise Exception(f"verify_variables - Cannot have empty value for line {idx} at the first two columns\n{line}")
-        df = pd.DataFrame(content, columns=header)
+        df = DataFrame(content, columns=header)
     except Exception as e:
         raise e
 
@@ -185,7 +186,7 @@ def parse_frequency(column: str, conditions: list, fractions: list, header: list
         return condition, 0, 1
     return condition, int(fraction.split('/')[0]), int(fraction.split('/')[1])
 
-def check_habit(column: str, conditions: list, fractions: list, header: list, data) -> tuple:
+def check_habit(column: str, conditions: list, fractions: list, header: list, data: DataFrame) -> tuple:
     condition, num, den = parse_frequency(column, conditions, fractions, header)
     nominal = num/den
     if data.loc[:, to_lower_underscored(column)].count() >= den:
@@ -195,7 +196,7 @@ def check_habit(column: str, conditions: list, fractions: list, header: list, da
         return 0, 0
     return (frequency, nominal) if calculate_frequency(frequency, nominal, condition) else (0, nominal)
 
-def determine_successful_today(data, conditions: list, header: list, habit_messages: list) -> list:
+def determine_successful_today(data: DataFrame, conditions: list, header: list, habit_messages: list) -> list:
     expectation = [[False if d == '>' else True for d in arr] for arr in conditions]
 
     reality = [[] for item in range(len(header))]
@@ -211,7 +212,7 @@ def determine_successful_today(data, conditions: list, header: list, habit_messa
     return mission_accomplished_messages
 
 # TODO speed this method up (taking 11 sec before update)
-def get_popup_message(conditions: list, fractions: list, habit_messages: list, header: list, data, msg_file_name: str) -> str | None:
+def get_popup_message(conditions: list, fractions: list, habit_messages: list, header: list, data: DataFrame, msg_file_name: str) -> str | None:
     flat_header = flatten_list(header)
     message_data = [(check_habit(h, conditions, fractions, header, data), h, get_matrix_data_by_header_indexes(habit_messages, header, h)) for h in flat_header]
 
@@ -307,7 +308,7 @@ def save_settings_file(settings: Settings, settings_file_name: str):
 
 #  Data Visualization
 
-def get_date_array(data, squares: int) -> list:
+def get_date_array(data: DataFrame, squares: int) -> list:
     latest_date_iso = get_latest_date(data)
     latest_date_value = datetime.fromisoformat(latest_date_iso)
     result = [(latest_date_value + timedelta(days=-day)).strftime("%Y-%m-%d") for day in range(squares)]
@@ -317,7 +318,7 @@ def get_expeted_value(header: str, headerList: list, conditions: list) -> bool:
     condition = get_matrix_data_by_header_indexes(conditions, headerList, header)
     return False if condition == '>' else True
 
-def get_header_data(data, date_array: list, squares: int, header: str, expected_value: bool = True) -> list:
+def get_header_data(data: DataFrame, date_array: list, squares: int, header: str, expected_value: bool = True) -> list:
     column_header = to_lower_underscored(header)
     header_data = data[[date_header, column_header]]
     header_data = header_data.reset_index()

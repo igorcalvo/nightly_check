@@ -2,8 +2,8 @@ from datetime import date, timedelta
 from PIL import Image, ImageFont, ImageDraw
 import matplotlib.colors as clr
 
-from utils import flatten_list, align_right, cycle_index, get_value_from_df_by_row
-from core import get_header_data, get_date_array, get_fail_indexes_list, get_expeted_value, date_header
+from .utils import flatten_list, align_right, cycle_index, get_value_from_df_by_row
+from .core import get_header_data, get_date_array, get_fail_indexes_list, get_expeted_value, date_header
 
 fontFamilies = {
     "consolas": r"assets\fonts\consola.ttf",
@@ -34,8 +34,8 @@ def draw_line_of_squares(image, position: tuple, square_size: int, square_border
             for square_y_pixel in range(square_size):
                 image.putpixel((position[0] + square_index * (square_size + square_border) + square_x_pixel, position[1] + square_y_pixel), color)
 
-def new_image(sizeX: int, sizeY: int, background_color=(255, 255, 255)):
-    return Image.new('RGB', (sizeX, sizeY), background_color)
+def new_image(size_x: int, size_y: int, background_color=(255, 255, 255)):
+    return Image.new('RGB', (size_x, size_y), background_color)
 
 # 6 pixels / char + 1 @ 12
 def write(image, position: tuple, text: str, color: tuple, font_family: str = "consolas", size: int = 12):
