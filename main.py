@@ -118,11 +118,13 @@ finally:
 
 #  TODO LIST - REAL
 # refactor files
-# use pandas
+# more pandas
 # better ui
 # fix yesterdays popup
-# code yesterday data
+# code yesterday data feature
 # fix settings json
+# longer wait time to show message
+# some sort of logic for messages
 # ui for data init
 # date if export too long imagegen
 

@@ -82,8 +82,8 @@ def create_entry(data: DataFrame):
         for day in range(delta_days):
             new_date = date.fromisoformat(last_date)
             di[date_header] = str(new_date + timedelta(days=(day + 1)))
-            di = DataFrame([di])
-            data = concat([data, di], ignore_index=True)
+            df_row = DataFrame([di])
+            data = concat([data, df_row], ignore_index=True)
     return data
 
 def backup_data(csv_file_name: str, data: DataFrame):
