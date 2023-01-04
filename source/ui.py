@@ -172,11 +172,11 @@ def MainWindow(categories: list, header: list, descriptions: list, done_button_t
                      background_color=COLORS["win_bkg"],
                      size=window_size)
 
-def PopUp(message: str):
+def PopUp(message: str, message_duration: int):
     sg.PopupNoButtons(message,
              keep_on_top=True,
              auto_close=True,
-             auto_close_duration=3,
+             auto_close_duration=message_duration,
              background_color=COLORS["pop_bkg"],
              text_color=COLORS["pop_txt"],
              no_titlebar=True,
@@ -279,7 +279,7 @@ def DataWindow(data_button_text: str, export_button_text: str, scrollable_image:
                      titlebar_text_color=COLORS["bar_txt"],
                      titlebar_icon="assets\icons\data16.png",
                      background_color=COLORS["dat_bkg"],
-                     relative_location=(0, 0)
+                     relative_location=(0, -15)
                      ).Finalize()
 
 def NeglectedPopUp(accept_text: str, reject_text: str):

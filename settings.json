@@ -1,0 +1,8 @@
+{
+    "dataDays": 30,
+    "displayMessages": true,
+    "graphExpectedValue": false,
+    "hueOffset": 0,
+    "scrollableImage": false,
+	"messageDuration": 5
+}

@@ -5,9 +5,9 @@ from source.imggen import *
 data_folder = 'data'
 csv_file_name = f'{data_folder}\data.csv'
 msg_file_name = f'{data_folder}\msg.txt'
-settings_file_name = f'{data_folder}\settings.txt'
 log_file_name = f'{data_folder}\log.txt'
 variables_file_name = 'variables.csv'
+settings_file_name = 'settings.json'
 
 done_button_text = 'Done'
 style_button_text = 'Style'
@@ -30,7 +30,7 @@ try:
     if not exists(variables_file_name):
         raise Exception(f"No header file found, create the file {variables_file_name}")
     verify_variables(variables_file_name)
-    variables_file = read_csv(variables_file_name)
+    variables_file = read_csv(variables_file_name, csv_file_name)
     conditions, fractions, habit_messages, descriptions, header, categories = get_data(variables_file)
 
     if not exists(csv_file_name):
@@ -38,7 +38,7 @@ try:
         cols.insert(0, date_header)
         data = DataFrame(columns=cols)
     else:
-        data = read_csv(csv_file_name)
+        data = read_csv(csv_file_name, csv_file_name)
     variables = list(data.columns)
     variables.pop(0)
 
@@ -53,7 +53,7 @@ try:
         while True:
             neglected_event, neglectedValuesDic = neglected_window.read()
             if neglected_event == neglected_accept_text:
-                print("OPEN THE TCHEKA")
+                print("OPEN THE DIALOG")
             if neglected_event == sg.WIN_CLOSED or neglected_event == neglected_reject_text:
                 neglected_window.close()
                 break
@@ -98,7 +98,7 @@ try:
                 message = get_popup_message(conditions, fractions, habit_messages, header, data, msg_file_name)
                 if message and settings.display_messages:
                     save_message_file(msg_file_name, message)
-                    PopUp(message)
+                    PopUp(message, settings.message_duration)
             break
     window.close()
 except Exception as e:
@@ -110,24 +110,16 @@ except Exception as e:
         log_write(log, f"\n{e_obj} at line {e_tb.tb_lineno} of {e_filename}\n\n")
 finally:
     finally_string = f"***** {date.today()} - {datetime.now().time().replace(microsecond=0)} *****\n"
-    if any(values_dict.values()):
+    if values_dict is not None and any(values_dict.values()):
         log_write(log, f"{finally_string}{values_dict}\n\n")
     else:
         log_write(log, f"{finally_string}")
     log.close()
 
 #  TODO LIST - REAL
-# refactor files
-# more pandas
 # better ui
-# fix yesterdays popup
 # code yesterday data feature
-# fix settings json
-# longer wait time to show message
-# some sort of logic for messages
 # ui for data init
-# date if export too long imagegen
-
 
 # TODO LIST - OLD
 # feature edit yday
@@ -149,7 +141,7 @@ finally:
 #   handle empty frequency
 
 # TAG FEATURE? LATEST TIME TAG
-#   separete file
+#   separate file
 
 #   FUTURE
 #   have an indicator on the side of each row based on frequencies:

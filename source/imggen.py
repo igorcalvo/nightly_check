@@ -5,7 +5,7 @@ import matplotlib.colors as clr
 from .utils import flatten_list, align_right, cycle_index, get_value_from_df_by_row
 from .core import get_header_data, get_date_array, get_fail_indexes_list, get_expeted_value, date_header
 
-fontFamilies = {
+font_families = {
     "consolas": r"assets\fonts\consola.ttf",
     "roboto": r"assets\fonts\Roboto-Bold.ttf",
     "liberation": r"assets\fonts\LiberationMono-Bold.ttf",
@@ -44,7 +44,7 @@ def write(image, position: tuple, text: str, color: tuple, font_family: str = "c
         position,
         text,
         color,
-        font=ImageFont.truetype(fontFamilies[font_family], size)
+        font=ImageFont.truetype(font_families[font_family], size)
     )
 
 def text_list_max_len_to_pixels(textList: list, font_size_length: int = 6, font_size_spacing: int = 1) -> int:
@@ -54,6 +54,27 @@ def generate_y_positions(initial_position: tuple, length: int, spacing: int, num
     positions = [(initial_position[0], initial_position[1] + (length + spacing) * n) for n in range(number)]
     return positions, positions[-1][1] + length + spacing - initial_position[1]
 
+def calculate_x_position(initial_pos_x, index, square_size, square_border):
+    return initial_pos_x + index * (square_size + square_border)
+
+def write_category_header(image, position: tuple, category: str, max_category_len: int, square_size: int, square_border: int, squares: int, latest_date: str):
+    write(image, position, align_right(category.upper(), max_category_len), (0, 0, 0), "liberation")
+    header_font_size_length = 7
+    header_font_size_spacing = 1
+    header_font_constant = header_font_size_length + header_font_size_spacing
+    for s in range(squares):
+        current_date = date.today() + timedelta(days=-1)
+        if current_date.day == 1 or (date.today() - current_date).days % 7 == 0:
+            initial_pos_x = position[0] + max_category_len * header_font_constant
+            if current_date.day < 10:
+                initial_pos_x += header_font_constant
+            write(image,
+                  (calculate_x_position(initial_pos_x, s, square_size, square_border), position[1]),
+                  str(latest_date.day),
+                  (0, 0, 0),
+                  "noto")
+        current_date += timedelta(days=-1)
+
 def write_footer(image, position: tuple, square_size: int, square_border: int, squares: int, latest_date: str):
     # latestDate = (date.today() + timedelta(days=-1)).isoformat()
     # days_of_the_week = "STQQSSD"
@@ -62,7 +83,7 @@ def write_footer(image, position: tuple, square_size: int, square_border: int, s
     todays_index = date.fromisoformat(latest_date).weekday()
     for s in range(squares):
         write(image,
-              (position[0] + s * (square_size + square_border), position[1]),
+              (calculate_x_position(position[0], s, square_size, square_border), position[1]),
               cycle_index(days_of_the_week, todays_index - squares + s + 1),
               (0, 0, 0),
               "noto")
@@ -80,12 +101,15 @@ def write_all(image, categories: list, header_list: list, conditions: list, data
 
     for category_index, category in enumerate(categories):
         category_positions, next_category_position = generate_y_positions((initial_pos[0], initial_pos[1]), sqr_size, 2, len(header_list[category_index]))
-        write(image,
-              (initial_pos[0] + category_text_offset[0] - max_category_text_offset, category_positions[0][1] - category_text_offset[1]),
-              align_right(category.upper(), max_category_len),
-              (0, 0, 0),
-              "liberation",
-              12)
+        write_category_header(image,
+                              (initial_pos[0] + category_text_offset[0] - max_category_text_offset,
+                               category_positions[0][1] - category_text_offset[1]),
+                              category,
+                              max_category_len,
+                              sqr_size,
+                              sqr_border,
+                              squares,
+                              get_value_from_df_by_row(date_header, -1, data))
         for header_index, header in enumerate(header_list[category_index]):
             expected_value = get_expeted_value(header, header_list, conditions)
             header_data = get_header_data(data, date_array, squares, header, expected_value if graph_expected_value else True)

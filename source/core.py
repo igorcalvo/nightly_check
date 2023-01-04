@@ -2,22 +2,25 @@ from datetime import date, timedelta, datetime
 from os.path import exists, getsize, isdir
 from os import makedirs, path
 from random import choice
+
 from .utils import *
 
 from pandas import DataFrame, concat
 import json
 
-wakeup_time = 6
+wakeup_time = 11
 date_header = "date"
 
-# .csv
-
-def read_csv(fileName: str):
-    with open(fileName, 'r') as file:
+#region .csv
+def read_csv(file_name: str, data_file_name: str):
+    with open(file_name, 'r') as file:
         lines = file.readlines()
         file.close()
     header = lines[0].replace('\n', '').split(',')
-    content = [stringLine.replace('\n', '').split(',') for stringLine in lines[1:]]
+    if file_name == data_file_name:
+        content = [stringLine.replace('\n', '').replace(',1', ',True').replace(',0', ',False').split(',') for stringLine in lines[1:]]
+    else:
+        content = [stringLine.replace('\n', '').split(',') for stringLine in lines[1:]]
     df = DataFrame(content, columns=header)
     return df
 
@@ -43,7 +46,7 @@ def write_csv(file_name: str, data: DataFrame):
     cols = ','.join([col for col in data.columns])
     content = ''
     for index, row in data.iterrows():
-        row_data = [str(item) for item in list(row)]
+        row_data = [str(item).replace(',True', ',1').replace(',False', ',0') for item in list(row)]
         content += f'\n{row_data}'.replace("[", "").replace("]", "").replace("'", "").replace(" ", "")
     with open(file_name, 'w') as data_file:
         data_file.seek(0)
@@ -57,7 +60,7 @@ def check_for_todays_entry(lastDate: str) -> int:
         current_date = date.today() + timedelta(days=-1) if datetime.now().hour < wakeup_time else date.today()
         delta = current_date - date.fromisoformat(lastDate)
     except:
-        raise Exception("check_for_todays_entry: Can't parse the data, it needs to be in the format 'yyyy-mm-dd'. \nDatabase probably got corrupted.")
+        raise Exception("check_for_todays_entry: Can't parse the date, it needs to be in the format 'yyyy-mm-dd'. \nDatabase probably got corrupted.")
     return delta.days
 
 def get_latest_date(data: DataFrame) -> str:
@@ -100,8 +103,7 @@ def save_data(data: DataFrame, checkbox_dict: dict, csv_file_name: str, fill_in_
         data.iloc[-2 if fill_in_yesterday else -1, data.columns.get_loc(to_lower_underscored(key))] = checkbox_dict[key]
     write_csv(csv_file_name, data)
 
-# .txt
-
+#region .txt
 def get_matrix_data_by_header_indexes(other_matrix: list, header_matrix: list, header_value: str) -> str:
     for idx1, sublist in enumerate(header_matrix):
         for idx2, item in enumerate(sublist):
@@ -126,9 +128,9 @@ def create_file_if_doesnt_exist(file_name: str):
         with open(file_name, 'w') as file:
             file.write('')
             file.close()
+#endregion
 
-# Verifying
-
+#region Verifying
 def verify_header_and_data(header: list, data_variables: list, csv_file_name: str, data: DataFrame):
     flat_header = [to_lower_underscored(item) for sublist in header for item in sublist]
     if len([item for item in data_variables if item not in flat_header]) > 0 or len([item for item in flat_header if item not in data_variables]) > 0:
@@ -158,15 +160,19 @@ def verify_variables(variables_file_name):
     except Exception as e:
         raise e
 
-def no_data_from_yesterday(data):
+def no_data_from_yesterday(data: DataFrame):
     yesterday = (date.today() + timedelta(days=-1)).isoformat()
-    last_column_value = data.loc[data[date_header] == yesterday].values[0][-1]
-    if last_column_value == '':
+    last_column_row = data.loc[data[date_header] == yesterday]
+    if data.shape[0] <= 1:
+        return True
+
+    # TODO Improve code
+    if any([v for v in last_column_row.values[0] if v == '']):
         return True
     return False
+#endregion
 
-# Habit messages
-
+#region Habit messages
 def calculate_frequency(data_frequency: float, nominal_frequency: float, condition: str) -> bool:
     match condition:
         case '<':
@@ -177,7 +183,7 @@ def calculate_frequency(data_frequency: float, nominal_frequency: float, conditi
         case '':
             return True
         case _:
-            raise Exception(f"calculate_frequency: Condition {condition}{nominal_frequency} is not defined.")
+            raise Exception(f"calculate_frequency: Condition {condition} {nominal_frequency} is not defined.")
 
 def parse_frequency(column: str, conditions: list, fractions: list, header: list) -> tuple:
     condition = get_matrix_data_by_header_indexes(conditions, header, column)
@@ -211,16 +217,17 @@ def determine_successful_today(data: DataFrame, conditions: list, header: list, 
                 mission_accomplished_messages.append(habit_messages[idx1][idx2])
     return mission_accomplished_messages
 
-# TODO speed this method up (taking 11 sec before update)
 def get_popup_message(conditions: list, fractions: list, habit_messages: list, header: list, data: DataFrame, msg_file_name: str) -> str | None:
     flat_header = flatten_list(header)
     message_data = [(check_habit(h, conditions, fractions, header, data), h, get_matrix_data_by_header_indexes(habit_messages, header, h)) for h in flat_header]
+    message_data.sort(key=lambda m: m[0][1])
 
     candidate_messages = set([f"{get_matrix_data_by_header_indexes(header, habit_messages, m[2])}\n{m[2]}" if m[0][1] > 0 else '' for m in message_data])
     if len(candidate_messages.intersection({''})) > 0:
         candidate_messages.remove('')
 
-    previous_message = read_latest_message(msg_file_name)
+    past_messages = read_past_messages(msg_file_name)
+    previous_message = past_messages[-1]
     if previous_message != '' and len(candidate_messages.intersection({previous_message})) > 0:
         candidate_messages.remove(previous_message)
 
@@ -232,9 +239,13 @@ def get_popup_message(conditions: list, fractions: list, habit_messages: list, h
     if len(candidate_messages) < 1:
         return None
 
+    candidate_messages = [c.replace('  ', ', ') for c in candidate_messages]
+    for m in message_data:
+        if m[-1] in candidate_messages:
+            return m[-1]
     return choice(list(candidate_messages))
 
-def read_latest_message(msg_file_name: str) -> str:
+def read_past_messages(msg_file_name: str) -> list:
     if not exists(msg_file_name):
         return ''
     else:
@@ -242,7 +253,7 @@ def read_latest_message(msg_file_name: str) -> str:
             # lines = [l.split('\t')[-1].replace('\n', '') for l in f.readlines()]
             lines = [l.replace('\t\t', '\t').split('\t') for l in f.readlines()]
             f.close()
-            return f"{lines[-1][1]}\n{lines[-1][2]}"
+            return [f"{l[1]}\n{l[2]}" for l in lines]
 
 def save_message_file(msg_file_name: str, todays_message: str):
     today = date.today().isoformat()
@@ -253,9 +264,9 @@ def save_message_file(msg_file_name: str, todays_message: str):
     with open(msg_file_name, 'a') as f:
         f.write(data)
         f.close()
+#endregion
 
-# Settings
-
+#region Settings
 class Settings:
     def __init__(self,
                  hue_offset: float = 0,
@@ -263,12 +274,14 @@ class Settings:
                  display_messages: bool = True,
                  graph_expected_value: bool = False,
                  scrollable_image: bool = False,
+                 message_duration: int = 5,
                  ):
         self.hue_offset = hue_offset
         self.data_days = data_days
         self.display_messages = display_messages
         self.graph_expected_value = graph_expected_value
         self.scrollable_image = scrollable_image
+        self.message_duration = message_duration
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
@@ -281,11 +294,13 @@ class Settings:
         display_messages = bool(json_dict['displayMessages'])
         graph_expected_value = bool(json_dict['graphExpectedValue'])
         scrollable_image = bool(json_dict['scrollableImage'])
+        message_duration = int(json_dict['messageDuration'])
         return Settings(hue_offset,
                         data_days,
                         display_messages,
                         graph_expected_value,
                         scrollable_image,
+                        message_duration,
                         )
 
 def read_settings(settings_file_name: str) -> Settings:
@@ -305,9 +320,9 @@ def save_settings_file(settings: Settings, settings_file_name: str):
     with open(settings_file_name, 'w') as s:
         s.write(settings.to_json())
         s.close()
+#endregion
 
-#  Data Visualization
-
+#region  Data Visualization
 def get_date_array(data: DataFrame, squares: int) -> list:
     latest_date_iso = get_latest_date(data)
     latest_date_value = datetime.fromisoformat(latest_date_iso)
@@ -341,3 +356,4 @@ def get_fail_indexes_list(headerData: list, expectedValue: bool = True) -> list:
         if item != expectedValue:
             result.append(index)
     return result
+#endregion
