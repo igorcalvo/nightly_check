@@ -48,16 +48,25 @@ try:
     # PrintFonts()
     settings = read_settings(settings_file_name)
     InitUi(settings.hue_offset)
-    if no_data_from_yesterday(data):
+    neglected = no_data_from_yesterday(data)
+    if neglected:
         neglected_window = NeglectedPopUp(neglected_accept_text, neglected_reject_text)
         while True:
-            neglected_event, neglectedValuesDic = neglected_window.read()
+            neglected_event, neglected_values_dic = neglected_window.read()
             if neglected_event == neglected_accept_text:
-                print("OPEN THE DIALOG")
+                neglected_data_window = MainWindow(categories, header, descriptions, done_button_text, style_button_text, data_button_text, len(data) > 1, True)
+                while True:
+                    neglected_data_event, neglected_data_values_dict = neglected_data_window.read()
+                    if neglected_data_event == done_button_text:
+                        log_write(log, f"saving data from yesterday\n{neglected_data_values_dict}")
+                        save_data(data, neglected_data_values_dict, csv_file_name, True)
+                    if neglected_data_event == sg.WIN_CLOSED or neglected_data_event == done_button_text:
+                        neglected_window.close()
+                        break
             if neglected_event == sg.WIN_CLOSED or neglected_event == neglected_reject_text:
                 neglected_window.close()
                 break
-    window = MainWindow(categories, header, descriptions, done_button_text, style_button_text, data_button_text, len(data) > 1)
+    window = MainWindow(categories, header, descriptions, done_button_text, style_button_text, data_button_text, len(data) > 1, False)
     while True:
         event, values_dict = window.read()
         if event == style_button_text:
@@ -80,7 +89,8 @@ try:
                     style_window.close()
                     break
         elif event == data_button_text:
-            img = generate_image(categories, header, conditions, settings.data_days, settings.graph_expected_value, clean_df(data))
+            graph_data = read_csv(csv_file_name, csv_file_name) if neglected else data
+            img = generate_image(categories, header, conditions, settings.data_days, settings.graph_expected_value, clean_df(graph_data))
             data_window = DataWindow(data_button_text, export_button_text, settings.scrollable_image, image_bytes_to_base64(img))
             while True:
                 data_event, data_values_dict = data_window.read()
@@ -102,7 +112,7 @@ try:
             break
     window.close()
 except Exception as e:
-    if True:
+    if __debug__:
         raise(e)
     else:
         e_type, e_obj, e_tb = exc_info()
@@ -118,11 +128,12 @@ finally:
 
 #  TODO LIST - REAL
 # better ui
-# code yesterday data feature
+#   columns instead of spacing text
+#   better width formula
+#   research how to make it look prettier
 # ui for data init
 
 # TODO LIST - OLD
-# feature edit yday
 # TEST - what if no message in variobles?
 
 # EDIT DATA

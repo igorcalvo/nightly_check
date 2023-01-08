@@ -26,11 +26,11 @@ def read_csv(file_name: str, data_file_name: str):
 
 def group_by_category(dataframe: DataFrame, column: str) -> list:
     category_column = "category"
-    captalized_columns = ["header"]
+    capitalized_columns = ["header"]
     categories = remove_duplicates(dataframe[category_column])
     result = []
     for category in categories:
-        result.append([to_capitalized(x) if column in captalized_columns else x for x in list(dataframe.loc[dataframe[category_column] == category][column])])
+        result.append([to_capitalized(x) if column in capitalized_columns else x for x in list(dataframe.loc[dataframe[category_column] == category][column])])
     return result
 
 def get_data(variables_file):
@@ -46,7 +46,7 @@ def write_csv(file_name: str, data: DataFrame):
     cols = ','.join([col for col in data.columns])
     content = ''
     for index, row in data.iterrows():
-        row_data = [str(item).replace(',True', ',1').replace(',False', ',0') for item in list(row)]
+        row_data = [str(item).replace('True', '1').replace('False', '0') for item in list(row)]
         content += f'\n{row_data}'.replace("[", "").replace("]", "").replace("'", "").replace(" ", "")
     with open(file_name, 'w') as data_file:
         data_file.seek(0)
@@ -96,9 +96,6 @@ def backup_data(csv_file_name: str, data: DataFrame):
     write_csv(file_name, data)
 
 def save_data(data: DataFrame, checkbox_dict: dict, csv_file_name: str, fill_in_yesterday: bool = False):
-    if fill_in_yesterday and any(checkbox_dict.values()):
-        dict_data = "; ".join(checkbox_dict.values())
-        raise Exception(f"save_data data from yesterday is not empty!\n{dict_data}")
     for key in checkbox_dict.keys():
         data.iloc[-2 if fill_in_yesterday else -1, data.columns.get_loc(to_lower_underscored(key))] = checkbox_dict[key]
     write_csv(csv_file_name, data)
@@ -167,7 +164,7 @@ def no_data_from_yesterday(data: DataFrame):
         return True
 
     # TODO Improve code
-    if any([v for v in last_column_row.values[0] if v == '']):
+    if len([v for v in last_column_row.values[0] if v == '']) > 0:
         return True
     return False
 #endregion
@@ -227,7 +224,7 @@ def get_popup_message(conditions: list, fractions: list, habit_messages: list, h
         candidate_messages.remove('')
 
     past_messages = read_past_messages(msg_file_name)
-    previous_message = past_messages[-1]
+    previous_message = past_messages[-1] if past_messages is not None else ''
     if previous_message != '' and len(candidate_messages.intersection({previous_message})) > 0:
         candidate_messages.remove(previous_message)
 
@@ -247,7 +244,7 @@ def get_popup_message(conditions: list, fractions: list, habit_messages: list, h
 
 def read_past_messages(msg_file_name: str) -> list:
     if not exists(msg_file_name):
-        return ''
+        return None
     else:
         with open(msg_file_name, 'r') as f:
             # lines = [l.split('\t')[-1].replace('\n', '') for l in f.readlines()]

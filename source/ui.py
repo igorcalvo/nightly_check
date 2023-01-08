@@ -113,7 +113,7 @@ def CreateCheckBoxes(descriptions: list, header: list, size: int) -> list:
                           pad=((15, 0), (2, 2)),
                           tooltip=get_matrix_data_by_header_indexes(descriptions, header, item)) if item != '' else sg.Text(pad_string('', column_correction), background_color=COLORS["win_bkg"])) for item in splitList] for splitList in transpose(header)]
 #                                                                                                                      Fixes floating checkbox on a column
-def CreateMainLayout(categories: list, header: list, descriptions: list, done_button_text: str, style_button_text: str, data_button_text: str, longest_text: int, windows_x_size: int, csv_not_empty: bool) -> list:
+def CreateMainLayout(categories: list, header: list, descriptions: list, done_button_text: str, style_button_text: str, data_button_text: str, longest_text: int, windows_x_size: int, csv_not_empty: bool, is_neglected: bool) -> list:
     size = int(longest_text * 8 / CHECKBOX_PIXEL_LENGTH + 1)
     #                        Spacing between categories
     category_titles = [sg.Text(pad_string(c.upper(), int(longest_text * CHECKBOX_PIXEL_LENGTH / CATEGORY_PIXEL_LENGTH) + 3),
@@ -122,47 +122,43 @@ def CreateMainLayout(categories: list, header: list, descriptions: list, done_bu
                                pad=((15, 10), (10, 10)),
                                font=FONTS["cat"]) for c in categories]
     checkboxes = CreateCheckBoxes(descriptions, header, size)
-    # button_spacing = int(0.333 * (windowsXSize / checkboxPixelLength) + size + 1)
-    # button_spacing = int(0.50484 * (windowsXSize / checkboxPixelLength) - 0.05307 * size - 16.3815)
-    button_spacing = int(0.5 * (windows_x_size / CHECKBOX_PIXEL_LENGTH) - 0.05 * size - 15)
-#   TODO REVIEW FORMULA
 
-    # print("button_spacing", button_spacing)
-    # print("button_spacing", " X1 ", windowsXSize / checkboxPixelLength)
-    # print("button_spacing", " X2 ", size)
-#   TODO               may be missing linear component
-    return [category_titles,
-            checkboxes,
-            [sg.Button(style_button_text,
-                       font=FONTS["btn"],
-                       size=7,
-                       button_color=(COLORS["stl_bkg"], COLORS["stl_txt"]),
-                       pad=((15, 0), (10, 10))),
-    #                Button's distance from the left
-             sg.Text(pad_string("", button_spacing), background_color=COLORS["win_bkg"], font=FONTS["ckb"]),
-             sg.Button(data_button_text,
-                       font=FONTS["btn"],
-                       size=7,
-                       disabled=not csv_not_empty,
-                       button_color=(COLORS["dtb_bkg"], COLORS["dtb_txt"]),
-                       ),
-    #                Button's distance from the left
-             sg.Text(pad_string("", button_spacing), background_color=COLORS["win_bkg"], font=FONTS["ckb"]),
-             sg.Button(done_button_text,
-                       font=FONTS["btn"],
-                       size=7,
-                       button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]))]]
+    buttons_layout = [
+        sg.Button(style_button_text,
+                  font=FONTS["btn"],
+                  size=7,
+                  button_color=(COLORS["stl_bkg"], COLORS["stl_txt"]),
+                  pad=(15, 0)),
+        sg.Push(background_color=COLORS["win_bkg"]),
+        sg.Button(data_button_text,
+                  font=FONTS["btn"],
+                  size=7,
+                  disabled=not csv_not_empty,
+                  button_color=(COLORS["dtb_bkg"], COLORS["dtb_txt"]),
+                  )
+    ]
 
-def MainWindow(categories: list, header: list, descriptions: list, done_button_text: str, style_button_text: str, data_button_text: str, csv_not_empty: bool):
+    done_button_layout = [
+        sg.Push(background_color=COLORS["win_bkg"]),
+        sg.Button(done_button_text,
+                  font=FONTS["btn"],
+                  size=7,
+                  button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
+                  pad=(15, 0))
+    ]
+    buttons_layout.extend(done_button_layout)
+
+    if not is_neglected:
+        window_layout = [category_titles, checkboxes, buttons_layout]
+    else:
+        window_layout = [category_titles, checkboxes, done_button_layout]
+
+    return window_layout
+
+def MainWindow(categories: list, header: list, descriptions: list, done_button_text: str, style_button_text: str, data_button_text: str, csv_not_empty: bool, is_neglected: bool):
     longest_text = max([len(x) for x in flatten_list(header)])
-    # window_size = (int((0.91848 * longest_text * checkboxPixelLength + 57.09) * len(categories) - 14.61), 40 * max([len(h) for h in header]) + 75)
     window_size = (int((0.93 * longest_text * CHECKBOX_PIXEL_LENGTH + 60) * len(categories) - 15), 40 * max([len(h) for h in header]) + 75)
-    # print("window_size", window_size[0])
-    # print("window_size", "X1X2", checkboxPixelLength * longest_text * len(categories))
-    # print("window_size", "X2", len(categories))
-#   TODO spacing + borders? missing
-#   TODO REVIEW FORMULA
-    layout = CreateMainLayout(categories, header, descriptions, done_button_text, style_button_text, data_button_text, longest_text, window_size[0], csv_not_empty)
+    layout = CreateMainLayout(categories, header, descriptions, done_button_text, style_button_text, data_button_text, longest_text, window_size[0], csv_not_empty, is_neglected)
     return sg.Window(title="Argus",
                      layout=layout,
                      use_custom_titlebar=True,
@@ -170,7 +166,8 @@ def MainWindow(categories: list, header: list, descriptions: list, done_button_t
                      titlebar_text_color=COLORS["bar_txt"],
                      titlebar_icon=COLORED_ICON_PATH,
                      background_color=COLORS["win_bkg"],
-                     size=window_size)
+                     size=window_size,
+                     element_justification='c')
 
 def PopUp(message: str, message_duration: int):
     sg.PopupNoButtons(message,
