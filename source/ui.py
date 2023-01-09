@@ -92,7 +92,7 @@ def generate_icon(hue_offset: float):
     hsv2 = cv.merge([h2, s, v])
 
     result = cv.cvtColor(hsv2, cv.COLOR_HSV2BGR)
-    result = cv.merge([result[:,:,0], result[:,:,1], result[:,:,2], a])
+    result = cv.merge([result[:, :, 0], result[:, :, 1], result[:, :, 2], a])
     cv.imwrite(COLORED_ICON_PATH, result)
 
 def InitUi(hueOffset: float):
@@ -128,7 +128,7 @@ def CreateMainLayout(categories: list, header: list, descriptions: list, done_bu
                   font=FONTS["btn"],
                   size=7,
                   button_color=(COLORS["stl_bkg"], COLORS["stl_txt"]),
-                  pad=(15, 0)),
+                  pad=(25, 0)),
         sg.Push(background_color=COLORS["win_bkg"]),
         sg.Button(data_button_text,
                   font=FONTS["btn"],
@@ -144,7 +144,7 @@ def CreateMainLayout(categories: list, header: list, descriptions: list, done_bu
                   font=FONTS["btn"],
                   size=7,
                   button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
-                  pad=(15, 0))
+                  pad=(25, 0))
     ]
     buttons_layout.extend(done_button_layout)
 

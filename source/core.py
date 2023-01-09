@@ -161,7 +161,7 @@ def no_data_from_yesterday(data: DataFrame):
     yesterday = (date.today() + timedelta(days=-1)).isoformat()
     last_column_row = data.loc[data[date_header] == yesterday]
     if data.shape[0] <= 1:
-        return True
+        return False
 
     # TODO Improve code
     if len([v for v in last_column_row.values[0] if v == '']) > 0:
@@ -252,10 +252,12 @@ def read_past_messages(msg_file_name: str) -> list:
             f.close()
             return [f"{l[1]}\n{l[2]}" for l in lines]
 
-def save_message_file(msg_file_name: str, todays_message: str):
+def save_message_file(msg_file_name: str, header_list: list, todays_message: str):
     today = date.today().isoformat()
-    message = '\t'.join(m + '\t' if len(m) < 8 else m for m in todays_message.split('\n'))
-    data = f"\n{today}\t{message}"
+    header, message = todays_message.split('\n')
+    longest_header = max(header_list, key=len)
+    spacing = '\t' * len(longest_header) // 4 - len(header) // 4 + 1
+    data = f"\n{today}\t{header}{spacing}{message}"
     if not exists(msg_file_name):
         data = data.replace('\n', '')
     with open(msg_file_name, 'a') as f:

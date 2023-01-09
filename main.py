@@ -107,7 +107,7 @@ try:
 
                 message = get_popup_message(conditions, fractions, habit_messages, header, data, msg_file_name)
                 if message and settings.display_messages:
-                    save_message_file(msg_file_name, message)
+                    save_message_file(msg_file_name, header, message)
                     PopUp(message, settings.message_duration)
             break
     window.close()
@@ -134,7 +134,7 @@ finally:
 # ui for data init
 
 # TODO LIST - OLD
-# TEST - what if no message in variobles?
+# TEST - what if no message in variables?
 
 # EDIT DATA
 #   methods
@@ -186,5 +186,3 @@ finally:
 #       assets folder -> check if folder exists and maybe unzip automatically?
 #       variables.txt -> handle msg, or create with ui
 #       create data folder -> check if folder exists and maybe unzip automatically?
-#   icon
-#       make icon change color
