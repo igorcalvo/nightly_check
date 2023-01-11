@@ -62,21 +62,21 @@ def write_category_header(image, position: tuple, category: str, max_category_le
     header_font_size_length = 7
     header_font_size_spacing = 1
     header_font_constant = header_font_size_length + header_font_size_spacing
+    oldest_date = date(int(latest_date.split('-')[0]), int(latest_date.split('-')[1]), int(latest_date.split('-')[2])) + timedelta(days=(-squares + 1))
+    current_date = oldest_date
     for s in range(squares):
-        current_date = date.today() + timedelta(days=-1)
-        if current_date.day == 1 or (date.today() - current_date).days % 7 == 0:
-            initial_pos_x = position[0] + max_category_len * header_font_constant
+        if current_date.day == 1 or (oldest_date - current_date).days % 7 == 0:
+            initial_pos_x = position[0] + max_category_len * header_font_constant - 1
             if current_date.day < 10:
                 initial_pos_x += header_font_constant
             write(image,
                   (calculate_x_position(initial_pos_x, s, square_size, square_border), position[1]),
-                  str(latest_date.day),
+                  f'0{current_date.day}' if current_date.day < 10 else str(current_date.day),
                   (0, 0, 0),
                   "noto")
-        current_date += timedelta(days=-1)
+        current_date += timedelta(days=+1)
 
 def write_footer(image, position: tuple, square_size: int, square_border: int, squares: int, latest_date: str):
-    # latestDate = (date.today() + timedelta(days=-1)).isoformat()
     # days_of_the_week = "STQQSSD"
     # days_of_the_week = "MTWTFSS"
     days_of_the_week = "月火水木金土日"

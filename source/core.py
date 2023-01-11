@@ -158,7 +158,7 @@ def verify_variables(variables_file_name):
         raise e
 
 def no_data_from_yesterday(data: DataFrame):
-    yesterday = (date.today() + timedelta(days=-1)).isoformat()
+    yesterday = (date.today() + timedelta(days=-2 if datetime.now().hour < wakeup_time else -1)).isoformat()
     last_column_row = data.loc[data[date_header] == yesterday]
     if data.shape[0] <= 1:
         return False
