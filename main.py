@@ -89,6 +89,7 @@ try:
                     style_window.close()
                     break
         elif event == data_button_text:
+            # TODO if already filled, plot today too, not clean df
             graph_data = read_csv(csv_file_name, csv_file_name) if neglected else data
             img = generate_image(categories, header, conditions, settings.data_days, settings.graph_expected_value, clean_df(graph_data))
             data_window = DataWindow(data_button_text, export_button_text, settings.scrollable_image, image_bytes_to_base64(img))

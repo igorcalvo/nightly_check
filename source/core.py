@@ -190,13 +190,15 @@ def parse_frequency(column: str, conditions: list, fractions: list, header: list
     return condition, int(fraction.split('/')[0]), int(fraction.split('/')[1])
 
 def check_habit(column: str, conditions: list, fractions: list, header: list, data: DataFrame) -> tuple:
+    if column in ['Birl', 'Girl', 'Delivery']:
+        pass
     condition, num, den = parse_frequency(column, conditions, fractions, header)
     nominal = num/den
-    if data.loc[:, to_lower_underscored(column)].count() >= den:
-        trues = [1 if x is True else 0 for x in data.loc[:, to_lower_underscored(column)].tail(den)]
-        frequency = sum(trues)/len(trues)
-    else:
-        return 0, 0
+    # if data.loc[:, to_lower_underscored(column)].count() >= den:
+    trues = [1 if x == 'True' else 0 for x in data.loc[:, to_lower_underscored(column)].tail(den)]
+    frequency = sum(trues)/len(trues)
+    # else:
+    #     return 0, 0
     return (frequency, nominal) if calculate_frequency(frequency, nominal, condition) else (0, nominal)
 
 def determine_successful_today(data: DataFrame, conditions: list, header: list, habit_messages: list) -> list:
@@ -217,9 +219,9 @@ def determine_successful_today(data: DataFrame, conditions: list, header: list, 
 def get_popup_message(conditions: list, fractions: list, habit_messages: list, header: list, data: DataFrame, msg_file_name: str) -> str | None:
     flat_header = flatten_list(header)
     message_data = [(check_habit(h, conditions, fractions, header, data), h, get_matrix_data_by_header_indexes(habit_messages, header, h)) for h in flat_header]
-    message_data.sort(key=lambda m: m[0][1])
+    message_data.sort(key=lambda m: m[0][1], reverse=False)
 
-    candidate_messages = set([f"{get_matrix_data_by_header_indexes(header, habit_messages, m[2])}\n{m[2]}" if m[0][1] > 0 else '' for m in message_data])
+    candidate_messages = set([f"{get_matrix_data_by_header_indexes(header, habit_messages, m[2])}\n{m[2]}" if m[0][0] > 0 else '' for m in message_data])
     if len(candidate_messages.intersection({''})) > 0:
         candidate_messages.remove('')
 
@@ -236,10 +238,11 @@ def get_popup_message(conditions: list, fractions: list, habit_messages: list, h
     if len(candidate_messages) < 1:
         return None
 
+    # Not random anymore
     candidate_messages = [c.replace('  ', ', ') for c in candidate_messages]
     for m in message_data:
-        if m[-1] in candidate_messages:
-            return m[-1]
+        if f'{m[-2]}\n{m[-1]}' in candidate_messages:
+            return f'{m[-2]}\n{m[-1]}'
     return choice(list(candidate_messages))
 
 def read_past_messages(msg_file_name: str) -> list:
@@ -256,7 +259,7 @@ def save_message_file(msg_file_name: str, header_list: list, todays_message: str
     today = date.today().isoformat()
     header, message = todays_message.split('\n')
     longest_header = max(header_list, key=len)
-    spacing = '\t' * len(longest_header) // 4 - len(header) // 4 + 1
+    spacing = '\t' * (len(longest_header) // 4 - len(header) // 4 + 2)
     data = f"\n{today}\t{header}{spacing}{message}"
     if not exists(msg_file_name):
         data = data.replace('\n', '')
