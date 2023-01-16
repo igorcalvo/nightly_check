@@ -1,3 +1,5 @@
+import datetime
+
 from source.ui import *
 from source.core import *
 from source.imggen import *
@@ -19,6 +21,9 @@ data_button_text = 'Data'
 export_button_text = 'Export'
 neglected_accept_text = "Yes"
 neglected_reject_text = "No"
+edit_button_text = 'Edit'
+select_date_button_text = 'Select'
+select_date_key = 'Date'
 
 values_dict = {}
 hue_offset = 0
@@ -49,12 +54,13 @@ try:
     settings = read_settings(settings_file_name)
     InitUi(settings.hue_offset)
     neglected = no_data_from_yesterday(data)
+    # neglected = True
     if neglected:
         neglected_window = NeglectedPopUp(neglected_accept_text, neglected_reject_text)
         while True:
             neglected_event, neglected_values_dic = neglected_window.read()
             if neglected_event == neglected_accept_text:
-                neglected_data_window = MainWindow(categories, header, descriptions, done_button_text, style_button_text, data_button_text, len(data) > 1, True)
+                neglected_data_window = MainWindow(categories, header, descriptions, done_button_text, style_button_text, data_button_text, edit_button_text, len(data) > 1, True)
                 while True:
                     neglected_data_event, neglected_data_values_dict = neglected_data_window.read()
                     if neglected_data_event == done_button_text:
@@ -66,7 +72,7 @@ try:
             if neglected_event == sg.WIN_CLOSED or neglected_event == neglected_reject_text:
                 neglected_window.close()
                 break
-    window = MainWindow(categories, header, descriptions, done_button_text, style_button_text, data_button_text, len(data) > 1, False)
+    window = MainWindow(categories, header, descriptions, done_button_text, style_button_text, data_button_text, edit_button_text, len(data) > 1, False)
     while True:
         event, values_dict = window.read()
         if event == style_button_text:
@@ -101,6 +107,38 @@ try:
                         img.save(export_image_file_name)
                 if data_event == sg.WIN_CLOSED or data_event == export_button_text:
                     data_window.close()
+                    break
+        elif event == edit_button_text:
+            date_picker_window = DatePickerWindow(select_date_key, select_date_button_text)
+            date = datetime.today()
+            while True:
+                date_picker_event, date_picker_dict = date_picker_window.read()
+                if date_picker_event == select_date_button_text or date_picker_event == sg.WIN_CLOSED:
+                    print("date dict", date_picker_dict)
+                    date = date_picker_dict[select_date_key]
+                    data_window.close()
+
+                    # TODO Alter logic to input data to certain date
+                    # TODO add logic to load checkboxes from certain date
+                    # neglected_window = NeglectedPopUp(neglected_accept_text, neglected_reject_text)
+                    # while True:
+                    #     neglected_event, neglected_values_dic = neglected_window.read()
+                    #     if neglected_event == neglected_accept_text:
+                    #         neglected_data_window = MainWindow(categories, header, descriptions, done_button_text,
+                    #                                            style_button_text, data_button_text, edit_button_text,
+                    #                                            len(data) > 1, True)
+                    #         while True:
+                    #             neglected_data_event, neglected_data_values_dict = neglected_data_window.read()
+                    #             if neglected_data_event == done_button_text:
+                    #                 log_write(log, f"saving data from yesterday\n{neglected_data_values_dict}")
+                    #                 save_data(data, neglected_data_values_dict, csv_file_name, True)
+                    #             if neglected_data_event == sg.WIN_CLOSED or neglected_data_event == done_button_text:
+                    #                 neglected_window.close()
+                    #                 break
+                    #     if neglected_event == sg.WIN_CLOSED or neglected_event == neglected_reject_text:
+                    #         neglected_window.close()
+                    #         break
+
                     break
         elif event == done_button_text or event == sg.WIN_CLOSED:
             if event == done_button_text:

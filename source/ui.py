@@ -113,7 +113,7 @@ def CreateCheckBoxes(descriptions: list, header: list, size: int) -> list:
                           pad=((15, 0), (2, 2)),
                           tooltip=get_matrix_data_by_header_indexes(descriptions, header, item)) if item != '' else sg.Text(pad_string('', column_correction), background_color=COLORS["win_bkg"])) for item in splitList] for splitList in transpose(header)]
 #                                                                                                                      Fixes floating checkbox on a column
-def CreateMainLayout(categories: list, header: list, descriptions: list, done_button_text: str, style_button_text: str, data_button_text: str, longest_text: int, windows_x_size: int, csv_not_empty: bool, is_neglected: bool) -> list:
+def CreateMainLayout(categories: list, header: list, descriptions: list, done_button_text: str, style_button_text: str, data_button_text: str, edit_button_text: str, longest_text: int, windows_x_size: int, csv_not_empty: bool, is_neglected: bool) -> list:
     size = int(longest_text * 8 / CHECKBOX_PIXEL_LENGTH + 1)
     #                        Spacing between categories
     category_titles = [sg.Text(pad_string(c.upper(), int(longest_text * CHECKBOX_PIXEL_LENGTH / CATEGORY_PIXEL_LENGTH) + 3),
@@ -135,7 +135,14 @@ def CreateMainLayout(categories: list, header: list, descriptions: list, done_bu
                   size=7,
                   disabled=not csv_not_empty,
                   button_color=(COLORS["dtb_bkg"], COLORS["dtb_txt"]),
-                  )
+                  ),
+        sg.Push(background_color=COLORS["win_bkg"]),
+        sg.Button(edit_button_text,
+                  font=FONTS["btn"],
+                  size=7,
+                  disabled=not csv_not_empty,
+                  button_color=(COLORS["dtb_bkg"], COLORS["dtb_txt"]),
+                  ),
     ]
 
     done_button_layout = [
@@ -155,10 +162,10 @@ def CreateMainLayout(categories: list, header: list, descriptions: list, done_bu
 
     return window_layout
 
-def MainWindow(categories: list, header: list, descriptions: list, done_button_text: str, style_button_text: str, data_button_text: str, csv_not_empty: bool, is_neglected: bool):
+def MainWindow(categories: list, header: list, descriptions: list, done_button_text: str, style_button_text: str, data_button_text: str, edit_button_text: str, csv_not_empty: bool, is_neglected: bool):
     longest_text = max([len(x) for x in flatten_list(header)])
     window_size = (int((0.93 * longest_text * CHECKBOX_PIXEL_LENGTH + 60) * len(categories) - 15), 40 * max([len(h) for h in header]) + 75)
-    layout = CreateMainLayout(categories, header, descriptions, done_button_text, style_button_text, data_button_text, longest_text, window_size[0], csv_not_empty, is_neglected)
+    layout = CreateMainLayout(categories, header, descriptions, done_button_text, style_button_text, data_button_text, edit_button_text, longest_text, window_size[0], csv_not_empty, is_neglected)
     return sg.Window(title="Argus",
                      layout=layout,
                      use_custom_titlebar=True,
@@ -171,14 +178,14 @@ def MainWindow(categories: list, header: list, descriptions: list, done_button_t
 
 def PopUp(message: str, message_duration: int):
     sg.PopupNoButtons(message,
-             keep_on_top=True,
-             auto_close=True,
-             auto_close_duration=message_duration,
-             background_color=COLORS["pop_bkg"],
-             text_color=COLORS["pop_txt"],
-             no_titlebar=True,
-             font=FONTS["pop"],
-             line_width=len(message))
+                      keep_on_top=True,
+                      auto_close=True,
+                      auto_close_duration=message_duration,
+                      background_color=COLORS["pop_bkg"],
+                      text_color=COLORS["pop_txt"],
+                      no_titlebar=True,
+                      font=FONTS["pop"],
+                      line_width=len(message))
 
 def StyleWindow(style_button_text: str, slider_text_key: str, preview_window_text: str, set_button_tex_key: str):
     return sg.Window(style_button_text, [
@@ -317,3 +324,39 @@ def NeglectedPopUp(accept_text: str, reject_text: str):
                      element_justification='c'
                      ).Finalize()
 
+def DatePickerWindow(select_date_key: str, select_date_button_text: str):
+    layout = [
+        [sg.Text(
+            text='Select a date:',
+            text_color=COLORS["pop_txt"],
+            background_color=COLORS["pop_bkg"],
+            font=FONTS["pop"]
+        )],
+        [
+            sg.InputText(key=select_date_key,
+                         background_color=COLORS["pop_bkg"],
+                         size=(20, 10)),
+            sg.CalendarButton("Pick a date",
+                              close_when_date_chosen=True,
+                              target=select_date_key,
+                              format='%Y-%m-%d',
+                              size=(15, 1),
+                              button_color=(COLORS["dnb_txt"], COLORS["dnb_bkg"])),
+            sg.Button(select_date_button_text,
+                      font=FONTS["btn"],
+                      size=7,
+                      key=select_date_button_text,
+                      button_color=(COLORS["dnb_txt"], COLORS["dnb_bkg"]))
+        ]
+    ]
+    return sg.Window("Pick a Date",
+                     layout,
+                     return_keyboard_events=True,
+                     use_custom_titlebar=True,
+                     titlebar_background_color=COLORS["bar_bkg"],
+                     titlebar_text_color=COLORS["bar_txt"],
+                     titlebar_icon="assets\icons\yesterday16.png",
+                     background_color=COLORS["pop_bkg"],
+                     relative_location=(0, 0),
+                     element_justification='c'
+                     ).Finalize()
