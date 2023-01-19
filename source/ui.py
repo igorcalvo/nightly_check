@@ -99,11 +99,11 @@ def InitUi(hueOffset: float):
     generate_icon(hueOffset)
     update_COLORS(hueOffset)
 
-def CreateCheckBoxes(descriptions: list, header: list, size: int) -> list:
+def CreateCheckBoxes(descriptions: list, header: list, size: int, default_values: list = []) -> list:
     #                  magic number to align checkboxes when the previous column has fewer rows
     column_correction = 2 * size + 7
     return [[(sg.Checkbox(text=' ' + item,
-                          default=False,
+                          default=False if len(default_values) == 0 else get_matrix_data_by_header_indexes(default_values, header, item),
                           key=item,
                           size=size,
                           font=FONTS["ckb"],
@@ -113,7 +113,7 @@ def CreateCheckBoxes(descriptions: list, header: list, size: int) -> list:
                           pad=((15, 0), (2, 2)),
                           tooltip=get_matrix_data_by_header_indexes(descriptions, header, item)) if item != '' else sg.Text(pad_string('', column_correction), background_color=COLORS["win_bkg"])) for item in splitList] for splitList in transpose(header)]
 #                                                                                                                      Fixes floating checkbox on a column
-def CreateMainLayout(categories: list, header: list, descriptions: list, done_button_text: str, style_button_text: str, data_button_text: str, edit_button_text: str, longest_text: int, windows_x_size: int, csv_not_empty: bool, is_neglected: bool) -> list:
+def CreateMainLayout(categories: list, header: list, descriptions: list, done_button_text: str, style_button_text: str, data_button_text: str, edit_button_text: str, longest_text: int, windows_x_size: int, csv_not_empty: bool, is_sub_window: bool, default_values: list) -> list:
     size = int(longest_text * 8 / CHECKBOX_PIXEL_LENGTH + 1)
     #                        Spacing between categories
     category_titles = [sg.Text(pad_string(c.upper(), int(longest_text * CHECKBOX_PIXEL_LENGTH / CATEGORY_PIXEL_LENGTH) + 3),
@@ -121,7 +121,7 @@ def CreateMainLayout(categories: list, header: list, descriptions: list, done_bu
                                background_color=COLORS["cat_bkg"],
                                pad=((15, 10), (10, 10)),
                                font=FONTS["cat"]) for c in categories]
-    checkboxes = CreateCheckBoxes(descriptions, header, size)
+    checkboxes = CreateCheckBoxes(descriptions, header, size, default_values)
 
     buttons_layout = [
         sg.Button(style_button_text,
@@ -155,17 +155,17 @@ def CreateMainLayout(categories: list, header: list, descriptions: list, done_bu
     ]
     buttons_layout.extend(done_button_layout)
 
-    if not is_neglected:
+    if not is_sub_window:
         window_layout = [category_titles, checkboxes, buttons_layout]
     else:
         window_layout = [category_titles, checkboxes, done_button_layout]
 
     return window_layout
 
-def MainWindow(categories: list, header: list, descriptions: list, done_button_text: str, style_button_text: str, data_button_text: str, edit_button_text: str, csv_not_empty: bool, is_neglected: bool):
+def MainWindow(categories: list, header: list, descriptions: list, done_button_text: str, style_button_text: str, data_button_text: str, edit_button_text: str, csv_not_empty: bool, is_sub_window: bool, default_values: list = []):
     longest_text = max([len(x) for x in flatten_list(header)])
     window_size = (int((0.93 * longest_text * CHECKBOX_PIXEL_LENGTH + 60) * len(categories) - 15), 40 * max([len(h) for h in header]) + 75)
-    layout = CreateMainLayout(categories, header, descriptions, done_button_text, style_button_text, data_button_text, edit_button_text, longest_text, window_size[0], csv_not_empty, is_neglected)
+    layout = CreateMainLayout(categories, header, descriptions, done_button_text, style_button_text, data_button_text, edit_button_text, longest_text, window_size[0], csv_not_empty, is_sub_window, default_values)
     return sg.Window(title="Argus",
                      layout=layout,
                      use_custom_titlebar=True,

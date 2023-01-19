@@ -90,7 +90,6 @@ def write_footer(image, position: tuple, square_size: int, square_border: int, s
 
 def write_all(image, categories: list, header_list: list, conditions: list, data, position: tuple, squares: int, sqr_size: int, sqr_border: int, max_x_delta: int,
               text_squares_x_spacing: int, text_squares_y_offset: int, category_y_spacing: int, category_text_offset: tuple, graph_expected_value: bool):
-
     max_header_len = max([len(h) for h in flatten_list(header_list)])
     max_category_len = max([len(c) for c in categories])
     max_category_text_offset = text_list_max_len_to_pixels(categories)

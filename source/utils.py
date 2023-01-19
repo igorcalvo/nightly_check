@@ -1,5 +1,6 @@
 from base64 import b64encode
 from io import BytesIO
+from pandas import DataFrame
 
 def group_list_if_char(flatList: list, ch: str) -> list:
     result = []
@@ -54,10 +55,10 @@ def to_capitalized(string: str) -> str:
 def flatten_list(l: list) -> list:
     return [item for sublist in l for item in sublist]
 
-def get_value_from_df_by_row(colName: str, row: int, data):
+def get_value_from_df_by_row(colName: str, row: int, data: DataFrame):
     return data.iloc[row, data.columns.get_loc(colName)]
 
-def clean_df(data):
+def clean_df(data: DataFrame):
     return data.dropna().iloc[:-1]
 
 def align_right(string: str, length: int) -> str:
@@ -71,7 +72,7 @@ def cycle_index(obj, index):
         corrected_index = index - direction * div * len(obj) - 1
     return obj[corrected_index]
 
-def get_value_from_df_by_value(colName: str, value, data):
+def get_value_from_df_by_value(colName: str, value, data: DataFrame):
     return data.loc[data[colName] == value]
 
 def image_bytes_to_base64(image) -> str:
@@ -87,3 +88,7 @@ def remove_duplicates(arr: list) -> list:
     seen = set()
     seen_add = seen.add
     return [x for x in arr if not (x in seen or seen_add(x))]
+
+def df_row_from_date(df: DataFrame, date: str, date_header: str):
+    row_from_date = df.loc[(df[date_header] == date)]
+    return row_from_date

@@ -33,7 +33,7 @@ create_file_if_doesnt_exist(log_file_name)
 log = open(log_file_name, 'r+')
 try:
     if not exists(variables_file_name):
-        raise Exception(f"No header file found, create the file {variables_file_name}")
+        raise Exception(f"No {variables_file_name} file found, you must create the file.")
     verify_variables(variables_file_name)
     variables_file = read_csv(variables_file_name, csv_file_name)
     conditions, fractions, habit_messages, descriptions, header, categories = get_data(variables_file)
@@ -46,21 +46,20 @@ try:
         data = read_csv(csv_file_name, csv_file_name)
     variables = list(data.columns)
     variables.pop(0)
-
+    data_from_date_to_list(data, '2023-01-12', header)
     verify_header_and_data(header, variables, csv_file_name, data)
     data = create_entry(data)
-    # GenerateImage(categories, header, frequencies, CleanDF(data))
     # PrintFonts()
     settings = read_settings(settings_file_name)
     InitUi(settings.hue_offset)
     neglected = no_data_from_yesterday(data)
-    # neglected = True
     if neglected:
         neglected_window = NeglectedPopUp(neglected_accept_text, neglected_reject_text)
         while True:
             neglected_event, neglected_values_dic = neglected_window.read()
             if neglected_event == neglected_accept_text:
-                neglected_data_window = MainWindow(categories, header, descriptions, done_button_text, style_button_text, data_button_text, edit_button_text, len(data) > 1, True)
+                neglected_data_window = MainWindow(categories, header, descriptions, done_button_text, style_button_text,
+                                                   data_button_text, edit_button_text, len(data) > 1, True)
                 while True:
                     neglected_data_event, neglected_data_values_dict = neglected_data_window.read()
                     if neglected_data_event == done_button_text:
@@ -72,7 +71,8 @@ try:
             if neglected_event == sg.WIN_CLOSED or neglected_event == neglected_reject_text:
                 neglected_window.close()
                 break
-    window = MainWindow(categories, header, descriptions, done_button_text, style_button_text, data_button_text, edit_button_text, len(data) > 1, False)
+    window = MainWindow(categories, header, descriptions, done_button_text, style_button_text, data_button_text,
+                        edit_button_text, len(data) > 1, False)
     while True:
         event, values_dict = window.read()
         if event == style_button_text:
@@ -95,9 +95,8 @@ try:
                     style_window.close()
                     break
         elif event == data_button_text:
-            # TODO if already filled, plot today too, not clean df
-            graph_data = read_csv(csv_file_name, csv_file_name) if neglected else data
-            img = generate_image(categories, header, conditions, settings.data_days, settings.graph_expected_value, clean_df(graph_data))
+            graph_data = read_csv(csv_file_name, csv_file_name)
+            img = generate_image(categories, header, conditions, settings.data_days, settings.graph_expected_value, graph_data)
             data_window = DataWindow(data_button_text, export_button_text, settings.scrollable_image, image_bytes_to_base64(img))
             while True:
                 data_event, data_values_dict = data_window.read()
@@ -110,35 +109,23 @@ try:
                     break
         elif event == edit_button_text:
             date_picker_window = DatePickerWindow(select_date_key, select_date_button_text)
-            date = datetime.today()
+            picked_date = datetime.today()
             while True:
                 date_picker_event, date_picker_dict = date_picker_window.read()
                 if date_picker_event == select_date_button_text or date_picker_event == sg.WIN_CLOSED:
-                    print("date dict", date_picker_dict)
-                    date = date_picker_dict[select_date_key]
-                    data_window.close()
-
-                    # TODO Alter logic to input data to certain date
-                    # TODO add logic to load checkboxes from certain date
-                    # neglected_window = NeglectedPopUp(neglected_accept_text, neglected_reject_text)
-                    # while True:
-                    #     neglected_event, neglected_values_dic = neglected_window.read()
-                    #     if neglected_event == neglected_accept_text:
-                    #         neglected_data_window = MainWindow(categories, header, descriptions, done_button_text,
-                    #                                            style_button_text, data_button_text, edit_button_text,
-                    #                                            len(data) > 1, True)
-                    #         while True:
-                    #             neglected_data_event, neglected_data_values_dict = neglected_data_window.read()
-                    #             if neglected_data_event == done_button_text:
-                    #                 log_write(log, f"saving data from yesterday\n{neglected_data_values_dict}")
-                    #                 save_data(data, neglected_data_values_dict, csv_file_name, True)
-                    #             if neglected_data_event == sg.WIN_CLOSED or neglected_data_event == done_button_text:
-                    #                 neglected_window.close()
-                    #                 break
-                    #     if neglected_event == sg.WIN_CLOSED or neglected_event == neglected_reject_text:
-                    #         neglected_window.close()
-                    #         break
-
+                    picked_date = date_picker_dict[select_date_key]
+                    data_from_date = data_from_date_to_list(data, picked_date, header)
+                    edit_data_window = MainWindow(categories, header, descriptions, done_button_text, style_button_text,
+                                                  data_button_text, edit_button_text, len(data) > 1, True, data_from_date)
+                    while True:
+                        edit_data_event, edit_data_values_dict = edit_data_window.read()
+                        if edit_data_event == done_button_text:
+                            log_write(log, f"saving data from date '{picked_date}'\n{edit_data_values_dict}")
+                            save_data(data, edit_data_values_dict, csv_file_name, False, picked_date)
+                        if edit_data_event == sg.WIN_CLOSED or edit_data_event == done_button_text:
+                            edit_data_window.close()
+                            break
+                    date_picker_window.close()
                     break
         elif event == done_button_text or event == sg.WIN_CLOSED:
             if event == done_button_text:

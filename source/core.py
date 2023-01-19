@@ -5,7 +5,7 @@ from random import choice
 
 from .utils import *
 
-from pandas import DataFrame, concat
+from pandas import concat
 import json
 
 wakeup_time = 11
@@ -95,10 +95,26 @@ def backup_data(csv_file_name: str, data: DataFrame):
         raise Exception(f"File {file_name} already exists.")
     write_csv(file_name, data)
 
-def save_data(data: DataFrame, checkbox_dict: dict, csv_file_name: str, fill_in_yesterday: bool = False):
+def save_data(data: DataFrame, checkbox_dict: dict, csv_file_name: str, fill_in_yesterday: bool = False, date: str = ''):
+    offset = 0
+    if date != '':
+        if date not in data[date_header].values:
+            raise Exception(f"date '{date}' could not be found on the data.")
+        row_from_date = df_row_from_date(data, date, date_header)
+        row_index = list(row_from_date.index)[0]
+        last_index = list(data.index)[-1]
+        offset = row_index - last_index - 1
+    else:
+        offset = -2 if fill_in_yesterday else -1
+
     for key in checkbox_dict.keys():
-        data.iloc[-2 if fill_in_yesterday else -1, data.columns.get_loc(to_lower_underscored(key))] = checkbox_dict[key]
+        data.iloc[offset, data.columns.get_loc(to_lower_underscored(key))] = checkbox_dict[key]
     write_csv(csv_file_name, data)
+
+def data_from_date_to_list(data: DataFrame, date: str, header: list):
+    row_from_date = df_row_from_date(data, date, date_header)
+    result = [[row_from_date[to_lower_underscored(h)].values[0] == 'True' for h in cat] for cat in header]
+    return result
 
 #region .txt
 def get_matrix_data_by_header_indexes(other_matrix: list, header_matrix: list, header_value: str) -> str:
