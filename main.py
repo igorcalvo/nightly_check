@@ -152,23 +152,16 @@ finally:
         log_write(log, f"{finally_string}")
     log.close()
 
-#  TODO LIST - REAL
+# TODO LIST - REAL
 # better ui
 #   columns instead of spacing text
 #   better width formula
 #   research how to make it look prettier
 # ui for data init
+# settings for day of the week
+# ui for settings
 
 # TODO LIST - OLD
-# TEST - what if no message in variables?
-
-# EDIT DATA
-#   methods
-#   ui
-#       display: message from {date}
-#       main window without buttons
-#   limit to y-day
-
 # pop up after n days (settings) reminding to view data
 # validate variables
 #   duplicate columns
@@ -189,7 +182,6 @@ finally:
 #   ui for variables, very nani
 #       if never ran, start this window
 #       else have a button to edit it later
-#   improve style's ui
 #   have some sort of readme?
 #   write reddit post
 #   (week challenge?!?!?!?!)

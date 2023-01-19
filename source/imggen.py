@@ -61,14 +61,13 @@ def write_category_header(image, position: tuple, category: str, max_category_le
     write(image, position, align_right(category.upper(), max_category_len), (0, 0, 0), "liberation")
     header_font_size_length = 7
     header_font_size_spacing = 1
+    magic_number = 5
     header_font_constant = header_font_size_length + header_font_size_spacing
     oldest_date = date(int(latest_date.split('-')[0]), int(latest_date.split('-')[1]), int(latest_date.split('-')[2])) + timedelta(days=(-squares + 1))
     current_date = oldest_date
+    initial_pos_x = position[0] + max_category_len * header_font_constant + magic_number
     for s in range(squares):
         if current_date.day == 1 or (oldest_date - current_date).days % 7 == 0:
-            initial_pos_x = position[0] + max_category_len * header_font_constant - 1
-            if current_date.day < 10:
-                initial_pos_x += header_font_constant
             write(image,
                   (calculate_x_position(initial_pos_x, s, square_size, square_border), position[1]),
                   f'0{current_date.day}' if current_date.day < 10 else str(current_date.day),

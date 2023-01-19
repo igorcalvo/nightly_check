@@ -69,7 +69,9 @@ def cycle_index(obj, index):
     if abs(index) > len(obj):
         div = abs(index) // len(obj)
         direction = 1 if index >= 0 else -1
-        corrected_index = index - direction * div * len(obj) - 1
+        corrected_index = index - direction * div * len(obj)
+    elif corrected_index == -len(obj):
+        corrected_index = 0
     return obj[corrected_index]
 
 def get_value_from_df_by_value(colName: str, value, data: DataFrame):
