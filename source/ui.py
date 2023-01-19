@@ -3,6 +3,9 @@ import tkinter as tk
 import matplotlib.colors as clr
 import cv2 as cv
 import os
+from io import BytesIO
+from PIL import Image
+from base64 import b64decode
 # w, h = sg.Window.get_screen_size()
 from .core import get_matrix_data_by_header_indexes
 from .utils import pad_string, transpose, flatten_list
@@ -258,23 +261,22 @@ def PreviewWindow(preview_window_text: str, preview_close_key: str, hue_offset: 
                      ).Finalize()
 
 def DataWindow(data_button_text: str, export_button_text: str, scrollable_image: bool, img_base64: str):
+    width, height = Image.open(BytesIO(b64decode(img_base64))).size
     layout = [
         [sg.Image(data=img_base64)],
         [
             sg.InputText(key=export_button_text, do_not_clear=False, enable_events=True, visible=False),
-            sg.Push(),
             sg.FileSaveAs(
                 button_text="Export",
                 font=FONTS["btn"],
                 initial_folder='%HomeDrive%',
                 file_types=(('PNG', '.png'), ('JPG', '.jpg')),
-                pad=((0, 5), (5, 5)),
+                pad=((width - 50, 5), (5, 5)),
                 button_color=(COLORS["exp_bkg"], COLORS["exp_txt"])
             )
         ]
     ]
     return sg.Window(data_button_text, [
-        # [sg.Column(layout, size=(200, 200), scrollable=True, key='Column')]
         [sg.Column(layout, scrollable=scrollable_image, key='Column')]
     ],
                      return_keyboard_events=True,
@@ -283,7 +285,7 @@ def DataWindow(data_button_text: str, export_button_text: str, scrollable_image:
                      titlebar_text_color=COLORS["bar_txt"],
                      titlebar_icon="assets\icons\data16.png",
                      background_color=COLORS["dat_bkg"],
-                     relative_location=(0, -15)
+                     relative_location=(0, -15),
                      ).Finalize()
 
 def NeglectedPopUp(accept_text: str, reject_text: str):
