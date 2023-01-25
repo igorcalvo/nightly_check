@@ -362,3 +362,35 @@ def DatePickerWindow(select_date_key: str, select_date_button_text: str):
                      relative_location=(0, 0),
                      element_justification='c'
                      ).Finalize()
+
+def HabitsInitWindow(habits_init_cat_add: str, habits_init_cat_remove: str):
+    layout = [
+        [
+            sg.Button(habits_init_cat_add,
+                      font=FONTS["btn"],
+                      size=14,
+                      button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
+                      pad=(25, 0)),
+            sg.Push(),
+            sg.Button(habits_init_cat_remove,
+                      font=FONTS["btn"],
+                      size=14,
+                      button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
+                      pad=(-25, 0))
+        ]
+    ]
+
+    # https://stackoverflow.com/questions/66351957/how-to-add-a-field-or-element-by-clicking-a-button-in-pysimplegui
+
+    return sg.Window(
+        "Habits File Generator",
+        layout,
+        return_keyboard_events=True,
+        use_custom_titlebar=True,
+        titlebar_background_color=COLORS["bar_bkg"],
+        titlebar_text_color=COLORS["bar_txt"],
+        titlebar_icon=r"assets\icons\rocket16.png",
+        background_color=COLORS["win_bkg"],
+        relative_location=(0, 0),
+        element_justification='c'
+    ).Finalize()

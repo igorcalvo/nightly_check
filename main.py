@@ -24,6 +24,8 @@ neglected_reject_text = "No"
 edit_button_text = 'Edit'
 select_date_button_text = 'Select'
 select_date_key = 'Date'
+habits_init_cat_add = 'Add Category'
+habits_init_cat_remove = 'Remove Category'
 
 values_dict = {}
 hue_offset = 0
@@ -33,7 +35,12 @@ create_file_if_doesnt_exist(log_file_name)
 log = open(log_file_name, 'r+')
 try:
     if not exists(variables_file_name):
-        raise Exception(f"No {variables_file_name} file found, you must create the file.")
+        variables_init_window = HabitsInitWindow(habits_init_cat_add, habits_init_cat_remove)
+        while True:
+            variables_init_event, variables_init_values_dict = variables_init_window.read()
+            if variables_init_event == sg.WIN_CLOSED:
+                variables_init_window.close()
+                break
     verify_variables(variables_file_name)
     variables_file = read_csv(variables_file_name, csv_file_name)
     conditions, fractions, habit_messages, descriptions, header, categories = get_data(variables_file)
