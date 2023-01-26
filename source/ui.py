@@ -363,7 +363,38 @@ def DatePickerWindow(select_date_key: str, select_date_button_text: str):
                      element_justification='c'
                      ).Finalize()
 
-def HabitsInitWindow(habits_init_cat_add: str, habits_init_cat_remove: str):
+# TODO Rewrite with layout as argument
+def HabitInitNewCategory(category_count: int,
+                         habits_init_category_key: str,
+                         habits_init_add_habit_text: str,
+                         habits_init_del_habit_text: str):
+    return [[
+        sg.InputText(key=(habits_init_category_key, category_count),
+                     background_color=COLORS["pop_bkg"],
+                     size=(20, 10)),
+        sg.Text(pad_string("", 30), key=("spacing", category_count), background_color=COLORS["win_bkg"]),
+        sg.Button(button_text=habits_init_add_habit_text,
+                  key=(habits_init_add_habit_text, category_count),
+                  font=FONTS["btn"],
+                  size=14,
+                  button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
+                  pad=(25, 0)),
+        sg.Button(button_text=habits_init_del_habit_text,
+                  key=(habits_init_del_habit_text, category_count),
+                  font=FONTS["btn"],
+                  size=14,
+                  button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
+                  pad=((0, 25), (0, 0)))
+    ]]
+
+def HabitInitDelCategory(variables_init_window: sg.Window, habits_init_category_key: str, category_count: int):
+    all_keys = variables_init_window.AllKeysDict
+    keys_to_hide = [key for key in list(all_keys.keys()) if key[-1] == category_count - 1]
+    for k in keys_to_hide:
+        variables_init_window.Element(k).Update(visible=False)
+    variables_init_window.Refresh()
+
+def HabitsInitWindow(habits_init_cat_add: str, habits_init_cat_remove: str, habits_init_categories_key: str):
     layout = [
         [
             sg.Button(habits_init_cat_add,
@@ -371,16 +402,17 @@ def HabitsInitWindow(habits_init_cat_add: str, habits_init_cat_remove: str):
                       size=14,
                       button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
                       pad=(25, 0)),
-            sg.Push(),
             sg.Button(habits_init_cat_remove,
                       font=FONTS["btn"],
                       size=14,
                       button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
-                      pad=(-25, 0))
-        ]
+                      pad=((0, 25), (0, 0)))
+        ],
+        [sg.Column([[]], key=habits_init_categories_key, background_color=COLORS["win_bkg"])],
     ]
 
     # https://stackoverflow.com/questions/66351957/how-to-add-a-field-or-element-by-clicking-a-button-in-pysimplegui
+    # https://github.com/PySimpleGUI/PySimpleGUI/issues/845
 
     return sg.Window(
         "Habits File Generator",
