@@ -39,16 +39,21 @@ create_file_if_doesnt_exist(log_file_name)
 log = open(log_file_name, 'r+')
 try:
     if not exists(variables_file_name):
-        variables_init_window = HabitsInitWindow(habits_init_cat_add, habits_init_cat_remove, habits_init_categories_key)
         category_count = 0
+        variables_init_layout = HabitsInitLayout(habits_init_cat_add, habits_init_cat_remove, habits_init_categories_key, habits_init_category_key, habits_init_add_habit_text, habits_init_del_habit_text, category_count, {})
+        variables_init_window = HabitsInitWindow(variables_init_layout)
         while True:
             variables_init_event, variables_init_values_dict = variables_init_window.read()
             if variables_init_event == habits_init_cat_add:
-                variables_init_window.extend_layout(variables_init_window[habits_init_categories_key], HabitInitNewCategory(category_count, habits_init_category_key, habits_init_add_habit_text, habits_init_del_habit_text))
                 category_count += 1
+                variables_init_layout = HabitsInitLayout(habits_init_cat_add, habits_init_cat_remove, habits_init_categories_key, habits_init_category_key, habits_init_add_habit_text, habits_init_del_habit_text, category_count, variables_init_values_dict)
+                variables_init_window.close()
+                variables_init_window = HabitsInitWindow(variables_init_layout)
             elif variables_init_event == habits_init_cat_remove:
-                HabitInitDelCategory(variables_init_window, habits_init_categories_key, category_count)
                 category_count -= 1
+                variables_init_layout = HabitsInitLayout(habits_init_cat_add, habits_init_cat_remove, habits_init_categories_key, habits_init_category_key, habits_init_add_habit_text, habits_init_del_habit_text, category_count, variables_init_values_dict)
+                variables_init_window.close()
+                variables_init_window = HabitsInitWindow(variables_init_layout)
             elif variables_init_event == sg.WIN_CLOSED:
                 variables_init_window.close()
                 break

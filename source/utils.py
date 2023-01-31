@@ -94,3 +94,11 @@ def remove_duplicates(arr: list) -> list:
 def df_row_from_date(df: DataFrame, date: str, date_header: str):
     row_from_date = df.loc[(df[date_header] == date)]
     return row_from_date
+
+def safe_value_from_dict(key, dictionary: dict):
+    # print('safe_value_from_dict key', key)
+    # print('safe_value_from_dict dictionary', dictionary)
+    if key in dictionary.keys():
+        return dictionary[key]
+    else:
+        return None

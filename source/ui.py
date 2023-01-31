@@ -8,7 +8,7 @@ from PIL import Image
 from base64 import b64decode
 # w, h = sg.Window.get_screen_size()
 from .core import get_matrix_data_by_header_indexes
-from .utils import pad_string, transpose, flatten_list
+from .utils import pad_string, transpose, flatten_list, safe_value_from_dict
 
 PARENT_DIR = os.path.abspath(os.path.join(os.getcwd(), os.pardir)).replace("\\", "/") + "/NightlyCheck"
 CATEGORY_PIXEL_LENGTH = 10
@@ -363,38 +363,43 @@ def DatePickerWindow(select_date_key: str, select_date_button_text: str):
                      element_justification='c'
                      ).Finalize()
 
-# TODO Rewrite with layout as argument
-def HabitInitNewCategory(category_count: int,
-                         habits_init_category_key: str,
-                         habits_init_add_habit_text: str,
-                         habits_init_del_habit_text: str):
+def habit_init_category_key(key: str, row: int):
+    return f'{key}{row}'
+
+def HabitInitCategoryLayout(category_count: int,
+                            habits_init_category_key: str,
+                            habits_init_add_habit_text: str,
+                            habits_init_del_habit_text: str,
+                            values_dict: dict):
     return [[
-        sg.InputText(key=(habits_init_category_key, category_count),
+        sg.InputText(key=habit_init_category_key(habits_init_category_key, row),
                      background_color=COLORS["pop_bkg"],
-                     size=(20, 10)),
+                     size=(20, 10),
+                     default_text=safe_value_from_dict(habit_init_category_key(habits_init_category_key, row), values_dict)),
         sg.Text(pad_string("", 30), key=("spacing", category_count), background_color=COLORS["win_bkg"]),
         sg.Button(button_text=habits_init_add_habit_text,
-                  key=(habits_init_add_habit_text, category_count),
+                  key=habit_init_category_key(habits_init_add_habit_text, row),
                   font=FONTS["btn"],
                   size=14,
                   button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
                   pad=(25, 0)),
         sg.Button(button_text=habits_init_del_habit_text,
-                  key=(habits_init_del_habit_text, category_count),
+                  key=habit_init_category_key(habits_init_del_habit_text, row),
                   font=FONTS["btn"],
                   size=14,
                   button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
                   pad=((0, 25), (0, 0)))
-    ]]
+    ] for row in range(1, category_count + 1)]
 
-def HabitInitDelCategory(variables_init_window: sg.Window, habits_init_category_key: str, category_count: int):
-    all_keys = variables_init_window.AllKeysDict
-    keys_to_hide = [key for key in list(all_keys.keys()) if key[-1] == category_count - 1]
-    for k in keys_to_hide:
-        variables_init_window.Element(k).Update(visible=False)
-    variables_init_window.Refresh()
+def HabitsInitLayout(habits_init_cat_add: str,
+                     habits_init_cat_remove: str,
+                     habits_init_categories_key: str,
 
-def HabitsInitWindow(habits_init_cat_add: str, habits_init_cat_remove: str, habits_init_categories_key: str):
+                     habits_init_category_key: str,
+                     habits_init_add_habit_text: str,
+                     habits_init_del_habit_text: str,
+                     category_count: int,
+                     values_dict: dict):
     layout = [
         [
             sg.Button(habits_init_cat_add,
@@ -408,12 +413,13 @@ def HabitsInitWindow(habits_init_cat_add: str, habits_init_cat_remove: str, habi
                       button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
                       pad=((0, 25), (0, 0)))
         ],
-        [sg.Column([[]], key=habits_init_categories_key, background_color=COLORS["win_bkg"])],
+        HabitInitCategoryLayout(category_count, habits_init_category_key, habits_init_add_habit_text, habits_init_del_habit_text, values_dict),
     ]
-
+    return layout
     # https://stackoverflow.com/questions/66351957/how-to-add-a-field-or-element-by-clicking-a-button-in-pysimplegui
     # https://github.com/PySimpleGUI/PySimpleGUI/issues/845
 
+def HabitsInitWindow(layout: list):
     return sg.Window(
         "Habits File Generator",
         layout,
