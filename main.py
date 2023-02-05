@@ -27,10 +27,11 @@ select_date_key = 'Date'
 habits_init_cat_add = 'Add Category'
 habits_init_cat_remove = 'Remove Category'
 habits_init_category_key = 'NewCategory'
-habits_init_add_habit_text = 'Add Habit'
-habits_init_del_habit_text = 'Del Habit'
+habits_init_add_habit_text = '+ Habit'
+habits_init_del_habit_text = '- Habit'
 habits_init_categories_key = 'Categories'
 habits_init_track_frequency_key = 'Track Value'
+habits_init_generate_text = 'Generate File'
 
 values_dict = {}
 hue_offset = 0
@@ -42,7 +43,7 @@ try:
     if not exists(variables_file_name):
         category_count = 0
         habit_count = []
-        variables_init_layout = HabitsInitLayout(habits_init_cat_add, habits_init_cat_remove,
+        variables_init_layout = HabitsInitLayout(habits_init_cat_add, habits_init_cat_remove, habits_init_generate_text,
                                                  habits_init_categories_key, habits_init_category_key,
                                                  habits_init_add_habit_text, habits_init_del_habit_text,
                                                  habits_init_track_frequency_key, category_count, {}, habit_count)
@@ -68,8 +69,8 @@ try:
                     or habits_init_add_habit_text in variables_init_event\
                     or variables_init_event == habits_init_cat_remove\
                     or variables_init_event == habits_init_cat_add:
-                variables_init_window = ReRenderHabitsInit(variables_init_window, habits_init_cat_add,
-                                                           habits_init_cat_remove, habits_init_categories_key,
+                variables_init_window = ReRenderHabitsInit(variables_init_window, habits_init_cat_add, habits_init_cat_remove,
+                                                           habits_init_generate_text, habits_init_categories_key,
                                                            habits_init_category_key, habits_init_add_habit_text,
                                                            habits_init_del_habit_text, habits_init_track_frequency_key,
                                                            category_count, variables_init_values_dict, habit_count)
@@ -199,7 +200,6 @@ finally:
 #   columns instead of spacing text
 #   better width formula
 #   research how to make it look prettier
-# ui for data init
 # settings for day of the week
 # ui for settings
 
