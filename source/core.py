@@ -8,7 +8,7 @@ from .utils import *
 from pandas import concat
 import json
 
-wakeup_time = 11
+wakeup_time = 14
 date_header = "date"
 
 #region .csv
@@ -374,4 +374,10 @@ def get_fail_indexes_list(headerData: list, expectedValue: bool = True) -> list:
         if item != expectedValue:
             result.append(index)
     return result
+#endregion
+
+#region HabitsInit
+def habit_index_from_event(event: str):
+    number = event.split('_')[-1]
+    return int(number) - 1
 #endregion

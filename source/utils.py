@@ -95,10 +95,22 @@ def df_row_from_date(df: DataFrame, date: str, date_header: str):
     row_from_date = df.loc[(df[date_header] == date)]
     return row_from_date
 
-def safe_value_from_dict(key, dictionary: dict):
-    # print('safe_value_from_dict key', key)
-    # print('safe_value_from_dict dictionary', dictionary)
+def safe_value_from_dict(key, dictionary: dict, return_bool: bool = False):
     if key in dictionary.keys():
         return dictionary[key]
     else:
-        return None
+        return None if not return_bool else False
+
+def safe_bool_from_array(index, array: list):
+    if array is None:
+        return True
+
+    if index < len(array):
+        return array[index] < 1
+    else:
+        return False
+
+def safe_value_from_array(index, array: list):
+    if array is None:
+        return 0
+    return array[index]
