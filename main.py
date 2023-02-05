@@ -52,45 +52,30 @@ try:
             if variables_init_event == habits_init_cat_add:
                 category_count += 1
                 habit_count.append(0)
-                variables_init_window = ReRenderHabitsInit(variables_init_window, habits_init_cat_add,
-                                                           habits_init_cat_remove, habits_init_categories_key,
-                                                           habits_init_category_key, habits_init_add_habit_text,
-                                                           habits_init_del_habit_text, habits_init_track_frequency_key,
-                                                           category_count, variables_init_values_dict, habit_count)
             elif variables_init_event == habits_init_cat_remove:
                 category_count -= 1
                 habit_count.pop()
-                variables_init_window = ReRenderHabitsInit(variables_init_window, habits_init_cat_add,
-                                                           habits_init_cat_remove, habits_init_categories_key,
-                                                           habits_init_category_key, habits_init_add_habit_text,
-                                                           habits_init_del_habit_text, habits_init_track_frequency_key,
-                                                           category_count, variables_init_values_dict, habit_count)
             elif habits_init_add_habit_text in variables_init_event:
                 habit_count[habit_index_from_event(variables_init_event)] = habit_count[habit_index_from_event(variables_init_event)] + 1
-                variables_init_window = ReRenderHabitsInit(variables_init_window, habits_init_cat_add,
-                                                           habits_init_cat_remove, habits_init_categories_key,
-                                                           habits_init_category_key, habits_init_add_habit_text,
-                                                           habits_init_del_habit_text, habits_init_track_frequency_key,
-                                                           category_count, variables_init_values_dict, habit_count)
             elif habits_init_del_habit_text in variables_init_event:
                 habit_count[habit_index_from_event(variables_init_event)] = habit_count[habit_index_from_event(variables_init_event)] - 1
-                variables_init_window = ReRenderHabitsInit(variables_init_window, habits_init_cat_add,
-                                                           habits_init_cat_remove, habits_init_categories_key,
-                                                           habits_init_category_key, habits_init_add_habit_text,
-                                                           habits_init_del_habit_text, habits_init_track_frequency_key,
-                                                           category_count, variables_init_values_dict, habit_count)
-            elif habits_init_track_frequency_key in variables_init_event:
-                variables_init_window = ReRenderHabitsInit(variables_init_window, habits_init_cat_add,
-                                                           habits_init_cat_remove, habits_init_categories_key,
-                                                           habits_init_category_key, habits_init_add_habit_text,
-                                                           habits_init_del_habit_text, habits_init_track_frequency_key,
-                                                           category_count, variables_init_values_dict, habit_count)
             elif variables_init_event == sg.WIN_CLOSED:
                 variables_init_window.close()
                 break
-            print("event", variables_init_event)
-            print("dict", variables_init_values_dict)
-            print("habit_count arr", habit_count)
+
+            if habits_init_track_frequency_key in variables_init_event\
+                    or habits_init_del_habit_text in variables_init_event\
+                    or habits_init_add_habit_text in variables_init_event\
+                    or variables_init_event == habits_init_cat_remove\
+                    or variables_init_event == habits_init_cat_add:
+                variables_init_window = ReRenderHabitsInit(variables_init_window, habits_init_cat_add,
+                                                           habits_init_cat_remove, habits_init_categories_key,
+                                                           habits_init_category_key, habits_init_add_habit_text,
+                                                           habits_init_del_habit_text, habits_init_track_frequency_key,
+                                                           category_count, variables_init_values_dict, habit_count)
+            # print("event", variables_init_event)
+            # print("dict", variables_init_values_dict)
+            # print("habit_count arr", habit_count)
     verify_variables(variables_file_name)
     variables_file = read_csv(variables_file_name, csv_file_name)
     conditions, fractions, habit_messages, descriptions, header, categories = get_data(variables_file)
