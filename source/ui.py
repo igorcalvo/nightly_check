@@ -9,55 +9,10 @@ from base64 import b64decode
 # w, h = sg.Window.get_screen_size()
 from .core import get_matrix_data_by_header_indexes
 from .utils import pad_string, transpose, flatten_list, safe_value_from_dict, safe_bool_from_array, safe_value_from_array
+from .constants import COLORS, FONTS, HUE_BASE, CATEGORY_PIXEL_LENGTH, CHECKBOX_PIXEL_LENGTH
 
 PARENT_DIR = os.path.abspath(os.path.join(os.getcwd(), os.pardir)).replace("\\", "/") + "/NightlyCheck"
-CATEGORY_PIXEL_LENGTH = 10
-CHECKBOX_PIXEL_LENGTH = 8
 COLORED_ICON_PATH = f"{PARENT_DIR}/assets/icons/iconColored.png"
-# | hue_offset | < 1
-HUE_BASE = 0.59
-
-# basis
-bar_bkg = "#00274f"
-bar_txt = "#b1d8ff"
-win_bkg = "#002f5f"
-cat_txt = "#dbedff"
-sld_bkg = "#004080"
-
-COLORS = {
-    "bar_bkg":  bar_bkg,
-    "bar_txt":  bar_txt,
-    "win_bkg":  win_bkg,
-    "cat_bkg":  win_bkg,
-    "cat_txt":  cat_txt,
-    "ckb_bkg":  bar_bkg,
-    "ckb_txt":  bar_txt,
-    "dnb_bkg":  bar_bkg,
-    "dnb_txt":  bar_txt,
-    "pop_bkg":  bar_txt,
-    "pop_txt":  bar_bkg,
-    "sld_txt":  cat_txt,
-    "sld_bkg":  sld_bkg,
-    "sld_sld":  bar_txt,
-    "dat_txt":  cat_txt,
-    "dat_bkg":  sld_bkg,
-    "exp_txt":  bar_txt,
-    "exp_bkg":  bar_bkg,
-    "neg_txt":  bar_txt,
-    "neg_bkg":  bar_bkg,
-    "dtp_txt":  bar_txt,
-    "dtp_bkg":  bar_bkg,
-    "hbc_txt":  bar_bkg,
-    "hbc_bkg":  cat_txt,
-    "hbi_sep":  bar_bkg,
-}
-
-FONTS = {
-    "cat": ("Cascadia Mono", 13, "bold"),
-    "ckb": ('Consolas', 11),
-    "btn": ("Verdana", 9, "bold"),
-    "pop": ("Arial", 11, "bold")
-}
 
 def print_FONTS():
     root = tk.Tk()
@@ -405,7 +360,6 @@ def HabitInitHabitLayout(category_row: int,
                     enable_events=True),
         sg.InputText(key=habit_init_key(habits_init_message_key, category_row, row),
                      background_color=COLORS["pop_bkg"],
-                     text_color=COLORS["ckb_txt"],
                      size=60,
                      pad=[(0, 10), (0, 0)],
                      tooltip="Message you'll get when you fail to complete the task within a defined frequency",
@@ -427,14 +381,12 @@ def HabitInitHabitLayout(category_row: int,
                  visible=safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True)),
         sg.InputText(key=habit_init_key(habits_init_fraction_num_key, category_row, row),
                      background_color=COLORS["pop_bkg"],
-                     text_color=COLORS["ckb_txt"],
                      size=3,
                      default_text=safe_value_from_dict(habit_init_key(habits_init_fraction_num_key, category_row, row), values_dict),
                      visible=safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True)),
         sg.Text("in", key=("spacing", row), background_color=COLORS["win_bkg"], visible=safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True)),
         sg.InputText(key=habit_init_key(habits_init_fraction_den_key, category_row, row),
                      background_color=COLORS["pop_bkg"],
-                     text_color=COLORS["ckb_txt"],
                      size=3,
                      default_text=safe_value_from_dict(habit_init_key(habits_init_fraction_den_key, category_row, row), values_dict),
                      visible=safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True)),
@@ -446,14 +398,14 @@ def HabitInitCategoryLayout(category_count: int,
                             habits_init_add_habit_text: str,
                             habits_init_del_habit_text: str,
                             habits_init_track_frequency_key: str,
+                            habits_init_habit_key: str,
+                            habits_init_question_key: str,
+                            habits_init_message_key: str,
+                            habits_init_condition_key: str,
+                            habits_init_fraction_num_key: str,
+                            habits_init_fraction_den_key: str,
                             values_dict: dict,
                             habit_count: list):
-    habits_init_habit_key = 'Habit Value'
-    habits_init_question_key = 'Question Value'
-    habits_init_message_key = 'Message Value'
-    habits_init_condition_key = 'Condition Value'
-    habits_init_fraction_num_key = 'FracNum Value'
-    habits_init_fraction_den_key = 'FracDen Value'
     button_padding = 15
     button_size = 10
     return [[
@@ -482,8 +434,6 @@ def HabitInitCategoryLayout(category_count: int,
                              safe_value_from_array(row - 1, habit_count), habits_init_habit_key,
                              habits_init_question_key, habits_init_track_frequency_key, habits_init_message_key,
                              habits_init_condition_key, habits_init_fraction_num_key, habits_init_fraction_den_key, values_dict),
-        # TODO Read values
-        # TODO Scrollable? with
         # layout = [[sg.Column(column_layout, scrollable=True,  vertical_scroll_only=True, size_subsample_height=5)]]
     ] for row in range(1, category_count + 1)]
 
@@ -495,13 +445,22 @@ def HabitsInitLayout(habits_init_cat_add: str,
                      habits_init_add_habit_text: str,
                      habits_init_del_habit_text: str,
                      habits_init_track_frequency_key: str,
+                     habits_init_habit_key: str,
+                     habits_init_question_key: str,
+                     habits_init_message_key: str,
+                     habits_init_condition_key: str,
+                     habits_init_fraction_num_key: str,
+                     habits_init_fraction_den_key: str,
                      category_count: int,
                      values_dict: dict,
                      habit_count: list):
     button_padding = 25
     button_font_size = (20, 2)
     layout = [
-        HabitInitCategoryLayout(category_count, habits_init_category_key, habits_init_add_habit_text, habits_init_del_habit_text, habits_init_track_frequency_key,  values_dict, habit_count),
+        HabitInitCategoryLayout(category_count, habits_init_category_key, habits_init_add_habit_text,
+                                habits_init_del_habit_text, habits_init_track_frequency_key, habits_init_habit_key,
+                                habits_init_question_key, habits_init_message_key, habits_init_condition_key,
+                                habits_init_fraction_num_key, habits_init_fraction_den_key, values_dict, habit_count),
         [sg.HorizontalSeparator(color=COLORS["hbi_sep"])],
         [
             sg.Push(background_color=COLORS["win_bkg"]),
@@ -551,12 +510,20 @@ def ReRenderHabitsInit(previous_windows: sg.Window,
                        habits_init_add_habit_text: str,
                        habits_init_del_habit_text: str,
                        habits_init_track_frequency_key: str,
+                       habits_init_habit_key: str,
+                       habits_init_question_key: str,
+                       habits_init_message_key: str,
+                       habits_init_condition_key: str,
+                       habits_init_fraction_num_key: str,
+                       habits_init_fraction_den_key: str,
                        category_count: int,
                        values_dict: dict,
                        habit_count: list) -> sg.Window:
     variables_init_layout = HabitsInitLayout(habits_init_cat_add, habits_init_cat_remove, habits_init_generate_text, habits_init_categories_key,
                                              habits_init_category_key, habits_init_add_habit_text, habits_init_del_habit_text,
-                                             habits_init_track_frequency_key, category_count, values_dict, habit_count)
+                                             habits_init_track_frequency_key, habits_init_habit_key, habits_init_question_key,
+                                             habits_init_message_key, habits_init_condition_key, habits_init_fraction_num_key,
+                                             habits_init_fraction_den_key, category_count, values_dict, habit_count)
     previous_windows.close()
     new_window = HabitsInitWindow(variables_init_layout)
     return new_window

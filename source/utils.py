@@ -114,3 +114,15 @@ def safe_value_from_array(index, array: list):
     if array is None:
         return 0
     return array[index]
+
+def replace_commas_for_double_spaces(string: str) -> str:
+    return string.replace(', ', '  ')
+
+def join_white_spaced_header(string: str) -> str:
+    return string.replace(' ', '-')
+
+def values_from_keyword(keyword: str, dictionary: dict):
+    keys = [k for k in dictionary.keys() if keyword in k]
+    keys.sort()
+    values = [dictionary[key] for key in keys]
+    return values

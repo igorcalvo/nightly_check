@@ -3,35 +3,7 @@ import datetime
 from source.ui import *
 from source.core import *
 from source.imggen import *
-
-data_folder = 'data'
-csv_file_name = f'{data_folder}\data.csv'
-msg_file_name = f'{data_folder}\msg.txt'
-log_file_name = f'{data_folder}\log.txt'
-variables_file_name = 'variables.csv'
-settings_file_name = 'settings.json'
-
-done_button_text = 'Done'
-style_button_text = 'Style'
-slider_text_key = 'Slider'
-set_button_text_key = 'Set'
-preview_window_text = 'Preview'
-preview_close_key = 'ClosePreview'
-data_button_text = 'Data'
-export_button_text = 'Export'
-neglected_accept_text = "Yes"
-neglected_reject_text = "No"
-edit_button_text = 'Edit'
-select_date_button_text = 'Select'
-select_date_key = 'Date'
-habits_init_cat_add = 'Add Category'
-habits_init_cat_remove = 'Remove Category'
-habits_init_category_key = 'NewCategory'
-habits_init_add_habit_text = '+ Habit'
-habits_init_del_habit_text = '- Habit'
-habits_init_categories_key = 'Categories'
-habits_init_track_frequency_key = 'Track Value'
-habits_init_generate_text = 'Generate File'
+from source.constants import *
 
 values_dict = {}
 hue_offset = 0
@@ -46,7 +18,10 @@ try:
         variables_init_layout = HabitsInitLayout(habits_init_cat_add, habits_init_cat_remove, habits_init_generate_text,
                                                  habits_init_categories_key, habits_init_category_key,
                                                  habits_init_add_habit_text, habits_init_del_habit_text,
-                                                 habits_init_track_frequency_key, category_count, {}, habit_count)
+                                                 habits_init_track_frequency_key, habits_init_habit_key,
+                                                 habits_init_question_key, habits_init_message_key,
+                                                 habits_init_condition_key, habits_init_fraction_num_key,
+                                                 habits_init_fraction_den_key,category_count, {}, habit_count)
         variables_init_window = HabitsInitWindow(variables_init_layout)
         while True:
             variables_init_event, variables_init_values_dict = variables_init_window.read()
@@ -60,6 +35,12 @@ try:
                 habit_count[habit_index_from_event(variables_init_event)] = habit_count[habit_index_from_event(variables_init_event)] + 1
             elif habits_init_del_habit_text in variables_init_event:
                 habit_count[habit_index_from_event(variables_init_event)] = habit_count[habit_index_from_event(variables_init_event)] - 1
+            elif variables_init_event == habits_init_generate_text:
+                generate_variables(variables_file_name, variables_init_values_dict, habits_init_category_key, habits_init_habit_key,
+                                   habits_init_question_key, habit_count, habits_init_message_key,
+                                   habits_init_condition_key, habits_init_fraction_num_key, habits_init_fraction_den_key)
+                variables_init_window.close()
+                break
             elif variables_init_event == sg.WIN_CLOSED:
                 variables_init_window.close()
                 break
@@ -73,6 +54,9 @@ try:
                                                            habits_init_generate_text, habits_init_categories_key,
                                                            habits_init_category_key, habits_init_add_habit_text,
                                                            habits_init_del_habit_text, habits_init_track_frequency_key,
+                                                           habits_init_habit_key, habits_init_question_key,
+                                                           habits_init_message_key, habits_init_condition_key,
+                                                           habits_init_fraction_num_key, habits_init_fraction_den_key,
                                                            category_count, variables_init_values_dict, habit_count)
             # print("event", variables_init_event)
             # print("dict", variables_init_values_dict)
@@ -89,7 +73,6 @@ try:
         data = read_csv(csv_file_name, csv_file_name)
     variables = list(data.columns)
     variables.pop(0)
-    data_from_date_to_list(data, '2023-01-12', header)
     verify_header_and_data(header, variables, csv_file_name, data)
     data = create_entry(data)
     # PrintFonts()
@@ -195,6 +178,12 @@ finally:
         log_write(log, f"{finally_string}")
     log.close()
 
+# TODO Scrollable? with
+# TODO Disallow 0 on denominator
+# TODO Disallow duplicate value for habit and category
+# TODO Disallow freq > 1
+# TODO FIX UI formula/length
+
 # TODO LIST - REAL
 # better ui
 #   columns instead of spacing text
@@ -211,6 +200,7 @@ finally:
 #   handle empty tool tips
 #   handle empty direction
 #   handle empty frequency
+# TODO validate variables on form?
 
 # TAG FEATURE? LATEST TIME TAG
 #   separate file
@@ -221,11 +211,8 @@ finally:
 #       improving, but still bad
 #       declining, but still good
 #       all bad
-#   ui for variables, very nani
-#       if never ran, start this window
-#       else have a button to edit it later
 #   have some sort of readme?
-#   write reddit post
+#   TODO write reddit post!!!!!
 #   (week challenge?!?!?!?!)
 #       reward for completing challenge!!
 #       or completing streaks(i.e. 30 days working out)

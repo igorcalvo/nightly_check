@@ -4,13 +4,7 @@ import matplotlib.colors as clr
 
 from .utils import flatten_list, align_right, cycle_index, get_value_from_df_by_row
 from .core import get_header_data, get_date_array, get_fail_indexes_list, get_expeted_value, date_header
-
-font_families = {
-    "consolas": r"assets\fonts\consola.ttf",
-    "roboto": r"assets\fonts\Roboto-Bold.ttf",
-    "liberation": r"assets\fonts\LiberationMono-Bold.ttf",
-    "noto": r"assets\fonts\NotoSansJP-Regular.otf",
-}
+from .constants import font_families
 
 def segment_unit_into_list(n: int, min_offset: float = 0, max_offset: float = 1) -> list:
     if n <= 0:
