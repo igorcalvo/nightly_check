@@ -1,8 +1,8 @@
 {
-    "dataDays": 30,
-    "displayMessages": true,
-    "graphExpectedValue": false,
-    "hueOffset": 0,
-    "scrollableImage": false,
-	"messageDuration": 5
+    "data_days": 30,
+    "display_messages": true,
+    "graph_expected_value": false,
+    "hue_offset": 0.045,
+    "message_duration": 5,
+    "scrollable_image": false
 }

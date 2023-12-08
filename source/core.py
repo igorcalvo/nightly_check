@@ -18,7 +18,8 @@ def read_csv(file_name: str, data_file_name: str):
     if file_name == data_file_name:
         content = [stringLine.replace('\n', '').replace(',1', ',True').replace(',0', ',False').split(',') for stringLine in lines[1:]]
     else:
-        content = [stringLine.replace('\n', '').split(',') for stringLine in lines[1:]]
+        content = [replace_commas_for_double_spaces(stringLine).replace('\n', '').split(',') for stringLine in lines[1:]]
+        content = [[replace_double_spaces_for_commas(string) for string in habit_row] for habit_row in content]
     df = DataFrame(content, columns=header)
     return df
 
@@ -161,7 +162,7 @@ def verify_variables(variables_file_name):
             lines = file.readlines()
             file.close()
         header = lines[0].replace('\n', '').split(',')
-        content = [string_line.replace('\n', '').split(',') for string_line in lines[1:]]
+        content = [replace_commas_for_double_spaces(string_line).replace('\n', '').split(',') for string_line in lines[1:]]
         for idx, line in enumerate(content):
             if len(line) != len(header):
                 raise Exception(f"verify_variables - Length of line {idx} and header is different from {len(header)}\n{line}")
@@ -259,7 +260,7 @@ def get_popup_message(conditions: list, fractions: list, habit_messages: list, h
             return f'{m[-2]}\n{m[-1]}'
     return choice(list(candidate_messages))
 
-def read_past_messages(msg_file_name: str) -> list:
+def read_past_messages(msg_file_name: str) -> list | None:
     if not exists(msg_file_name):
         return None
     else:
@@ -305,12 +306,12 @@ class Settings:
     @staticmethod
     def from_json(jsonString: str):
         json_dict = json.loads(jsonString)
-        hue_offset = float(json_dict['hueOffset'])
-        data_days = int(json_dict['dataDays'])
-        display_messages = bool(json_dict['displayMessages'])
-        graph_expected_value = bool(json_dict['graphExpectedValue'])
-        scrollable_image = bool(json_dict['scrollableImage'])
-        message_duration = int(json_dict['messageDuration'])
+        hue_offset = float(json_dict['hue_offset'])
+        data_days = int(json_dict['data_days'])
+        display_messages = bool(json_dict['display_messages'])
+        graph_expected_value = bool(json_dict['graph_expected_value'])
+        scrollable_image = bool(json_dict['scrollable_image'])
+        message_duration = int(json_dict['message_duration'])
         return Settings(hue_offset,
                         data_days,
                         display_messages,

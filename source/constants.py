@@ -1,7 +1,9 @@
+from .utils import is_windows
+
 data_folder = 'data'
-csv_file_name = f'{data_folder}\data.csv'
-msg_file_name = f'{data_folder}\msg.txt'
-log_file_name = f'{data_folder}\log.txt'
+csv_file_name = f'{data_folder}/data.csv'
+msg_file_name = f'{data_folder}/msg.txt'
+log_file_name = f'{data_folder}/log.txt'
 variables_file_name = 'variables.csv'
 settings_file_name = 'settings.json'
 
@@ -37,7 +39,7 @@ wakeup_time = 14
 date_header = "date"
 # ----------------------------------------------------------------------------------------------------------------------
 CATEGORY_PIXEL_LENGTH = 10
-CHECKBOX_PIXEL_LENGTH = 8
+CHECKBOX_PIXEL_LENGTH = 8 if is_windows else 9
 # | hue_offset | < 1
 HUE_BASE = 0.59
 
@@ -77,15 +79,18 @@ COLORS = {
 }
 
 FONTS = {
-    "cat": ("Cascadia Mono", 13, "bold"),
-    "ckb": ('Consolas', 11),
+    "cat": ("Cascadia Mono" if is_windows() else "Liberation Mono", 13, "bold"),
+    "ckb": ('Consolas' if is_windows() else "Noto Mono", 11),
     "btn": ("Verdana", 9, "bold"),
     "pop": ("Arial", 11, "bold")
 }
 # ----------------------------------------------------------------------------------------------------------------------
+import os
+dirname = os.path.dirname(__file__)
+
 font_families = {
-    "consolas": r"assets\fonts\consola.ttf",
-    "roboto": r"assets\fonts\Roboto-Bold.ttf",
-    "liberation": r"assets\fonts\LiberationMono-Bold.ttf",
-    "noto": r"assets\fonts\NotoSansJP-Regular.otf",
+    "consolas": os.path.join(dirname, r"assets/fonts/consola.ttf"),
+    "roboto": os.path.join(dirname, r"assets/fonts/Roboto-Bold.ttf"),
+    "liberation": os.path.join(dirname, r"assets/fonts/LiberationMono-Bold.ttf"),
+    "noto": os.path.join(dirname, r"assets/fonts/NotoSansJP-Regular.otf"),
 }

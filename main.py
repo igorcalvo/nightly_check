@@ -4,6 +4,7 @@ from source.ui import *
 from source.core import *
 from source.imggen import *
 from source.constants import *
+from sys import exc_info
 
 values_dict = {}
 hue_offset = 0
@@ -116,7 +117,7 @@ try:
                             break
                 elif style_event == set_button_text_key or style_event == sg.WIN_CLOSED:
                     if style_event == set_button_text_key:
-                        settings.hue_offset = hue_offset
+                        settings.hue_offset = normalize_hue(settings.hue_offset, hue_offset)
                         save_settings_file(settings, settings_file_name)
                     style_window.close()
                     break

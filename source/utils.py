@@ -1,6 +1,7 @@
 from base64 import b64encode
 from io import BytesIO
 from pandas import DataFrame
+from sys import platform
 
 def group_list_if_char(flatList: list, ch: str) -> list:
     result = []
@@ -50,7 +51,8 @@ def to_lower_underscored(string: str) -> str:
     return string.replace(' ', '_').lower()
 
 def to_capitalized(string: str) -> str:
-    return ' '.join([s.capitalize() for s in string.split(' ')])
+    dirty_fixes = {'GG': 'GG'}
+    return ' '.join([s.capitalize() if s not in dirty_fixes.keys() else dirty_fixes[s] for s in string.split(' ')])
 
 def flatten_list(l: list) -> list:
     return [item for sublist in l for item in sublist]
@@ -118,6 +120,9 @@ def safe_value_from_array(index, array: list):
 def replace_commas_for_double_spaces(string: str) -> str:
     return string.replace(', ', '  ')
 
+def replace_double_spaces_for_commas(string: str) -> str:
+    return string.replace('  ', ', ')
+
 def join_white_spaced_header(string: str) -> str:
     return string.replace(' ', '-')
 
@@ -126,3 +131,6 @@ def values_from_keyword(keyword: str, dictionary: dict):
     keys.sort()
     values = [dictionary[key] for key in keys]
     return values
+
+def is_windows() -> bool:
+    return False if platform == 'linux' else True

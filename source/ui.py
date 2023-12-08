@@ -8,13 +8,13 @@ from PIL import Image
 from base64 import b64decode
 # w, h = sg.Window.get_screen_size()
 from .core import get_matrix_data_by_header_indexes
-from .utils import pad_string, transpose, flatten_list, safe_value_from_dict, safe_bool_from_array, safe_value_from_array
+from .utils import pad_string, transpose, flatten_list, safe_value_from_dict, safe_bool_from_array, safe_value_from_array, is_windows
 from .constants import COLORS, FONTS, HUE_BASE, CATEGORY_PIXEL_LENGTH, CHECKBOX_PIXEL_LENGTH
 
 PARENT_DIR = os.path.abspath(os.path.join(os.getcwd(), os.pardir)).replace("\\", "/") + "/NightlyCheck"
 COLORED_ICON_PATH = f"{PARENT_DIR}/assets/icons/iconColored.png"
 
-def print_FONTS():
+def print_fonts():
     root = tk.Tk()
     font_list = list(tk.font.families())
     font_list.sort()
@@ -22,15 +22,19 @@ def print_FONTS():
         print(f)
     root.destroy()
 
+def normalize_hue(hue, offset):
+    new_hue = hue + offset
+    if new_hue > 1:
+        return new_hue - 1
+    elif new_hue < 0:
+        return new_hue + 1
+    else:
+        return new_hue
+
 def apply_hue_offset(hex_color: str, hue_offset: float) -> str:
     hsv = clr.rgb_to_hsv(clr.to_rgb(hex_color))
-    new_hue = hsv[0] + hue_offset
-    if new_hue > 1:
-        hsv[0] = new_hue - 1
-    elif new_hue < 0:
-        hsv[0] = new_hue + 1
-    else:
-        hsv[0] = new_hue
+    new_hue = normalize_hue(hsv[0], hue_offset)
+    hsv[0] = new_hue
     return clr.rgb2hex(clr.hsv_to_rgb(hsv))
 
 def update_COLORS(hue_offset: float):
@@ -59,29 +63,32 @@ def InitUi(hueOffset: float):
     generate_icon(hueOffset)
     update_COLORS(hueOffset)
 
-def CreateCheckBoxes(descriptions: list, header: list, size: int, default_values: list = []) -> list:
+def CreateCheckBoxes(descriptions: list, header: list, sizes: list, default_values: list = []) -> list:
     #                  magic number to align checkboxes when the previous column has fewer rows
-    column_correction = 2 * size + 7
     return [[(sg.Checkbox(text=' ' + item,
                           default=False if len(default_values) == 0 else get_matrix_data_by_header_indexes(default_values, header, item),
                           key=item,
-                          size=size,
+                          size=sizes[idx],
                           font=FONTS["ckb"],
                           checkbox_color=COLORS["ckb_bkg"],
                           text_color=COLORS["ckb_txt"],
                           background_color=COLORS["win_bkg"],
-                          pad=((15, 0), (2, 2)),
-                          tooltip=get_matrix_data_by_header_indexes(descriptions, header, item)) if item != '' else sg.Text(pad_string('', column_correction), background_color=COLORS["win_bkg"])) for item in splitList] for splitList in transpose(header)]
+                          pad=((15, 0), (1, 1)),
+                          tooltip=get_matrix_data_by_header_indexes(descriptions, header, item)) if item != '' else sg.Text(pad_string('', sizes[idx] + 2) if not is_windows() else 2 * sizes[idx] + 7, background_color=COLORS["win_bkg"], font=FONTS["cat"])) for idx, item in enumerate(splitList)] for splitList in transpose(header)]
 #                                                                                                                      Fixes floating checkbox on a column
-def CreateMainLayout(categories: list, header: list, descriptions: list, done_button_text: str, style_button_text: str, data_button_text: str, edit_button_text: str, longest_text: int, windows_x_size: int, csv_not_empty: bool, is_sub_window: bool, default_values: list) -> list:
-    size = int(longest_text * 8 / CHECKBOX_PIXEL_LENGTH + 1)
+def CreateMainLayout(categories: list, header: list, descriptions: list, done_button_text: str, style_button_text: str, data_button_text: str, edit_button_text: str, windows_x_size: int, csv_not_empty: bool, is_sub_window: bool, default_values: list) -> list:
+    longest_texts = [max([len(text) for text in col]) for col in header]
+    sizes = [lt + 1 for lt in longest_texts]
     #                        Spacing between categories
-    category_titles = [sg.Text(pad_string(c.upper(), int(longest_text * CHECKBOX_PIXEL_LENGTH / CATEGORY_PIXEL_LENGTH) + 3),
+    category_titles = [sg.Text(pad_string(cat.upper(), longest_texts[idx]),
+    # category_titles = [sg.Text(cat.upper(), int(longest_texts[idx] * CHECKBOX_PIXEL_LENGTH / CATEGORY_PIXEL_LENGTH) + 3,
                                text_color=COLORS["cat_txt"],
                                background_color=COLORS["cat_bkg"],
-                               pad=((15, 10), (10, 10)),
-                               font=FONTS["cat"]) for c in categories]
-    checkboxes = CreateCheckBoxes(descriptions, header, size, default_values)
+                               pad=((20, 20), (10, 0)),
+                               font=FONTS["cat"]) for idx, cat in enumerate(categories)]
+    for c in longest_texts:
+        print(c)
+    checkboxes = CreateCheckBoxes(descriptions, header, sizes, default_values)
 
     buttons_layout = [
         sg.Button(style_button_text,
@@ -123,9 +130,9 @@ def CreateMainLayout(categories: list, header: list, descriptions: list, done_bu
     return window_layout
 
 def MainWindow(categories: list, header: list, descriptions: list, done_button_text: str, style_button_text: str, data_button_text: str, edit_button_text: str, csv_not_empty: bool, is_sub_window: bool, default_values: list = []):
-    longest_text = max([len(x) for x in flatten_list(header)])
-    window_size = (int((0.93 * longest_text * CHECKBOX_PIXEL_LENGTH + 60) * len(categories) - 15), 40 * max([len(h) for h in header]) + 75)
-    layout = CreateMainLayout(categories, header, descriptions, done_button_text, style_button_text, data_button_text, edit_button_text, longest_text, window_size[0], csv_not_empty, is_sub_window, default_values)
+    longest_texts = [max([len(text) for text in col]) for col in header]
+    window_size = (((sum(longest_texts) + 60) * CHECKBOX_PIXEL_LENGTH), 40 * max([len(h) for h in header]) + 75)
+    layout = CreateMainLayout(categories, header, descriptions, done_button_text, style_button_text, data_button_text, edit_button_text, window_size[0], csv_not_empty, is_sub_window, default_values)
     return sg.Window(title="Argus",
                      layout=layout,
                      use_custom_titlebar=True,
@@ -134,7 +141,7 @@ def MainWindow(categories: list, header: list, descriptions: list, done_button_t
                      titlebar_icon=COLORED_ICON_PATH,
                      background_color=COLORS["win_bkg"],
                      size=window_size,
-                     element_justification='c')
+                     element_justification='l')
 
 def PopUp(message: str, message_duration: int):
     sg.PopupNoButtons(message,
@@ -180,7 +187,7 @@ def StyleWindow(style_button_text: str, slider_text_key: str, preview_window_tex
                      use_custom_titlebar=True,
                      titlebar_background_color=COLORS["bar_bkg"],
                      titlebar_text_color=COLORS["bar_txt"],
-                     titlebar_icon="assets\icons\style16.png",
+                     titlebar_icon=f"{PARENT_DIR}/assets/icons/style16.png",
                      background_color=COLORS["sld_bkg"],
                      relative_location=(-100, 0)
                      ).Finalize()
@@ -212,7 +219,7 @@ def PreviewWindow(preview_window_text: str, preview_close_key: str, hue_offset: 
                      use_custom_titlebar=True,
                      titlebar_background_color=apply_hue_offset(COLORS["bar_bkg"], hue_offset),
                      titlebar_text_color=apply_hue_offset(COLORS["bar_txt"], hue_offset),
-                     titlebar_icon="assets\icons\preview16.png",
+                     titlebar_icon=f"{PARENT_DIR}/assets/icons/preview16.png",
                      background_color=apply_hue_offset(COLORS["win_bkg"], hue_offset),
                      relative_location=(240, 0)
                      ).Finalize()
@@ -240,7 +247,7 @@ def DataWindow(data_button_text: str, export_button_text: str, scrollable_image:
                      use_custom_titlebar=True,
                      titlebar_background_color=COLORS["bar_bkg"],
                      titlebar_text_color=COLORS["bar_txt"],
-                     titlebar_icon="assets\icons\data16.png",
+                     titlebar_icon=f"{PARENT_DIR}/assets/icons/data16.png",
                      background_color=COLORS["dat_bkg"],
                      relative_location=(0, -15),
                      ).Finalize()
@@ -277,7 +284,7 @@ def NeglectedPopUp(accept_text: str, reject_text: str):
                      use_custom_titlebar=True,
                      titlebar_background_color=COLORS["bar_bkg"],
                      titlebar_text_color=COLORS["bar_txt"],
-                     titlebar_icon="assets\icons\yesterday16.png",
+                     titlebar_icon=f"{PARENT_DIR}/assets/icons/yesterday16.png",
                      background_color=COLORS["neg_bkg"],
                      relative_location=(0, 0),
                      element_justification='c'
@@ -314,7 +321,7 @@ def DatePickerWindow(select_date_key: str, select_date_button_text: str):
                      use_custom_titlebar=True,
                      titlebar_background_color=COLORS["bar_bkg"],
                      titlebar_text_color=COLORS["bar_txt"],
-                     titlebar_icon="assets\icons\yesterday16.png",
+                     titlebar_icon=f"{PARENT_DIR}/assets/icons/yesterday16.png",
                      background_color=COLORS["dtp_bkg"],
                      relative_location=(0, 0),
                      element_justification='c'
@@ -366,7 +373,7 @@ def HabitInitHabitLayout(category_row: int,
                      default_text=safe_value_from_dict(habit_init_key(habits_init_message_key, category_row, row), values_dict),
                      visible=safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True)),
         sg.Combo(values=['>', '<'],
-                 default_value='>',
+                 default_value=safe_value_from_dict(habit_init_key(habits_init_condition_key, category_row, row), values_dict),
                  key=habit_init_key(habits_init_condition_key, category_row, row),
                  size=4,
                  pad=5,
@@ -495,7 +502,7 @@ def HabitsInitWindow(layout: list):
         use_custom_titlebar=True,
         titlebar_background_color=COLORS["bar_bkg"],
         titlebar_text_color=COLORS["bar_txt"],
-        titlebar_icon=r"assets\icons\rocket16.png",
+        titlebar_icon=f"{PARENT_DIR}/assets/icons/rocket16.png",
         background_color=COLORS["win_bkg"],
         relative_location=(0, 0),
         element_justification='l'
