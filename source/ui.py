@@ -9,10 +9,9 @@ from base64 import b64decode
 # w, h = sg.Window.get_screen_size()
 from .core import get_matrix_data_by_header_indexes
 from .utils import pad_string, transpose, flatten_list, safe_value_from_dict, safe_bool_from_array, safe_value_from_array, is_windows
-from .constants import COLORS, FONTS, HUE_BASE, CATEGORY_PIXEL_LENGTH, CHECKBOX_PIXEL_LENGTH
+from .constants import COLORS, FONTS, HUE_BASE, CATEGORY_PIXEL_LENGTH, CHECKBOX_PIXEL_LENGTH, DIR
 
-PARENT_DIR = os.path.abspath(os.path.join(os.getcwd(), os.pardir)).replace("\\", "/") + "/NightlyCheck"
-COLORED_ICON_PATH = f"{PARENT_DIR}/assets/icons/iconColored.png"
+COLORED_ICON_PATH = f"{DIR}/assets/icons/iconColored.png"
 
 def print_fonts():
     root = tk.Tk()
@@ -42,10 +41,10 @@ def update_COLORS(hue_offset: float):
         COLORS[key] = apply_hue_offset(COLORS[key], hue_offset)
 
 def generate_icon(hue_offset: float):
-    icon = cv.imread(f"{PARENT_DIR}/assets/icons/icon16.png", cv.IMREAD_UNCHANGED)
+    icon = cv.imread(f"{DIR}/assets/icons/icon16.png", cv.IMREAD_UNCHANGED)
     a = icon[:, :, 3]
 
-    bgr = cv.imread(f"{PARENT_DIR}/assets/icons/icon16.png")
+    bgr = cv.imread(f"{DIR}/assets/icons/icon16.png")
     hsv = cv.cvtColor(bgr, cv.COLOR_BGR2HSV)
     h = hsv[:, :, 0]
     s = hsv[:, :, 1]
@@ -86,8 +85,6 @@ def CreateMainLayout(categories: list, header: list, descriptions: list, done_bu
                                background_color=COLORS["cat_bkg"],
                                pad=((20, 20), (10, 0)),
                                font=FONTS["cat"]) for idx, cat in enumerate(categories)]
-    for c in longest_texts:
-        print(c)
     checkboxes = CreateCheckBoxes(descriptions, header, sizes, default_values)
 
     buttons_layout = [
@@ -187,7 +184,7 @@ def StyleWindow(style_button_text: str, slider_text_key: str, preview_window_tex
                      use_custom_titlebar=True,
                      titlebar_background_color=COLORS["bar_bkg"],
                      titlebar_text_color=COLORS["bar_txt"],
-                     titlebar_icon=f"{PARENT_DIR}/assets/icons/style16.png",
+                     titlebar_icon=f"{DIR}/assets/icons/style16.png",
                      background_color=COLORS["sld_bkg"],
                      relative_location=(-100, 0)
                      ).Finalize()
@@ -219,7 +216,7 @@ def PreviewWindow(preview_window_text: str, preview_close_key: str, hue_offset: 
                      use_custom_titlebar=True,
                      titlebar_background_color=apply_hue_offset(COLORS["bar_bkg"], hue_offset),
                      titlebar_text_color=apply_hue_offset(COLORS["bar_txt"], hue_offset),
-                     titlebar_icon=f"{PARENT_DIR}/assets/icons/preview16.png",
+                     titlebar_icon=f"{DIR}/assets/icons/preview16.png",
                      background_color=apply_hue_offset(COLORS["win_bkg"], hue_offset),
                      relative_location=(240, 0)
                      ).Finalize()
@@ -247,7 +244,7 @@ def DataWindow(data_button_text: str, export_button_text: str, scrollable_image:
                      use_custom_titlebar=True,
                      titlebar_background_color=COLORS["bar_bkg"],
                      titlebar_text_color=COLORS["bar_txt"],
-                     titlebar_icon=f"{PARENT_DIR}/assets/icons/data16.png",
+                     titlebar_icon=f"{DIR}/assets/icons/data16.png",
                      background_color=COLORS["dat_bkg"],
                      relative_location=(0, -15),
                      ).Finalize()
@@ -284,7 +281,7 @@ def NeglectedPopUp(accept_text: str, reject_text: str):
                      use_custom_titlebar=True,
                      titlebar_background_color=COLORS["bar_bkg"],
                      titlebar_text_color=COLORS["bar_txt"],
-                     titlebar_icon=f"{PARENT_DIR}/assets/icons/yesterday16.png",
+                     titlebar_icon=f"{DIR}/assets/icons/yesterday16.png",
                      background_color=COLORS["neg_bkg"],
                      relative_location=(0, 0),
                      element_justification='c'
@@ -321,7 +318,7 @@ def DatePickerWindow(select_date_key: str, select_date_button_text: str):
                      use_custom_titlebar=True,
                      titlebar_background_color=COLORS["bar_bkg"],
                      titlebar_text_color=COLORS["bar_txt"],
-                     titlebar_icon=f"{PARENT_DIR}/assets/icons/yesterday16.png",
+                     titlebar_icon=f"{DIR}/assets/icons/yesterday16.png",
                      background_color=COLORS["dtp_bkg"],
                      relative_location=(0, 0),
                      element_justification='c'
@@ -502,7 +499,7 @@ def HabitsInitWindow(layout: list):
         use_custom_titlebar=True,
         titlebar_background_color=COLORS["bar_bkg"],
         titlebar_text_color=COLORS["bar_txt"],
-        titlebar_icon=f"{PARENT_DIR}/assets/icons/rocket16.png",
+        titlebar_icon=f"{DIR}/assets/icons/rocket16.png",
         background_color=COLORS["win_bkg"],
         relative_location=(0, 0),
         element_justification='l'

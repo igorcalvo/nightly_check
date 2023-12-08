@@ -86,7 +86,7 @@ try:
             neglected_event, neglected_values_dic = neglected_window.read()
             if neglected_event == neglected_accept_text:
                 neglected_data_window = MainWindow(categories, header, descriptions, done_button_text, style_button_text,
-                                                   data_button_text, edit_button_text, len(data) > 1, True)
+                                                   data_button_text, edit_button_text, len(data) >= 1, True)
                 while True:
                     neglected_data_event, neglected_data_values_dict = neglected_data_window.read()
                     if neglected_data_event == done_button_text:
@@ -99,7 +99,7 @@ try:
                 neglected_window.close()
                 break
     window = MainWindow(categories, header, descriptions, done_button_text, style_button_text, data_button_text,
-                        edit_button_text, len(data) > 1, False)
+                        edit_button_text, len(data) > 0, False)
     while True:
         event, values_dict = window.read()
         if event == style_button_text:
@@ -143,7 +143,7 @@ try:
                     picked_date = date_picker_dict[select_date_key]
                     data_from_date = data_from_date_to_list(data, picked_date, header)
                     edit_data_window = MainWindow(categories, header, descriptions, done_button_text, style_button_text,
-                                                  data_button_text, edit_button_text, len(data) > 1, True, data_from_date)
+                                                  data_button_text, edit_button_text, len(data) > 0, True, data_from_date)
                     while True:
                         edit_data_event, edit_data_values_dict = edit_data_window.read()
                         if edit_data_event == done_button_text:

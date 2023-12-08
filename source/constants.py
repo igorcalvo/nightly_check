@@ -1,11 +1,14 @@
 from .utils import is_windows
+import os
+
+DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 
 data_folder = 'data'
-csv_file_name = f'{data_folder}/data.csv'
-msg_file_name = f'{data_folder}/msg.txt'
-log_file_name = f'{data_folder}/log.txt'
-variables_file_name = 'variables.csv'
-settings_file_name = 'settings.json'
+csv_file_name = os.path.abspath(os.path.join(DIR, data_folder, 'data.csv'))
+msg_file_name = os.path.abspath(os.path.join(DIR, data_folder, 'msg.txt'))
+log_file_name = os.path.abspath(os.path.join(DIR, data_folder, 'log.txt'))
+variables_file_name = os.path.abspath(os.path.join(DIR, 'variables.csv'))
+settings_file_name = os.path.abspath(os.path.join(DIR, 'settings.json'))
 
 done_button_text = 'Done'
 style_button_text = 'Style'
@@ -85,12 +88,9 @@ FONTS = {
     "pop": ("Arial", 11, "bold")
 }
 # ----------------------------------------------------------------------------------------------------------------------
-import os
-dirname = os.path.dirname(__file__)
-
 font_families = {
-    "consolas": os.path.join(dirname, r"assets/fonts/consola.ttf"),
-    "roboto": os.path.join(dirname, r"assets/fonts/Roboto-Bold.ttf"),
-    "liberation": os.path.join(dirname, r"assets/fonts/LiberationMono-Bold.ttf"),
-    "noto": os.path.join(dirname, r"assets/fonts/NotoSansJP-Regular.otf"),
+    "consolas": os.path.join(DIR, r"assets/fonts/consola.ttf"),
+    "roboto": os.path.join(DIR, r"assets/fonts/Roboto-Bold.ttf"),
+    "liberation": os.path.join(DIR, r"assets/fonts/LiberationMono-Bold.ttf"),
+    "noto": os.path.join(DIR, r"assets/fonts/NotoSansJP-Regular.otf"),
 }
