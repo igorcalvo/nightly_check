@@ -7,4 +7,4 @@ data*.csv
 backup/
 variables.csv
 settings.json
-assets/icons/iconColored
+assets/icons/iconColored.png
