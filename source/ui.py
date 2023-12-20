@@ -2,16 +2,15 @@ import PySimpleGUI as sg
 import tkinter as tk
 import matplotlib.colors as clr
 import cv2 as cv
-import os
 from io import BytesIO
 from PIL import Image
 from base64 import b64decode
 # w, h = sg.Window.get_screen_size()
 from .core import get_matrix_data_by_header_indexes
-from .utils import pad_string, transpose, flatten_list, safe_value_from_dict, safe_bool_from_array, safe_value_from_array, is_windows
-from .constants import COLORS, FONTS, HUE_BASE, CATEGORY_PIXEL_LENGTH, CHECKBOX_PIXEL_LENGTH, DIR
-
-COLORED_ICON_PATH = f"{DIR}/assets/icons/iconColored.png"
+from .utils import pad_string, transpose, safe_value_from_dict, safe_bool_from_array, safe_value_from_array, is_windows
+from .constants import COLORS, FONTS, CHECKBOX_PIXEL_LENGTH, MESSAGES, PATHS
+PATH = PATHS()
+PATH.__init__()
 
 def print_fonts():
     root = tk.Tk()
@@ -41,22 +40,22 @@ def update_COLORS(hue_offset: float):
         COLORS[key] = apply_hue_offset(COLORS[key], hue_offset)
 
 def generate_icon(hue_offset: float):
-    icon = cv.imread(f"{DIR}/assets/icons/icon16.png", cv.IMREAD_UNCHANGED)
+    icon = cv.imread(PATH.standard_icon, cv.IMREAD_UNCHANGED)
     a = icon[:, :, 3]
 
-    bgr = cv.imread(f"{DIR}/assets/icons/icon16.png")
+    bgr = cv.imread(PATH.standard_icon)
     hsv = cv.cvtColor(bgr, cv.COLOR_BGR2HSV)
     h = hsv[:, :, 0]
     s = hsv[:, :, 1]
     v = hsv[:, :, 2]
 
-    hsv_delta = 180 * (hue_offset)
+    hsv_delta = 180 * hue_offset
     h2 = cv.add(h, hsv_delta)
     hsv2 = cv.merge([h2, s, v])
 
     result = cv.cvtColor(hsv2, cv.COLOR_HSV2BGR)
     result = cv.merge([result[:, :, 0], result[:, :, 1], result[:, :, 2], a])
-    cv.imwrite(COLORED_ICON_PATH, result)
+    cv.imwrite(PATH.colored_icon, result)
 
 def InitUi(hueOffset: float):
     generate_icon(hueOffset)
@@ -130,12 +129,12 @@ def MainWindow(categories: list, header: list, descriptions: list, done_button_t
     longest_texts = [max([len(text) for text in col]) for col in header]
     window_size = (((sum(longest_texts) + 60) * CHECKBOX_PIXEL_LENGTH), 40 * max([len(h) for h in header]) + 75)
     layout = CreateMainLayout(categories, header, descriptions, done_button_text, style_button_text, data_button_text, edit_button_text, window_size[0], csv_not_empty, is_sub_window, default_values)
-    return sg.Window(title="Argus",
+    return sg.Window(title=MESSAGES.app_title,
                      layout=layout,
                      use_custom_titlebar=True,
                      titlebar_background_color=COLORS["bar_bkg"],
                      titlebar_text_color=COLORS["bar_txt"],
-                     titlebar_icon=COLORED_ICON_PATH,
+                     titlebar_icon=PATH.colored_icon,
                      background_color=COLORS["win_bkg"],
                      size=window_size,
                      element_justification='l')
@@ -153,7 +152,7 @@ def PopUp(message: str, message_duration: int):
 
 def StyleWindow(style_button_text: str, slider_text_key: str, preview_window_text: str, set_button_tex_key: str):
     return sg.Window(style_button_text, [
-        [sg.Text(pad_string("Slide to change hue", 0),
+        [sg.Text(pad_string(MESSAGES.hue, 0),
                  background_color=COLORS["sld_bkg"],
                  text_color=COLORS["sld_txt"])],
         [sg.Slider(range=(-0.5, 0.5),
@@ -184,19 +183,19 @@ def StyleWindow(style_button_text: str, slider_text_key: str, preview_window_tex
                      use_custom_titlebar=True,
                      titlebar_background_color=COLORS["bar_bkg"],
                      titlebar_text_color=COLORS["bar_txt"],
-                     titlebar_icon=f"{DIR}/assets/icons/style16.png",
+                     titlebar_icon=PATH.style_icon,
                      background_color=COLORS["sld_bkg"],
                      relative_location=(-100, 0)
                      ).Finalize()
 
 def PreviewWindow(preview_window_text: str, preview_close_key: str, hue_offset: float):
     return sg.Window(preview_window_text, [
-        [sg.Text(pad_string("Preview".upper(), 27),
+        [sg.Text(pad_string(MESSAGES.preview_text.upper(), 27),
                  text_color=apply_hue_offset(COLORS["cat_txt"], hue_offset),
                  background_color=apply_hue_offset(COLORS["cat_bkg"], hue_offset),
                  pad=((15, 0), (10, 10)),
                  font=FONTS["cat"])],
-        [sg.Checkbox(text=pad_string(' ' + "Sample Text", 30),
+        [sg.Checkbox(text=pad_string(MESSAGES.preview_checkbox, 30),
                      default=False,
                      size=15,
                      font=FONTS["ckb"],
@@ -204,8 +203,8 @@ def PreviewWindow(preview_window_text: str, preview_close_key: str, hue_offset: 
                      text_color=apply_hue_offset(COLORS["ckb_txt"], hue_offset),
                      background_color=apply_hue_offset(COLORS["win_bkg"], hue_offset),
                      pad=((15, 0), (2, 2)),
-                     tooltip="Sample tooltip")],
-        [sg.Button("Close",
+                     tooltip=MESSAGES.preview_tooltip)],
+        [sg.Button(MESSAGES.preview_close,
                    font=FONTS["btn"],
                    size=7,
                    key=preview_close_key,
@@ -228,9 +227,9 @@ def DataWindow(data_button_text: str, export_button_text: str, scrollable_image:
         [
             sg.InputText(key=export_button_text, do_not_clear=False, enable_events=True, visible=False),
             sg.FileSaveAs(
-                button_text="Export",
+                button_text=export_button_text,
                 font=FONTS["btn"],
-                initial_folder='%HomeDrive%',
+                initial_folder="%HomeDrive%",
                 file_types=(('PNG', '.png'), ('JPG', '.jpg')),
                 pad=((width - 50, 5), (5, 5)),
                 button_color=(COLORS["exp_bkg"], COLORS["exp_txt"])
@@ -244,14 +243,14 @@ def DataWindow(data_button_text: str, export_button_text: str, scrollable_image:
                      use_custom_titlebar=True,
                      titlebar_background_color=COLORS["bar_bkg"],
                      titlebar_text_color=COLORS["bar_txt"],
-                     titlebar_icon=f"{DIR}/assets/icons/data16.png",
+                     titlebar_icon=PATH.data_icon,
                      background_color=COLORS["dat_bkg"],
                      relative_location=(0, -15),
                      ).Finalize()
 
 def NeglectedPopUp(accept_text: str, reject_text: str):
     layout = [
-        [sg.Text("It looks like you haven't input yesterday's data. Would you like to add it now?",
+        [sg.Text(MESSAGES.neglected,
                  text_color=COLORS["neg_txt"],
                  background_color=COLORS["neg_bkg"],
                  pad=((15, 15), (10, 10)),
@@ -275,13 +274,13 @@ def NeglectedPopUp(accept_text: str, reject_text: str):
                       button_color=(COLORS["dnb_txt"], COLORS["dnb_bkg"]))
         ]
     ]
-    return sg.Window("Yesterday",
+    return sg.Window(MESSAGES.neglected_title,
                      layout,
                      return_keyboard_events=True,
                      use_custom_titlebar=True,
                      titlebar_background_color=COLORS["bar_bkg"],
                      titlebar_text_color=COLORS["bar_txt"],
-                     titlebar_icon=f"{DIR}/assets/icons/yesterday16.png",
+                     titlebar_icon=PATH.yesterday_icon,
                      background_color=COLORS["neg_bkg"],
                      relative_location=(0, 0),
                      element_justification='c'
@@ -290,7 +289,7 @@ def NeglectedPopUp(accept_text: str, reject_text: str):
 def DatePickerWindow(select_date_key: str, select_date_button_text: str):
     layout = [
         [sg.Text(
-            text='Select a date:',
+            text=MESSAGES.date_text,
             text_color=COLORS["dtp_txt"],
             background_color=COLORS["dtp_bkg"],
             font=FONTS["pop"]
@@ -299,7 +298,7 @@ def DatePickerWindow(select_date_key: str, select_date_button_text: str):
             sg.InputText(key=select_date_key,
                          background_color=COLORS["dtp_bkg"],
                          size=20),
-            sg.CalendarButton("Pick a date",
+            sg.CalendarButton(MESSAGES.date_calendar,
                               close_when_date_chosen=True,
                               target=select_date_key,
                               format='%Y-%m-%d',
@@ -312,13 +311,13 @@ def DatePickerWindow(select_date_key: str, select_date_button_text: str):
                       button_color=(COLORS["dnb_txt"], COLORS["dnb_bkg"]))
         ]
     ]
-    return sg.Window("Pick a Date",
+    return sg.Window(MESSAGES.date_calendar,
                      layout,
                      return_keyboard_events=True,
                      use_custom_titlebar=True,
                      titlebar_background_color=COLORS["bar_bkg"],
                      titlebar_text_color=COLORS["bar_txt"],
-                     titlebar_icon=f"{DIR}/assets/icons/yesterday16.png",
+                     titlebar_icon=PATH.yesterday_icon,
                      background_color=COLORS["dtp_bkg"],
                      relative_location=(0, 0),
                      element_justification='c'
@@ -343,15 +342,15 @@ def HabitInitHabitLayout(category_row: int,
                      background_color=COLORS["pop_bkg"],
                      size=20,
                      pad=(10, 0),
-                     tooltip="Short word to represent a habit",
+                     tooltip=MESSAGES.input_tooltip_habit,
                      default_text=safe_value_from_dict(habit_init_key(habits_init_habit_key, category_row, row), values_dict)),
         sg.InputText(key=habit_init_key(habits_init_question_key, category_row, row),
                      background_color=COLORS["pop_bkg"],
                      size=30,
-                     tooltip="Simple yes or no question to help you determine whether you have completed a task or not",
+                     tooltip=MESSAGES.input_tooltip_question,
                      default_text=safe_value_from_dict(habit_init_key(habits_init_question_key, category_row, row), values_dict)),
         sg.VerticalSeparator(color=COLORS["hbi_sep"]),
-        sg.Checkbox(text='Track Frequency?',
+        sg.Checkbox(text=MESSAGES.input_tooltip_track,
                     default=safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True),
                     key=habit_init_key(habits_init_track_frequency_key, category_row, row),
                     size=16,
@@ -360,13 +359,13 @@ def HabitInitHabitLayout(category_row: int,
                     text_color=COLORS["ckb_txt"],
                     background_color=COLORS["win_bkg"],
                     pad=5,
-                    tooltip="Enables message pop up if you fail to perform a task within a determined frequency",
+                    tooltip=MESSAGES.input_tooltip_checkbox,
                     enable_events=True),
         sg.InputText(key=habit_init_key(habits_init_message_key, category_row, row),
                      background_color=COLORS["pop_bkg"],
                      size=60,
-                     pad=[(0, 10), (0, 0)],
-                     tooltip="Message you'll get when you fail to complete the task within a defined frequency",
+                     pad=((0, 10), (0, 0)),
+                     tooltip=MESSAGES.input_tooltip_message,
                      default_text=safe_value_from_dict(habit_init_key(habits_init_message_key, category_row, row), values_dict),
                      visible=safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True)),
         sg.Combo(values=['>', '<'],
@@ -382,6 +381,7 @@ def HabitInitHabitLayout(category_row: int,
                  font=FONTS["ckb"],
                  change_submits=True,
                  enable_events=True,
+                 tooltip=MESSAGES.input_tooltip_combo,
                  visible=safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True)),
         sg.InputText(key=habit_init_key(habits_init_fraction_num_key, category_row, row),
                      background_color=COLORS["pop_bkg"],
@@ -418,7 +418,7 @@ def HabitInitCategoryLayout(category_count: int,
                       background_color=COLORS["pop_bkg"],
                       size=20,
                       pad=10,
-                      tooltip="Short word to represent a collection of habits",
+                      tooltip=MESSAGES.input_tooltip_category,
                       default_text=safe_value_from_dict(habit_init_key(habits_init_category_key, row), values_dict)),
         sg.Text(pad_string("", 0), key=("spacing", row), background_color=COLORS["win_bkg"]),
         sg.Button(button_text=habits_init_add_habit_text,
@@ -477,13 +477,13 @@ def HabitsInitLayout(habits_init_cat_add: str,
                       font=FONTS["btn"],
                       size=button_font_size,
                       button_color=(COLORS["hbc_bkg"], COLORS["hbc_txt"]),
-                      pad=[(0, button_padding), (0, 0)],
+                      pad=((0, button_padding), (0, 0)),
                       disabled=category_count < 1),
             sg.Button(habits_init_generate_text,
                       font=FONTS["btn"],
                       size=button_font_size,
                       button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
-                      pad=[(0, button_padding), (0, 0)]),
+                      pad=((0, button_padding), (0, 0))),
             sg.Push(background_color=COLORS["win_bkg"])
         ],
     ]
@@ -493,13 +493,13 @@ def HabitsInitLayout(habits_init_cat_add: str,
 
 def HabitsInitWindow(layout: list):
     return sg.Window(
-        "Habits File Generator",
+        MESSAGES.habits_title,
         layout,
         return_keyboard_events=True,
         use_custom_titlebar=True,
         titlebar_background_color=COLORS["bar_bkg"],
         titlebar_text_color=COLORS["bar_txt"],
-        titlebar_icon=f"{DIR}/assets/icons/rocket16.png",
+        titlebar_icon=PATH.init_icon,
         background_color=COLORS["win_bkg"],
         relative_location=(0, 0),
         element_justification='l'

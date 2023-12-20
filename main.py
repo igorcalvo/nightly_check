@@ -183,7 +183,6 @@ finally:
 # TODO Disallow 0 on denominator
 # TODO Disallow duplicate value for habit and category
 # TODO Disallow freq > 1
-# TODO FIX UI formula/length
 
 # TODO LIST - REAL
 # better ui

@@ -187,13 +187,15 @@ def no_data_from_yesterday(data: DataFrame):
 #region Habit messages
 def calculate_frequency(data_frequency: float, nominal_frequency: float, condition: str) -> bool:
     match condition:
-        case '<':
-            return data_frequency < nominal_frequency
+        # case '<':
         case '>':
+            return data_frequency < nominal_frequency
+        # case '>':
+        case '<':
             return data_frequency > nominal_frequency
         # Skips this message
         case '':
-            return True
+            return False
         case _:
             raise Exception(f"calculate_frequency: Condition {condition} {nominal_frequency} is not defined.")
 
@@ -205,15 +207,10 @@ def parse_frequency(column: str, conditions: list, fractions: list, header: list
     return condition, int(fraction.split('/')[0]), int(fraction.split('/')[1])
 
 def check_habit(column: str, conditions: list, fractions: list, header: list, data: DataFrame) -> tuple:
-    if column in ['Birl', 'Girl', 'Delivery']:
-        pass
     condition, num, den = parse_frequency(column, conditions, fractions, header)
     nominal = num/den
-    # if data.loc[:, to_lower_underscored(column)].count() >= den:
     trues = [1 if x == 'True' else 0 for x in data.loc[:, to_lower_underscored(column)].tail(den)]
     frequency = sum(trues)/len(trues)
-    # else:
-    #     return 0, 0
     return (frequency, nominal) if calculate_frequency(frequency, nominal, condition) else (0, nominal)
 
 def determine_successful_today(data: DataFrame, conditions: list, header: list, habit_messages: list) -> list:

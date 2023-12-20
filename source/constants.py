@@ -41,10 +41,10 @@ habits_init_fraction_den_key = 'FracDen Value'
 wakeup_time = 14
 date_header = "date"
 # ----------------------------------------------------------------------------------------------------------------------
-CATEGORY_PIXEL_LENGTH = 10
+# CATEGORY_PIXEL_LENGTH = 10
 CHECKBOX_PIXEL_LENGTH = 8 if is_windows else 9
 # | hue_offset | < 1
-HUE_BASE = 0.59
+# HUE_BASE = 0.59
 
 # basis
 bar_bkg = "#00274f"
@@ -94,3 +94,32 @@ font_families = {
     "liberation": os.path.join(DIR, r"assets/fonts/LiberationMono-Bold.ttf"),
     "noto": os.path.join(DIR, r"assets/fonts/NotoSansJP-Regular.otf"),
 }
+# ----------------------------------------------------------------------------------------------------------------------
+class MESSAGES:
+    app_title = "Argus"
+    hue = "Slide to change hue"
+    preview_text = "Preview"
+    preview_tooltip = "Sample tooltip"
+    preview_checkbox = ' ' + "Sample Text"
+    preview_close = "Close"
+    neglected_title = "Yesterday"
+    neglected = "It looks like you haven't input yesterday's data. Would you like to add it now?"
+    date_text = "Select a date:"
+    date_calendar = "Pick a date"
+    input_tooltip_track = "Track Frequency?"
+    input_tooltip_habit = "Short word to represent a habit"
+    input_tooltip_question = "Simple yes or no question to help you determine whether you have completed a task or not"
+    input_tooltip_checkbox = "Enables message pop up if you fail to perform a task within a determined frequency"
+    input_tooltip_message = "Message you'll get when you fail to complete the task within a defined frequency"
+    input_tooltip_combo = "Pick with what you want to achieve in mind, not when you want to see a message (failure)"
+    input_tooltip_category = "Short word to represent a collection of habits"
+    habits_title = "Habits File Generator"
+
+class PATHS:
+    colored_icon = f"{DIR}/assets/icons/iconColored.png"
+    standard_icon = f"{DIR}/assets/icons/icon16.png"
+    style_icon = f"{DIR}/assets/icons/style16.png"
+    data_icon = f"{DIR}/assets/icons/data16.png"
+    yesterday_icon = f"{DIR}/assets/icons/yesterday16.png"
+    init_icon = f"{DIR}/assets/icons/rocket16.png"
+
