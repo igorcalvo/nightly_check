@@ -214,7 +214,7 @@ def check_habit(column: str, conditions: list, fractions: list, header: list, da
     return (frequency, nominal) if calculate_frequency(frequency, nominal, condition) else (0, nominal)
 
 def determine_successful_today(data: DataFrame, conditions: list, header: list, habit_messages: list) -> list:
-    expectation = [[False if d == '>' else True for d in arr] for arr in conditions]
+    expectation = [[False if d == '<' else True for d in arr] for arr in conditions]
 
     reality = [[] for item in range(len(header))]
     for idx1, sublist in enumerate(header):

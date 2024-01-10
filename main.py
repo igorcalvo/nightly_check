@@ -90,7 +90,7 @@ try:
                 while True:
                     neglected_data_event, neglected_data_values_dict = neglected_data_window.read()
                     if neglected_data_event == done_button_text:
-                        log_write(log, f"saving data from yesterday\n{neglected_data_values_dict}")
+                        log_write(log, f"\nsaving data from yesterday\n{neglected_data_values_dict}")
                         save_data(data, neglected_data_values_dict, csv_file_name, True)
                     if neglected_data_event == sg.WIN_CLOSED or neglected_data_event == done_button_text:
                         neglected_window.close()
@@ -140,6 +140,9 @@ try:
             while True:
                 date_picker_event, date_picker_dict = date_picker_window.read()
                 if date_picker_event == select_date_button_text or date_picker_event == sg.WIN_CLOSED:
+                    if date_picker_event == None and date_picker_dict == None:
+                        date_picker_window.close()
+                        break
                     picked_date = date_picker_dict[select_date_key]
                     data_from_date = data_from_date_to_list(data, picked_date, header)
                     edit_data_window = MainWindow(categories, header, descriptions, done_button_text, style_button_text,
@@ -147,7 +150,7 @@ try:
                     while True:
                         edit_data_event, edit_data_values_dict = edit_data_window.read()
                         if edit_data_event == done_button_text:
-                            log_write(log, f"saving data from date '{picked_date}'\n{edit_data_values_dict}")
+                            log_write(log, f"\nsaving data from date '{picked_date}'\n{edit_data_values_dict}")
                             save_data(data, edit_data_values_dict, csv_file_name, False, picked_date)
                         if edit_data_event == sg.WIN_CLOSED or edit_data_event == done_button_text:
                             edit_data_window.close()
@@ -188,7 +191,6 @@ finally:
 # better ui
 #   columns instead of spacing text
 #   better width formula
-#   research how to make it look prettier
 # settings for day of the week
 # ui for settings
 
