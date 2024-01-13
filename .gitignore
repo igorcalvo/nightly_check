@@ -2,6 +2,7 @@
 __pycache__
 *.bak
 *.txt
+*.csv
 !assets/*.txt
 data*.csv
 backup/

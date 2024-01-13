@@ -1,4 +1,4 @@
-from .utils import is_windows
+from .utils import os_is_windows
 import os
 
 DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
@@ -21,6 +21,8 @@ export_button_text = 'Export'
 neglected_accept_text = "Yes"
 neglected_reject_text = "No"
 edit_button_text = 'Edit'
+settings_button_text = 'Settings'
+settings_save_button_text = 'Save'
 select_date_button_text = 'Select'
 select_date_key = 'Date'
 habits_init_cat_add = 'Add Category'
@@ -42,7 +44,7 @@ wakeup_time = 14
 date_header = "date"
 # ----------------------------------------------------------------------------------------------------------------------
 # CATEGORY_PIXEL_LENGTH = 10
-CHECKBOX_PIXEL_LENGTH = 8 if is_windows else 9
+CHECKBOX_PIXEL_LENGTH = 8 if os_is_windows else 9
 # | hue_offset | < 1
 # HUE_BASE = 0.59
 
@@ -82,8 +84,8 @@ COLORS = {
 }
 
 FONTS = {
-    "cat": ("Cascadia Mono" if is_windows() else "Liberation Mono", 13, "bold"),
-    "ckb": ('Consolas' if is_windows() else "Noto Mono", 11),
+    "cat": ("Cascadia Mono" if os_is_windows() else "Liberation Mono", 13, "bold"),
+    "ckb": ('Consolas' if os_is_windows() else "Noto Mono", 11),
     "btn": ("Verdana", 9, "bold"),
     "pop": ("Arial", 11, "bold")
 }
@@ -114,6 +116,12 @@ class MESSAGES:
     input_tooltip_combo = "Pick with what you want to achieve in mind, not when you want to see a message (failure)"
     input_tooltip_category = "Short word to represent a collection of habits"
     habits_title = "Habits File Generator"
+    settings_warning = "Changes will only take effect after restart"
+    style_button_tooltip = "change app's hue"
+    settings_button_tooltip = "edit settings"
+    data_button_tooltip = "display past days' data"
+    edit_button_tooltip = "edit a past day's entry"
+    done_button_tooltip = "save and close app"
 
 class PATHS:
     colored_icon = f"{DIR}/assets/icons/iconColored.png"
@@ -122,4 +130,5 @@ class PATHS:
     data_icon = f"{DIR}/assets/icons/data16.png"
     yesterday_icon = f"{DIR}/assets/icons/yesterday16.png"
     init_icon = f"{DIR}/assets/icons/rocket16.png"
+    preview_icon = f"{DIR}/assets/icons/preview16.png"
 

@@ -7,7 +7,7 @@ from PIL import Image
 from base64 import b64decode
 # w, h = sg.Window.get_screen_size()
 from .core import get_matrix_data_by_header_indexes
-from .utils import pad_string, transpose, safe_value_from_dict, safe_bool_from_array, safe_value_from_array, is_windows
+from .utils import pad_string, transpose, safe_value_from_dict, safe_bool_from_array, safe_value_from_array, os_is_windows
 from .constants import COLORS, FONTS, CHECKBOX_PIXEL_LENGTH, MESSAGES, PATHS
 PATH = PATHS()
 PATH.__init__()
@@ -72,9 +72,9 @@ def CreateCheckBoxes(descriptions: list, header: list, sizes: list, default_valu
                           text_color=COLORS["ckb_txt"],
                           background_color=COLORS["win_bkg"],
                           pad=((15, 0), (1, 1)),
-                          tooltip=get_matrix_data_by_header_indexes(descriptions, header, item)) if item != '' else sg.Text(pad_string('', sizes[idx] + 2) if not is_windows() else 2 * sizes[idx] + 7, background_color=COLORS["win_bkg"], font=FONTS["cat"])) for idx, item in enumerate(splitList)] for splitList in transpose(header)]
+                          tooltip=get_matrix_data_by_header_indexes(descriptions, header, item)) if item != '' else sg.Text(pad_string('', sizes[idx] + 2) if not os_is_windows() else 2 * sizes[idx] + 7, background_color=COLORS["win_bkg"], font=FONTS["cat"])) for idx, item in enumerate(splitList)] for splitList in transpose(header)]
 #                                                                                                                      Fixes floating checkbox on a column
-def CreateMainLayout(categories: list, header: list, descriptions: list, done_button_text: str, style_button_text: str, data_button_text: str, edit_button_text: str, windows_x_size: int, csv_not_empty: bool, is_sub_window: bool, default_values: list) -> list:
+def CreateMainLayout(categories: list, header: list, descriptions: list, done_button_text: str, style_button_text: str, data_button_text: str, edit_button_text: str, settings_button_text: str, windows_x_size: int, csv_not_empty: bool, is_sub_window: bool, default_values: list) -> list:
     longest_texts = [max([len(text) for text in col]) for col in header]
     sizes = [lt + 1 for lt in longest_texts]
     #                        Spacing between categories
@@ -91,13 +91,23 @@ def CreateMainLayout(categories: list, header: list, descriptions: list, done_bu
                   font=FONTS["btn"],
                   size=7,
                   button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
-                  pad=(25, 0)),
+                  pad=(25, 0),
+                  tooltip=MESSAGES.style_button_tooltip,
+                  ),
+        sg.Push(background_color=COLORS["win_bkg"]),
+        sg.Button(settings_button_text,
+                  font=FONTS["btn"],
+                  size=7,
+                  button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
+                  tooltip=MESSAGES.settings_button_tooltip,
+                  ),
         sg.Push(background_color=COLORS["win_bkg"]),
         sg.Button(data_button_text,
                   font=FONTS["btn"],
                   size=7,
                   disabled=not csv_not_empty,
                   button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
+                  tooltip=MESSAGES.data_button_tooltip,
                   ),
         sg.Push(background_color=COLORS["win_bkg"]),
         sg.Button(edit_button_text,
@@ -105,6 +115,7 @@ def CreateMainLayout(categories: list, header: list, descriptions: list, done_bu
                   size=7,
                   disabled=not csv_not_empty,
                   button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
+                  tooltip=MESSAGES.edit_button_tooltip,
                   ),
     ]
 
@@ -114,21 +125,23 @@ def CreateMainLayout(categories: list, header: list, descriptions: list, done_bu
                   font=FONTS["btn"],
                   size=7,
                   button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
-                  pad=(25, 0))
+                  pad=(25, 0),
+                  tooltip=MESSAGES.done_button_tooltip,
+                  ),
     ]
-    buttons_layout.extend(done_button_layout)
 
     if not is_sub_window:
+        buttons_layout.extend(done_button_layout)
         window_layout = [category_titles, checkboxes, buttons_layout]
     else:
         window_layout = [category_titles, checkboxes, done_button_layout]
 
     return window_layout
 
-def MainWindow(categories: list, header: list, descriptions: list, done_button_text: str, style_button_text: str, data_button_text: str, edit_button_text: str, csv_not_empty: bool, is_sub_window: bool, default_values: list = []):
+def MainWindow(categories: list, header: list, descriptions: list, done_button_text: str, style_button_text: str, data_button_text: str, edit_button_text: str, settings_button_text: str, csv_not_empty: bool, is_sub_window: bool, default_values: list = []):
     longest_texts = [max([len(text) for text in col]) for col in header]
     window_size = (((sum(longest_texts) + 60) * CHECKBOX_PIXEL_LENGTH), 40 * max([len(h) for h in header]) + 75)
-    layout = CreateMainLayout(categories, header, descriptions, done_button_text, style_button_text, data_button_text, edit_button_text, window_size[0], csv_not_empty, is_sub_window, default_values)
+    layout = CreateMainLayout(categories, header, descriptions, done_button_text, style_button_text, data_button_text, edit_button_text, settings_button_text, window_size[0], csv_not_empty, is_sub_window, default_values)
     return sg.Window(title=MESSAGES.app_title,
                      layout=layout,
                      use_custom_titlebar=True,
@@ -215,7 +228,7 @@ def PreviewWindow(preview_window_text: str, preview_close_key: str, hue_offset: 
                      use_custom_titlebar=True,
                      titlebar_background_color=apply_hue_offset(COLORS["bar_bkg"], hue_offset),
                      titlebar_text_color=apply_hue_offset(COLORS["bar_txt"], hue_offset),
-                     titlebar_icon=f"{DIR}/assets/icons/preview16.png",
+                     titlebar_icon=PATHS.preview_icon,
                      background_color=apply_hue_offset(COLORS["win_bkg"], hue_offset),
                      relative_location=(240, 0)
                      ).Finalize()
@@ -368,7 +381,7 @@ def HabitInitHabitLayout(category_row: int,
                      tooltip=MESSAGES.input_tooltip_message,
                      default_text=safe_value_from_dict(habit_init_key(habits_init_message_key, category_row, row), values_dict),
                      visible=safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True)),
-        sg.Combo(values=['>', '<'],
+        sg.Combo(values=['≥', '>', '=', '<', '<='],
                  default_value=safe_value_from_dict(habit_init_key(habits_init_condition_key, category_row, row), values_dict),
                  key=habit_init_key(habits_init_condition_key, category_row, row),
                  size=4,

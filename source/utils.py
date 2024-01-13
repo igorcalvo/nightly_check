@@ -132,5 +132,5 @@ def values_from_keyword(keyword: str, dictionary: dict):
     values = [dictionary[key] for key in keys]
     return values
 
-def is_windows() -> bool:
+def os_is_windows() -> bool:
     return False if platform == 'linux' else True

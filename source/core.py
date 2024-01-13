@@ -9,7 +9,7 @@ from .constants import wakeup_time, date_header
 from pandas import concat
 import json
 
-#region .csv
+#region .csv and data
 def read_csv(file_name: str, data_file_name: str):
     with open(file_name, 'r') as file:
         lines = file.readlines()
@@ -115,6 +115,8 @@ def data_from_date_to_list(data: DataFrame, date: str, header: list):
     result = [[row_from_date[to_lower_underscored(h)].values[0] == 'True' for h in cat] for cat in header]
     return result
 
+#endregion
+
 #region .txt
 def get_matrix_data_by_header_indexes(other_matrix: list, header_matrix: list, header_value: str) -> str:
     for idx1, sublist in enumerate(header_matrix):
@@ -187,12 +189,14 @@ def no_data_from_yesterday(data: DataFrame):
 #region Habit messages
 def calculate_frequency(data_frequency: float, nominal_frequency: float, condition: str) -> bool:
     match condition:
-        # case '<':
-        case '>':
+        case '>=':
             return data_frequency < nominal_frequency
-        # case '>':
-        case '<':
+        case '>':
+            return data_frequency <= nominal_frequency
+        case '<=':
             return data_frequency > nominal_frequency
+        case '<':
+            return data_frequency >= nominal_frequency
         # Skips this message
         case '':
             return False
@@ -206,12 +210,16 @@ def parse_frequency(column: str, conditions: list, fractions: list, header: list
         return condition, 0, 1
     return condition, int(fraction.split('/')[0]), int(fraction.split('/')[1])
 
+# TODO currently not taking last day's data into account
+# it is only removed in candidate messages
+# should probably start receiving the dict as argument and adding it to trues
 def check_habit(column: str, conditions: list, fractions: list, header: list, data: DataFrame) -> tuple:
     condition, num, den = parse_frequency(column, conditions, fractions, header)
     nominal = num/den
-    trues = [1 if x == 'True' else 0 for x in data.loc[:, to_lower_underscored(column)].tail(den)]
+    trues = [1 if x == 'True' else 0 for x in data.loc[:, to_lower_underscored(column)].tail(den + 1)][:-1]
     frequency = sum(trues)/len(trues)
-    return (frequency, nominal) if calculate_frequency(frequency, nominal, condition) else (0, nominal)
+    check_if_failed = calculate_frequency(frequency, nominal, condition)
+    return (frequency, nominal, check_if_failed)
 
 def determine_successful_today(data: DataFrame, conditions: list, header: list, habit_messages: list) -> list:
     expectation = [[False if d == '<' else True for d in arr] for arr in conditions]
@@ -233,8 +241,12 @@ def get_popup_message(conditions: list, fractions: list, habit_messages: list, h
     message_data = [(check_habit(h, conditions, fractions, header, data), h, get_matrix_data_by_header_indexes(habit_messages, header, h)) for h in flat_header]
     message_data.sort(key=lambda m: m[0][1], reverse=True)
 
-    # candidate_messages = set([f"{get_matrix_data_by_header_indexes(header, habit_messages, m[2])}\n{m[2]}" if m[0][0] > 0 else '' for m in message_data])
-    candidate_messages = set([f"{get_matrix_data_by_header_indexes(header, habit_messages, m[2])}\n{m[2]}" for m in message_data])
+    # m[0] = (frequency, nominal, failed: bool)
+    # m[1] = header
+    # m[2] = nessage
+    candidate_messages = set([f"{get_matrix_data_by_header_indexes(header, habit_messages, m[2])}\n{m[2]}" for m in message_data if m[0][2]])
+
+    # No ideia why this is here
     empty_messages = set([cm if cm.split('\n')[-1] == '' else None for cm in candidate_messages])
     empty_messages.remove(None)
     candidate_messages.difference_update(candidate_messages.intersection(empty_messages))
@@ -246,7 +258,7 @@ def get_popup_message(conditions: list, fractions: list, habit_messages: list, h
 
     success_messages = determine_successful_today(data, conditions, header, habit_messages)
     success_messages = list(set(success_messages))
-    if ('' in success_messages):
+    if '' in success_messages:
         success_messages.remove('')
 
     sucesses_to_be_removed = [c for c in candidate_messages for s in success_messages if s in c]
@@ -306,14 +318,13 @@ class Settings:
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
     @staticmethod
-    def from_json(jsonString: str):
-        json_dict = json.loads(jsonString)
-        hue_offset = float(json_dict['hue_offset'])
-        data_days = int(json_dict['data_days'])
-        display_messages = bool(json_dict['display_messages'])
-        graph_expected_value = bool(json_dict['graph_expected_value'])
-        scrollable_image = bool(json_dict['scrollable_image'])
-        message_duration = int(json_dict['message_duration'])
+    def from_dict(dictionary: dict):
+        hue_offset = float(dictionary['hue_offset'])
+        data_days = int(dictionary['data_days'])
+        display_messages = bool(dictionary['display_messages'])
+        graph_expected_value = bool(dictionary['graph_expected_value'])
+        scrollable_image = bool(dictionary['scrollable_image'])
+        message_duration = int(dictionary['message_duration'])
         return Settings(hue_offset,
                         data_days,
                         display_messages,
@@ -321,6 +332,11 @@ class Settings:
                         scrollable_image,
                         message_duration,
                         )
+
+    @staticmethod
+    def from_json(jsonString: str):
+        json_dict = json.loads(jsonString)
+        return Settings.from_dict(json_dict)
 
 def read_settings(settings_file_name: str) -> Settings:
     settings: Settings = Settings()
@@ -339,6 +355,7 @@ def save_settings_file(settings: Settings, settings_file_name: str):
     with open(settings_file_name, 'w') as s:
         s.write(settings.to_json())
         s.close()
+
 #endregion
 
 #region  Data Visualization
