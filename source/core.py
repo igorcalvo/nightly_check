@@ -231,11 +231,13 @@ def determine_successful_today(data: DataFrame, conditions: list, header: list, 
 def get_popup_message(conditions: list, fractions: list, habit_messages: list, header: list, data: DataFrame, msg_file_name: str) -> str | None:
     flat_header = flatten_list(header)
     message_data = [(check_habit(h, conditions, fractions, header, data), h, get_matrix_data_by_header_indexes(habit_messages, header, h)) for h in flat_header]
-    message_data.sort(key=lambda m: m[0][1], reverse=False)
+    message_data.sort(key=lambda m: m[0][1], reverse=True)
 
-    candidate_messages = set([f"{get_matrix_data_by_header_indexes(header, habit_messages, m[2])}\n{m[2]}" if m[0][0] > 0 else '' for m in message_data])
-    if len(candidate_messages.intersection({''})) > 0:
-        candidate_messages.remove('')
+    # candidate_messages = set([f"{get_matrix_data_by_header_indexes(header, habit_messages, m[2])}\n{m[2]}" if m[0][0] > 0 else '' for m in message_data])
+    candidate_messages = set([f"{get_matrix_data_by_header_indexes(header, habit_messages, m[2])}\n{m[2]}" for m in message_data])
+    empty_messages = set([cm if cm.split('\n')[-1] == '' else None for cm in candidate_messages])
+    empty_messages.remove(None)
+    candidate_messages.difference_update(candidate_messages.intersection(empty_messages))
 
     past_messages = read_past_messages(msg_file_name)
     previous_message = past_messages[-1] if past_messages is not None else ''
@@ -243,11 +245,14 @@ def get_popup_message(conditions: list, fractions: list, habit_messages: list, h
         candidate_messages.remove(previous_message)
 
     success_messages = determine_successful_today(data, conditions, header, habit_messages)
-    successes_to_remove = [c for c in candidate_messages for s in success_messages if s in c]
-    candidate_messages.difference_update(successes_to_remove)
+    success_messages = list(set(success_messages))
+    if ('' in success_messages):
+        success_messages.remove('')
 
-    # TODO Test no data tabs
-    if len(candidate_messages) < 1:
+    sucesses_to_be_removed = [c for c in candidate_messages for s in success_messages if s in c]
+    candidate_messages.difference_update(sucesses_to_be_removed)
+
+    if len(candidate_messages) == 0:
         return None
 
     # Not random anymore
