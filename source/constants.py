@@ -23,6 +23,7 @@ neglected_reject_text = "No"
 edit_button_text = 'Edit'
 settings_button_text = 'Settings'
 settings_save_button_text = 'Save'
+settings_cancel_button_text = 'Cancel'
 select_date_button_text = 'Select'
 select_date_key = 'Date'
 habits_init_cat_add = 'Add Category'
@@ -43,10 +44,8 @@ habits_init_fraction_den_key = 'FracDen Value'
 wakeup_time = 14
 date_header = "date"
 # ----------------------------------------------------------------------------------------------------------------------
-# CATEGORY_PIXEL_LENGTH = 10
-CHECKBOX_PIXEL_LENGTH = 8 if os_is_windows else 9
+CHECKBOX_PIXEL_LENGTH = 8 if not os_is_windows() else 10
 # | hue_offset | < 1
-# HUE_BASE = 0.59
 
 # basis
 bar_bkg = "#00274f"
@@ -56,31 +55,33 @@ cat_txt = "#dbedff"
 sld_bkg = "#004080"
 
 COLORS = {
-    "bar_bkg":  bar_bkg,
-    "bar_txt":  bar_txt,
-    "win_bkg":  win_bkg,
-    "cat_bkg":  win_bkg,
-    "cat_txt":  cat_txt,
-    "ckb_bkg":  bar_bkg,
-    "ckb_txt":  bar_txt,
-    "dnb_bkg":  bar_bkg,
-    "dnb_txt":  bar_txt,
-    "pop_bkg":  bar_txt,
-    "pop_txt":  bar_bkg,
-    "sld_txt":  cat_txt,
-    "sld_bkg":  sld_bkg,
-    "sld_sld":  bar_txt,
-    "dat_txt":  cat_txt,
-    "dat_bkg":  sld_bkg,
-    "exp_txt":  bar_txt,
-    "exp_bkg":  bar_bkg,
-    "neg_txt":  bar_txt,
-    "neg_bkg":  bar_bkg,
-    "dtp_txt":  bar_txt,
-    "dtp_bkg":  bar_bkg,
-    "hbc_txt":  bar_bkg,
-    "hbc_bkg":  cat_txt,
-    "hbi_sep":  bar_bkg,
+    "bar_bkg": bar_bkg,
+    "bar_txt": bar_txt,
+    "win_bkg": win_bkg,
+    "cat_bkg": win_bkg,
+    "cat_txt": cat_txt,
+    "ckb_bkg": bar_bkg,
+    "ckb_txt": bar_txt,
+    "dnb_bkg": bar_bkg,
+    "dnb_txt": bar_txt,
+    "pop_bkg": bar_txt,
+    "pop_txt": bar_bkg,
+    "sld_txt": cat_txt,
+    "sld_bkg": sld_bkg,
+    "sld_sld": bar_txt,
+    "dat_txt": cat_txt,
+    "dat_bkg": sld_bkg,
+    "exp_txt": bar_txt,
+    "exp_bkg": bar_bkg,
+    "neg_txt": bar_txt,
+    "neg_bkg": bar_bkg,
+    "dtp_txt": bar_txt,
+    "dtp_bkg": bar_bkg,
+    "hbc_txt": bar_bkg,
+    "hbc_bkg": cat_txt,
+    "hbi_sep": bar_bkg,
+    "stg_bkg": win_bkg,
+    "stg_txt": bar_txt,
 }
 
 FONTS = {
@@ -97,6 +98,16 @@ font_families = {
     "noto": os.path.join(DIR, r"assets/fonts/NotoSansJP-Regular.otf"),
 }
 # ----------------------------------------------------------------------------------------------------------------------
+class SETTINGS_KEYS:
+    hue_offset = "hue_offset"
+    data_days = "data_days"
+    display_messages = "display_messages"
+    graph_expected_value = "graph_expected_value"
+    scrollable_image = "scrollable_image"
+    message_duration = "message_duration"
+    random_messages = "random_messages"
+    weekdays_language = "weekdays_language"
+
 class MESSAGES:
     app_title = "Argus"
     hue = "Slide to change hue"
@@ -122,6 +133,17 @@ class MESSAGES:
     data_button_tooltip = "display past days' data"
     edit_button_tooltip = "edit a past day's entry"
     done_button_tooltip = "save and close app"
+    settings_section_appearance = "APPEARANCE"
+    settings_section_data_visualization = "DATA VISUALIZATION"
+    settings_section_messages = "MESSAGES"
+    settings_tooltip_hueoffset = "offset of hue according to base theme in the HSV schema (between -0.5 and +0.5)"
+    settings_tooltip_days = "Number of back days to display data of"
+    settings_tooltip_day_of_week = "Language to display weekday's symbols in"
+    settings_tooltip_expected = "Display data as according to expected or not instead of done or not"
+    settings_tooltip_scrollable = "Enable window to be scrollable (useful if the number os habits is high)"
+    settings_tooltip_messages_show = "Display a message before closing"
+    settings_tooltip_random = "Pick a message among candidates randomly instead of according to coded logic"
+    settings_tooltip_duration = "How long the message is going to be displayed on the screen before closing the app"
 
 class PATHS:
     colored_icon = f"{DIR}/assets/icons/iconColored.png"
@@ -131,4 +153,4 @@ class PATHS:
     yesterday_icon = f"{DIR}/assets/icons/yesterday16.png"
     init_icon = f"{DIR}/assets/icons/rocket16.png"
     preview_icon = f"{DIR}/assets/icons/preview16.png"
-
+    settings_icon = f"{DIR}/assets/icons/cogwheel16.png"

@@ -7,7 +7,6 @@ from source.constants import *
 from sys import exc_info
 
 values_dict = {}
-hue_offset = 0
 
 create_folder_if_doesnt_exist(data_folder)
 create_file_if_doesnt_exist(log_file_name)
@@ -79,6 +78,7 @@ try:
     # PrintFonts()
     settings = read_settings(settings_file_name)
     InitUi(settings.hue_offset)
+    hue_offset = settings.hue_offset
     neglected = no_data_from_yesterday(data)
     if neglected:
         neglected_window = NeglectedPopUp(neglected_accept_text, neglected_reject_text)
@@ -104,7 +104,7 @@ try:
     while True:
         event, values_dict = window.read()
         if event == style_button_text:
-            style_window = StyleWindow(style_button_text, slider_text_key, preview_window_text, set_button_text_key)
+            style_window = StyleWindow(style_button_text, slider_text_key, preview_window_text, set_button_text_key, hue_offset)
             while True:
                 style_event, style_values_dict = style_window.read()
                 if style_event == slider_text_key:
@@ -124,7 +124,7 @@ try:
                     break
         elif event == data_button_text:
             graph_data = read_csv(csv_file_name, csv_file_name)
-            img = generate_image(categories, header, conditions, settings.data_days, settings.graph_expected_value, graph_data)
+            img = generate_image(categories, header, conditions, settings.data_days, settings.graph_expected_value, settings.weekdays_language, graph_data)
             data_window = DataWindow(data_button_text, export_button_text, settings.scrollable_image, image_bytes_to_base64(img))
             while True:
                 data_event, data_values_dict = data_window.read()
@@ -141,7 +141,7 @@ try:
             while True:
                 date_picker_event, date_picker_dict = date_picker_window.read()
                 if date_picker_event == select_date_button_text or date_picker_event == sg.WIN_CLOSED:
-                    if date_picker_event == None and date_picker_dict == None:
+                    if date_picker_event is None and date_picker_dict is None:
                         date_picker_window.close()
                         break
                     picked_date = date_picker_dict[select_date_key]
@@ -159,20 +159,21 @@ try:
                             break
                     date_picker_window.close()
                     break
-        # elif event == settings_button_text:
-        #     settings_window = Settings_Window(settings)
-        #     while True:
-        #         settings_event, settings_dict = settings_window.read()
-        #         if settings_event == settings_save_button_text or event == sg.WIN_CLOSED:
-        #             if settings_event == settings_save_button_text:
-        #                 settings = Settings.from_dict(settings_dict)
-        #             settings_window.close()
-        #             break
+        elif event == settings_button_text:
+            settings_window = SettingsWindow(settings, settings_button_text, settings_save_button_text, settings_cancel_button_text)
+            while True:
+                settings_event, settings_dict = settings_window.read()
+                if settings_event in [settings_save_button_text, settings_cancel_button_text, sg.WIN_CLOSED]:
+                    if settings_event == settings_save_button_text:
+                        settings = Settings.from_dict(settings_dict)
+                        save_settings_file(settings, settings_file_name)
+                    settings_window.close()
+                    break
         elif event == done_button_text or event == sg.WIN_CLOSED:
             if event == done_button_text:
                 save_data(data, values_dict, csv_file_name)
 
-                message = get_popup_message(conditions, fractions, habit_messages, header, data, msg_file_name)
+                message = get_popup_message(conditions, fractions, habit_messages, header, data, msg_file_name, settings.random_messages)
                 if message and settings.display_messages:
                     save_message_file(msg_file_name, header, message)
                     PopUp(message, settings.message_duration)
@@ -193,24 +194,9 @@ finally:
         log_write(log, f"{finally_string}")
     log.close()
 
-# TODO SETTINGS UI
-# TODO SETTING FOR RANDOM OR SORTED MESSAGES
-
-# TODO Scrollable? with
 # TODO Disallow 0 on denominator
 # TODO Disallow duplicate value for habit and category
 # TODO Disallow freq > 1
-
-# TODO pass dict to checkhabit and include todays info?
-# TODO LIST - REAL
-# better ui
-#   columns instead of spacing text
-#   better width formula
-# settings for day of the week
-# ui for settings
-
-# TODO LIST - OLD
-# pop up after n days (settings) reminding to view data
 # validate variables
 #   duplicate columns
 #   empty columns
@@ -218,9 +204,15 @@ finally:
 #   handle empty direction
 #   handle empty frequency
 # TODO validate variables on form?
+# break code into smaller files? (core and ui into regions?)
 
-# TAG FEATURE? LATEST TIME TAG
-#   separate file
+# TODO pass dict to checkhabit and include todays info?
+
+# TODO LIST - REAL
+# better ui
+#   columns instead of spacing text
+#   better width formula
+# pop up after n days (settings) reminding to view data
 
 #   FUTURE
 #   have an indicator on the side of each row based on frequencies:
@@ -238,7 +230,7 @@ finally:
 #       exemplo: nao malhar e comer a mais
 #       	 cel no trabalho e nao meditar
 #       	 anime fap e jogar
-# TODO fix ui
+
 #
 #   COMPILED CODE
 #   run: python -m PyInstaller --onefile main.py

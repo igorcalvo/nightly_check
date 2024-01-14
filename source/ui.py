@@ -6,9 +6,10 @@ from io import BytesIO
 from PIL import Image
 from base64 import b64decode
 # w, h = sg.Window.get_screen_size()
-from .core import get_matrix_data_by_header_indexes
-from .utils import pad_string, transpose, safe_value_from_dict, safe_bool_from_array, safe_value_from_array, os_is_windows
-from .constants import COLORS, FONTS, CHECKBOX_PIXEL_LENGTH, MESSAGES, PATHS
+from .core import get_matrix_data_by_header_indexes, Settings
+from .utils import pad_string, transpose, safe_value_from_dict, safe_bool_from_array, safe_value_from_array, \
+    os_is_windows, settings_key_to_text, habit_init_key
+from .constants import COLORS, FONTS, CHECKBOX_PIXEL_LENGTH, MESSAGES, PATHS, SETTINGS_KEYS
 PATH = PATHS()
 PATH.__init__()
 
@@ -163,13 +164,13 @@ def PopUp(message: str, message_duration: int):
                       font=FONTS["pop"],
                       line_width=len(message))
 
-def StyleWindow(style_button_text: str, slider_text_key: str, preview_window_text: str, set_button_tex_key: str):
+def StyleWindow(style_button_text: str, slider_text_key: str, preview_window_text: str, set_button_text: str, hue_offset: float):
     return sg.Window(style_button_text, [
         [sg.Text(pad_string(MESSAGES.hue, 0),
                  background_color=COLORS["sld_bkg"],
                  text_color=COLORS["sld_txt"])],
         [sg.Slider(range=(-0.5, 0.5),
-                   default_value=0,
+                   default_value=hue_offset,
                    resolution=0.001,
                    orientation='h',
                    enable_events=True,
@@ -184,11 +185,11 @@ def StyleWindow(style_button_text: str, slider_text_key: str, preview_window_tex
                     pad=((5, 0), (15, 15)),
                     key=preview_window_text,
                     button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"])),
-          sg.Button(set_button_tex_key,
+          sg.Button(set_button_text,
                     font=FONTS["btn"],
                     size=7,
                     pad=((322, 0), (15, 15)),
-                    key=set_button_tex_key,
+                    key=set_button_text,
                     button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]))
           ]]
     ],
@@ -336,9 +337,6 @@ def DatePickerWindow(select_date_key: str, select_date_button_text: str):
                      element_justification='c'
                      ).Finalize()
 
-def habit_init_key(key: str, row: int, sub_row: int = 0):
-    return f'{key}_{row}' if sub_row == 0 else f'{key}_{row}_{sub_row}'
-
 def HabitInitHabitLayout(category_row: int,
                          category: str,
                          habit_count: int,
@@ -381,7 +379,7 @@ def HabitInitHabitLayout(category_row: int,
                      tooltip=MESSAGES.input_tooltip_message,
                      default_text=safe_value_from_dict(habit_init_key(habits_init_message_key, category_row, row), values_dict),
                      visible=safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True)),
-        sg.Combo(values=['≥', '>', '=', '<', '<='],
+        sg.Combo(values=['>=', '>', '=', '<', '<='],
                  default_value=safe_value_from_dict(habit_init_key(habits_init_condition_key, category_row, row), values_dict),
                  key=habit_init_key(habits_init_condition_key, category_row, row),
                  size=4,
@@ -544,3 +542,264 @@ def ReRenderHabitsInit(previous_windows: sg.Window,
     previous_windows.close()
     new_window = HabitsInitWindow(variables_init_layout)
     return new_window
+
+def SettingsWindowLayout(settings: Settings, settings_save_button_text: str, settings_cancel_button_text: str) -> list:
+    checkbox_padding = 5
+    sections_padding_y = 25
+    sections_padding_x = 5
+    text_input_size = 8
+
+    appearance = [
+        [
+            sg.Text(
+                text=MESSAGES.settings_section_appearance,
+                text_color=COLORS["cat_txt"],
+                background_color=COLORS["stg_bkg"],
+                font=FONTS["cat"],
+                pad=((sections_padding_x, 0), (sections_padding_y - 10, 5)),
+            )
+        ],
+        [
+            sg.Text(
+                text=settings_key_to_text(SETTINGS_KEYS.hue_offset),
+                text_color=COLORS["stg_txt"],
+                background_color=COLORS["stg_bkg"],
+                font=FONTS["pop"],
+            ),
+            sg.InputText(key=SETTINGS_KEYS.hue_offset,
+                         do_not_clear=True,
+                         enable_events=True,
+                         visible=True,
+                         font=FONTS["ckb"],
+                         tooltip=MESSAGES.settings_tooltip_hueoffset,
+                         default_text=str(settings.hue_offset),
+                         size=text_input_size
+                         )
+        ],
+    ]
+
+    data_visualization = [
+        [
+            sg.Text(
+                text=MESSAGES.settings_section_data_visualization,
+                text_color=COLORS["cat_txt"],
+                background_color=COLORS["stg_bkg"],
+                font=FONTS["cat"],
+                pad=((sections_padding_x, 0), (sections_padding_y, 5)),
+            )
+        ],
+        [
+            sg.Text(
+                text=settings_key_to_text(SETTINGS_KEYS.data_days),
+                text_color=COLORS["stg_txt"],
+                background_color=COLORS["stg_bkg"],
+                font=FONTS["pop"],
+            ),
+            sg.InputText(key=SETTINGS_KEYS.data_days,
+                         do_not_clear=True,
+                         enable_events=True,
+                         visible=True,
+                         font=FONTS["ckb"],
+                         tooltip=MESSAGES.settings_tooltip_days,
+                         default_text=str(settings.data_days),
+                         size=text_input_size,
+                         ),
+            sg.Text(
+                text=pad_string('', 5),
+                text_color=COLORS["stg_bkg"],
+                background_color=COLORS["stg_bkg"],
+                font=FONTS["ckb"],
+            ),
+
+            sg.Text(
+                text=settings_key_to_text(SETTINGS_KEYS.weekdays_language),
+                text_color=COLORS["stg_txt"],
+                background_color=COLORS["stg_bkg"],
+                font=FONTS["pop"],
+            ),
+            sg.Combo(values=['en', 'pt', 'jp'],
+                     default_value=str(settings.weekdays_language),
+                     key=SETTINGS_KEYS.weekdays_language,
+                     size=4,
+                     pad=5,
+                     auto_size_text=True,
+                     background_color=COLORS["stg_bkg"],
+                     text_color=COLORS["stg_txt"],
+                     button_background_color=COLORS["win_bkg"],
+                     button_arrow_color=COLORS["cat_txt"],
+                     font=FONTS["ckb"],
+                     change_submits=True,
+                     enable_events=True,
+                     visible=True,
+                     tooltip=MESSAGES.input_tooltip_combo,
+                     ),
+            sg.Text(
+                text=pad_string('', 2),
+                text_color=COLORS["stg_bkg"],
+                background_color=COLORS["stg_bkg"],
+                font=FONTS["ckb"],
+            ),
+
+            sg.Text(
+                text=settings_key_to_text(SETTINGS_KEYS.graph_expected_value),
+                text_color=COLORS["stg_txt"],
+                background_color=COLORS["stg_bkg"],
+                font=FONTS["pop"],
+            ),
+            sg.Checkbox(text='',
+                        default=bool(settings.graph_expected_value),
+                        key=SETTINGS_KEYS.graph_expected_value,
+                        font=FONTS["pop"],
+                        checkbox_color=COLORS["ckb_bkg"],
+                        text_color=COLORS["ckb_txt"],
+                        background_color=COLORS["stg_bkg"],
+                        pad=((checkbox_padding, 0), (1, 1)),
+                        tooltip=MESSAGES.settings_tooltip_expected
+                        ),
+            sg.Text(
+                text=pad_string('', 2),
+                text_color=COLORS["stg_bkg"],
+                background_color=COLORS["stg_bkg"],
+                font=FONTS["ckb"],
+            ),
+
+            sg.Text(
+                text=settings_key_to_text(SETTINGS_KEYS.scrollable_image),
+                text_color=COLORS["stg_txt"],
+                background_color=COLORS["stg_bkg"],
+                font=FONTS["pop"],
+            ),
+            sg.Checkbox(text='',
+                        default=bool(settings.scrollable_image),
+                        key=SETTINGS_KEYS.scrollable_image,
+                        font=FONTS["pop"],
+                        checkbox_color=COLORS["ckb_bkg"],
+                        text_color=COLORS["ckb_txt"],
+                        background_color=COLORS["stg_bkg"],
+                        pad=((checkbox_padding, 0), (1, 1)),
+                        tooltip=MESSAGES.settings_tooltip_scrollable
+                        ),
+        ],
+    ]
+
+    messages = [
+        [
+            sg.Text(
+                text=MESSAGES.settings_section_messages,
+                text_color=COLORS["cat_txt"],
+                background_color=COLORS["stg_bkg"],
+                font=FONTS["cat"],
+                pad=((sections_padding_x, 0), (sections_padding_y, 5)),
+            )
+        ],
+        [
+            sg.Text(
+                text=settings_key_to_text(SETTINGS_KEYS.display_messages),
+                text_color=COLORS["stg_txt"],
+                background_color=COLORS["stg_bkg"],
+                font=FONTS["pop"],
+            ),
+            sg.Checkbox(text='',
+                        default=bool(settings.display_messages),
+                        key=SETTINGS_KEYS.display_messages,
+                        font=FONTS["pop"],
+                        checkbox_color=COLORS["ckb_bkg"],
+                        text_color=COLORS["ckb_txt"],
+                        background_color=COLORS["stg_bkg"],
+                        pad=((checkbox_padding, 20), (1, 1)),
+                        tooltip=MESSAGES.settings_tooltip_messages_show
+                        ),
+            sg.Text(
+                text=pad_string('', 3),
+                text_color=COLORS["stg_bkg"],
+                background_color=COLORS["stg_bkg"],
+                font=FONTS["ckb"],
+            ),
+
+            sg.Text(
+                text=settings_key_to_text(SETTINGS_KEYS.random_messages),
+                text_color=COLORS["stg_txt"],
+                background_color=COLORS["stg_bkg"],
+                font=FONTS["pop"],
+            ),
+            sg.Checkbox(text='',
+                        default=bool(settings.random_messages),
+                        key=SETTINGS_KEYS.random_messages,
+                        font=FONTS["pop"],
+                        checkbox_color=COLORS["ckb_bkg"],
+                        text_color=COLORS["ckb_txt"],
+                        background_color=COLORS["stg_bkg"],
+                        pad=((checkbox_padding, 0), (1, 1)),
+                        tooltip=MESSAGES.settings_tooltip_random
+                        ),
+            sg.Text(
+                text=pad_string('', 7),
+                text_color=COLORS["stg_bkg"],
+                background_color=COLORS["stg_bkg"],
+                font=FONTS["ckb"],
+            ),
+
+            sg.Text(
+                text=settings_key_to_text(SETTINGS_KEYS.message_duration),
+                text_color=COLORS["stg_txt"],
+                background_color=COLORS["stg_bkg"],
+                font=FONTS["pop"],
+            ),
+            sg.InputText(key=SETTINGS_KEYS.message_duration,
+                         do_not_clear=True,
+                         enable_events=True,
+                         visible=True,
+                         font=FONTS["ckb"],
+                         tooltip=MESSAGES.settings_tooltip_duration,
+                         default_text=str(settings.message_duration),
+                         size=text_input_size,
+                         ),
+        ]
+    ]
+
+    buttons = [
+        [
+            sg.Text(
+                text=pad_string('', 68),
+                text_color=COLORS["stg_bkg"],
+                background_color=COLORS["stg_bkg"],
+                font=FONTS["ckb"],
+            ),
+            sg.Button(settings_cancel_button_text,
+                      font=FONTS["btn"],
+                      size=7,
+                      pad=((5, 0), (30, 15)),
+                      key=settings_cancel_button_text,
+                      button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
+                      ),
+            sg.Text(
+                text=pad_string('', 5),
+                text_color=COLORS["stg_bkg"],
+                background_color=COLORS["stg_bkg"],
+                font=FONTS["ckb"],
+            ),
+            sg.Button(settings_save_button_text,
+                      font=FONTS["btn"],
+                      size=7,
+                      pad=((5, 0), (30, 15)),
+                      key=settings_save_button_text,
+                      button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
+                      ),
+        ]
+    ]
+
+    layout = [appearance, data_visualization, messages, buttons]
+    return layout
+
+def SettingsWindow(settings: Settings, settings_button_text: str, settings_save_button_text: str, settings_cancel_button_text: str):
+    layout = SettingsWindowLayout(settings, settings_save_button_text, settings_cancel_button_text)
+    return sg.Window(title=settings_button_text,
+                     layout=layout,
+                     use_custom_titlebar=True,
+                     titlebar_background_color=COLORS["bar_bkg"],
+                     titlebar_text_color=COLORS["bar_txt"],
+                     titlebar_icon=PATH.settings_icon,
+                     background_color=COLORS["stg_bkg"],
+                     size=(900, 360),
+                     element_justification='l'
+                     )

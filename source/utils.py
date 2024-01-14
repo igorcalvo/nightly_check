@@ -54,6 +54,9 @@ def to_capitalized(string: str) -> str:
     dirty_fixes = {'GG': 'GG'}
     return ' '.join([s.capitalize() if s not in dirty_fixes.keys() else dirty_fixes[s] for s in string.split(' ')])
 
+def settings_key_to_text(key: str) -> str:
+    return ' '.join([c.capitalize() for c in key.split('_')])
+
 def flatten_list(l: list) -> list:
     return [item for sublist in l for item in sublist]
 
@@ -116,6 +119,9 @@ def safe_value_from_array(index, array: list):
     if array is None:
         return 0
     return array[index]
+
+def habit_init_key(key: str, row: int, sub_row: int = 0):
+    return f'{key}_{row}' if sub_row == 0 else f'{key}_{row}_{sub_row}'
 
 def replace_commas_for_double_spaces(string: str) -> str:
     return string.replace(', ', '  ')

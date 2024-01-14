@@ -4,5 +4,7 @@
     "graph_expected_value": false,
     "hue_offset": 0.045,
     "message_duration": 5,
-    "scrollable_image": false
+    "random_messages": true,
+    "scrollable_image": false,
+    "weekdays_language": "jp"
 }

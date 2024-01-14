@@ -69,10 +69,19 @@ def write_category_header(image, position: tuple, category: str, max_category_le
                   "noto")
         current_date += timedelta(days=+1)
 
-def write_footer(image, position: tuple, square_size: int, square_border: int, squares: int, latest_date: str):
-    # days_of_the_week = "STQQSSD"
-    # days_of_the_week = "MTWTFSS"
-    days_of_the_week = "月火水木金土日"
+def get_weekdays_characters(weekdays_language: str) -> str:
+    match weekdays_language:
+        case "en":
+            return "MTWTFSS"
+        case "pt":
+            return "STQQSSD"
+        case "jp":
+            return "月火水木金土日"
+        case _:
+            return "月火水木金土日"
+
+def write_footer(image, position: tuple, square_size: int, square_border: int, squares: int, latest_date: str, weekdays_language: str):
+    days_of_the_week = get_weekdays_characters(weekdays_language)
     todays_index = date.fromisoformat(latest_date).weekday()
     for s in range(squares):
         write(image,
@@ -82,7 +91,7 @@ def write_footer(image, position: tuple, square_size: int, square_border: int, s
               "noto")
 
 def write_all(image, categories: list, header_list: list, conditions: list, data, position: tuple, squares: int, sqr_size: int, sqr_border: int, max_x_delta: int,
-              text_squares_x_spacing: int, text_squares_y_offset: int, category_y_spacing: int, category_text_offset: tuple, graph_expected_value: bool):
+              text_squares_x_spacing: int, text_squares_y_offset: int, category_y_spacing: int, category_text_offset: tuple, graph_expected_value: bool, weekdays_language: str):
     max_header_len = max([len(h) for h in flatten_list(header_list)])
     max_category_len = max([len(c) for c in categories])
     max_category_text_offset = text_list_max_len_to_pixels(categories)
@@ -130,9 +139,10 @@ def write_all(image, categories: list, header_list: list, conditions: list, data
                      sqr_size,
                      sqr_border,
                      squares,
-                     get_value_from_df_by_row(date_header, -1, data))
+                     get_value_from_df_by_row(date_header, -1, data),
+                     weekdays_language)
 
-def generate_image(categories: list, header: list, conditions: list, data_days: int, graph_expected_value: bool, data):
+def generate_image(categories: list, header: list, conditions: list, data_days: int, graph_expected_value: bool, weekdays_language: str, data):
     flat_header_list = flatten_list(header)
     initial_x = 25
     initial_y = 50
@@ -157,7 +167,7 @@ def generate_image(categories: list, header: list, conditions: list, data_days: 
                     rows * (rows_y_spacing + sqrSize + sqrBorder) + (categories_length - 1) * (category_y_spacing + rows_y_spacing) + initial_y)
     # DrawLineOfSquares(img, (2 * sqrSize, 2 * sqrSize), sqrSize, sqrBorder, days, [5, 10, 13], GetRGBColor(0.5, 0.75, 1), (150, 150, 150))
     write_all(img, categories, header, conditions, data, (initial_x, initial_y), squares, sqrSize, sqrBorder,
-              max_x_delta, text_squares_x_spacing, text_squares_y_offset, category_y_spacing, category_text_offset, graph_expected_value)
+              max_x_delta, text_squares_x_spacing, text_squares_y_offset, category_y_spacing, category_text_offset, graph_expected_value, weekdays_language)
     # img.show()
     # img.save(r'assets\data\test.png')
     return img

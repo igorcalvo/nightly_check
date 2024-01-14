@@ -4,7 +4,7 @@ from os import makedirs, path
 from random import choice
 
 from .utils import *
-from .constants import wakeup_time, date_header
+from .constants import wakeup_time, date_header, SETTINGS_KEYS
 
 from pandas import concat
 import json
@@ -236,7 +236,7 @@ def determine_successful_today(data: DataFrame, conditions: list, header: list, 
                 mission_accomplished_messages.append(habit_messages[idx1][idx2])
     return mission_accomplished_messages
 
-def get_popup_message(conditions: list, fractions: list, habit_messages: list, header: list, data: DataFrame, msg_file_name: str) -> str | None:
+def get_popup_message(conditions: list, fractions: list, habit_messages: list, header: list, data: DataFrame, msg_file_name: str, random_messages: bool) -> str | None:
     flat_header = flatten_list(header)
     message_data = [(check_habit(h, conditions, fractions, header, data), h, get_matrix_data_by_header_indexes(habit_messages, header, h)) for h in flat_header]
     message_data.sort(key=lambda m: m[0][1], reverse=True)
@@ -267,11 +267,12 @@ def get_popup_message(conditions: list, fractions: list, habit_messages: list, h
     if len(candidate_messages) == 0:
         return None
 
-    # Not random anymore
-    candidate_messages = [c.replace('  ', ', ') for c in candidate_messages]
-    for m in message_data:
-        if f'{m[-2]}\n{m[-1]}' in candidate_messages:
-            return f'{m[-2]}\n{m[-1]}'
+    if not random_messages:
+        candidate_messages = [replace_double_spaces_for_commas(c) for c in candidate_messages]
+        for m in message_data:
+            if f'{m[-2]}\n{m[-1]}' in candidate_messages:
+                return f'{m[-2]}\n{m[-1]}'
+
     return choice(list(candidate_messages))
 
 def read_past_messages(msg_file_name: str) -> list | None:
@@ -306,6 +307,8 @@ class Settings:
                  graph_expected_value: bool = False,
                  scrollable_image: bool = False,
                  message_duration: int = 5,
+                 random_messages: bool = True,
+                 weekdays_language: str = "jp"
                  ):
         self.hue_offset = hue_offset
         self.data_days = data_days
@@ -313,24 +316,30 @@ class Settings:
         self.graph_expected_value = graph_expected_value
         self.scrollable_image = scrollable_image
         self.message_duration = message_duration
+        self.random_messages = random_messages
+        self.weekdays_language = weekdays_language
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
     @staticmethod
     def from_dict(dictionary: dict):
-        hue_offset = float(dictionary['hue_offset'])
-        data_days = int(dictionary['data_days'])
-        display_messages = bool(dictionary['display_messages'])
-        graph_expected_value = bool(dictionary['graph_expected_value'])
-        scrollable_image = bool(dictionary['scrollable_image'])
-        message_duration = int(dictionary['message_duration'])
+        hue_offset = float(dictionary[SETTINGS_KEYS.hue_offset])
+        data_days = int(dictionary[SETTINGS_KEYS.data_days])
+        display_messages = bool(dictionary[SETTINGS_KEYS.display_messages])
+        graph_expected_value = bool(dictionary[SETTINGS_KEYS.graph_expected_value])
+        scrollable_image = bool(dictionary[SETTINGS_KEYS.scrollable_image])
+        message_duration = int(dictionary[SETTINGS_KEYS.message_duration])
+        random_messages = bool(dictionary[SETTINGS_KEYS.random_messages])
+        weekdays_language = str(dictionary[SETTINGS_KEYS.weekdays_language])
         return Settings(hue_offset,
                         data_days,
                         display_messages,
                         graph_expected_value,
                         scrollable_image,
                         message_duration,
+                        random_messages,
+                        weekdays_language
                         )
 
     @staticmethod
@@ -367,7 +376,7 @@ def get_date_array(data: DataFrame, squares: int) -> list:
 
 def get_expeted_value(header: str, headerList: list, conditions: list) -> bool:
     condition = get_matrix_data_by_header_indexes(conditions, headerList, header)
-    return False if condition == '>' else True
+    return False if condition in ['=', '<=', '<'] else True
 
 def get_header_data(data: DataFrame, date_array: list, squares: int, header: str, expected_value: bool = True) -> list:
     column_header = to_lower_underscored(header)
@@ -401,7 +410,7 @@ def habit_index_from_event(event: str):
 
 def variables_row(category: str, header: str, tooltip: str, message: str, condition: str, numerator: str, denominator: str):
     empty_conditions = ['', None, '-', '_', ' ']
-    valid_conditions = empty_conditions + ['>', '<']
+    valid_conditions = empty_conditions + ['>=', '>', '=', '<', '<=']
     if condition not in valid_conditions:
         raise Exception(f"variables_row: condition '{condition}' not in valid_conditions: '{valid_conditions}'")
     if condition in valid_conditions and numerator in ('', ' ', '0'):
