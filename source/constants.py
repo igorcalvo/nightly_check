@@ -40,6 +40,8 @@ habits_init_message_key = 'Message Value'
 habits_init_condition_key = 'Condition Value'
 habits_init_fraction_num_key = 'FracNum Value'
 habits_init_fraction_den_key = 'FracDen Value'
+
+already_filled_in_today_message = "No message for you! You have already added your entry in today."
 # ----------------------------------------------------------------------------------------------------------------------
 wakeup_time = 14
 date_header = "date"

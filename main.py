@@ -99,8 +99,9 @@ try:
             if neglected_event == sg.WIN_CLOSED or neglected_event == neglected_reject_text:
                 neglected_window.close()
                 break
+    todays_data = todays_data_or_none(data, header)
     window = MainWindow(categories, header, descriptions, done_button_text, style_button_text, data_button_text,
-                        edit_button_text, settings_button_text, len(data) > 0, False)
+                        edit_button_text, settings_button_text, len(data) > 0, False, todays_data)
     while True:
         event, values_dict = window.read()
         if event == style_button_text:
@@ -171,8 +172,7 @@ try:
                     break
         elif event == done_button_text or event == sg.WIN_CLOSED:
             if event == done_button_text:
-                save_data(data, values_dict, csv_file_name)
-
+                data = save_data(data, values_dict, csv_file_name)
                 message = get_popup_message(conditions, fractions, habit_messages, header, data, msg_file_name, settings.random_messages)
                 if message and settings.display_messages:
                     save_message_file(msg_file_name, header, message)
@@ -205,8 +205,6 @@ finally:
 #   handle empty frequency
 # TODO validate variables on form?
 # break code into smaller files? (core and ui into regions?)
-
-# TODO pass dict to checkhabit and include todays info?
 
 # TODO LIST - REAL
 # better ui

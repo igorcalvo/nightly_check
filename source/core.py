@@ -4,7 +4,7 @@ from os import makedirs, path
 from random import choice
 
 from .utils import *
-from .constants import wakeup_time, date_header, SETTINGS_KEYS
+from .constants import wakeup_time, date_header, already_filled_in_today_message, SETTINGS_KEYS
 
 from pandas import concat
 import json
@@ -65,7 +65,10 @@ def check_for_todays_entry(lastDate: str) -> int:
 def get_latest_date(data: DataFrame) -> str:
     return data.iloc[-1][date_header]
 
-def create_entry(data: DataFrame):
+def get_current_date() -> datetime.date:
+    return date.today() + timedelta(days=-1) if datetime.now().hour < wakeup_time else date.today()
+
+def create_entry(data: DataFrame) -> DataFrame:
     delta_days = None
     last_date = None
     try:
@@ -76,7 +79,7 @@ def create_entry(data: DataFrame):
     finally:
         delta_days = 1 if delta_days is None else delta_days
         # Fixes inputting data after midnight
-        current_date = date.today() + timedelta(days=-1) if datetime.now().hour < wakeup_time else date.today()
+        current_date = get_current_date()
         last_date = (current_date + timedelta(days=-1)).isoformat() if last_date is None else last_date
 
     if delta_days > 0:
@@ -109,11 +112,18 @@ def save_data(data: DataFrame, checkbox_dict: dict, csv_file_name: str, fill_in_
     for key in checkbox_dict.keys():
         data.iloc[offset, data.columns.get_loc(to_lower_underscored(key))] = checkbox_dict[key]
     write_csv(csv_file_name, data)
+    return data
 
 def data_from_date_to_list(data: DataFrame, date: str, header: list):
     row_from_date = df_row_from_date(data, date, date_header)
     result = [[row_from_date[to_lower_underscored(h)].values[0] == 'True' for h in cat] for cat in header]
     return result
+
+def todays_data_or_none(data: DataFrame, header: list):
+    today = str(get_current_date())
+    if len(data.tail(1)['date'].values) == 0:
+        return None
+    return data_from_date_to_list(data, today, header) if data.tail(1)['date'].values[0] == today else None
 
 #endregion
 
@@ -210,13 +220,10 @@ def parse_frequency(column: str, conditions: list, fractions: list, header: list
         return condition, 0, 1
     return condition, int(fraction.split('/')[0]), int(fraction.split('/')[1])
 
-# TODO currently not taking last day's data into account
-# it is only removed in candidate messages
-# should probably start receiving the dict as argument and adding it to trues
 def check_habit(column: str, conditions: list, fractions: list, header: list, data: DataFrame) -> tuple:
     condition, num, den = parse_frequency(column, conditions, fractions, header)
     nominal = num/den
-    trues = [1 if x == 'True' else 0 for x in data.loc[:, to_lower_underscored(column)].tail(den + 1)][:-1]
+    trues = [1 if str(x) == 'True' else 0 for x in data.loc[:, to_lower_underscored(column)].tail(den)]
     frequency = sum(trues)/len(trues)
     check_if_failed = calculate_frequency(frequency, nominal, condition)
     return (frequency, nominal, check_if_failed)
@@ -246,12 +253,15 @@ def get_popup_message(conditions: list, fractions: list, habit_messages: list, h
     # m[2] = nessage
     candidate_messages = set([f"{get_matrix_data_by_header_indexes(header, habit_messages, m[2])}\n{m[2]}" for m in message_data if m[0][2]])
 
-    # No ideia why this is here
+    # No idea why this is here
     empty_messages = set([cm if cm.split('\n')[-1] == '' else None for cm in candidate_messages])
     empty_messages.remove(None)
     candidate_messages.difference_update(candidate_messages.intersection(empty_messages))
 
-    past_messages = read_past_messages(msg_file_name)
+    past_messages, last_date = read_past_messages(msg_file_name)
+    if last_date == str(get_current_date()):
+        return already_filled_in_today_message
+
     previous_message = past_messages[-1] if past_messages is not None else ''
     if previous_message != '' and len(candidate_messages.intersection({previous_message})) > 0:
         candidate_messages.remove(previous_message)
@@ -275,21 +285,38 @@ def get_popup_message(conditions: list, fractions: list, habit_messages: list, h
 
     return choice(list(candidate_messages))
 
-def read_past_messages(msg_file_name: str) -> list | None:
+def read_past_messages(msg_file_name: str) -> (list | None, str | None):
     if not exists(msg_file_name):
-        return None
+        return None, None
     else:
+        rid_message_file_of_blank_lines(msg_file_name)
         with open(msg_file_name, 'r') as f:
             # lines = [l.split('\t')[-1].replace('\n', '') for l in f.readlines()]
             lines = [l.replace('\t\t', '\t').split('\t') for l in f.readlines()]
             f.close()
-            return [f"{l[1]}\n{l[2]}" for l in lines]
+            return [f"{l[1]}\n{l[2]}" for l in lines], lines[-1][0]
+
+def rid_message_file_of_blank_lines(msg_file_name: str):
+    with open(msg_file_name, 'r') as file:
+        content = file.readlines()
+        file.close()
+    with open(msg_file_name, 'w') as file:
+        content = [line for line in content if len(line.replace('\n', '').replace(' ', '')) > 0]
+        file.seek(0)
+        file.writelines(content)
+        file.close()
 
 def save_message_file(msg_file_name: str, header_list: list, todays_message: str):
+    if todays_message == already_filled_in_today_message:
+        return
+
     today = date.today().isoformat()
     header, message = todays_message.split('\n')
-    longest_header = max(header_list, key=len)
-    spacing = '\t' * (len(longest_header) // 4 - len(header) // 4 + 2)
+    # longest_header = max(header_list, key=len)
+    # spacing = '\t' * (len(longest_header) // 4 - len(header) // 4 + 2)
+    longest_header = max(flatten_list(header_list), key=len)
+    spacing = '\t' * (len(longest_header) // 4 - len(header) // 4)
+    spacing += '' if len(spacing) > 0 else '\t'
     data = f"\n{today}\t{header}{spacing}{message}"
     if not exists(msg_file_name):
         data = data.replace('\n', '')
