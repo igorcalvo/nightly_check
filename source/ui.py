@@ -311,6 +311,7 @@ def DatePickerWindow(select_date_key: str, select_date_button_text: str):
         [
             sg.InputText(key=select_date_key,
                          background_color=COLORS["dtp_bkg"],
+                         text_color="#ffffff",
                          size=20),
             sg.CalendarButton(MESSAGES.date_calendar,
                               close_when_date_chosen=True,
@@ -502,7 +503,7 @@ def HabitsInitLayout(habits_init_cat_add: str,
     # https://stackoverflow.com/questions/66351957/how-to-add-a-field-or-element-by-clicking-a-button-in-pysimplegui
     # https://github.com/PySimpleGUI/PySimpleGUI/issues/845
 
-def HabitsInitWindow(layout: list):
+def HabitsInitWindow(layout: list) -> sg.Window:
     return sg.Window(
         MESSAGES.habits_title,
         layout,

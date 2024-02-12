@@ -58,12 +58,9 @@ try:
                                                            habits_init_message_key, habits_init_condition_key,
                                                            habits_init_fraction_num_key, habits_init_fraction_den_key,
                                                            category_count, variables_init_values_dict, habit_count)
-            # print("event", variables_init_event)
-            # print("dict", variables_init_values_dict)
-            # print("habit_count arr", habit_count)
     verify_variables(variables_file_name)
     variables_file = read_csv(variables_file_name, csv_file_name)
-    conditions, fractions, habit_messages, descriptions, header, categories = get_data(variables_file)
+    conditions, fractions, habit_messages, descriptions, header, categories, disabled_headers = get_data(variables_file)
 
     if not exists(csv_file_name):
         cols = [to_lower_underscored(item) for item in flatten_list(header)]
@@ -73,7 +70,7 @@ try:
         data = read_csv(csv_file_name, csv_file_name)
     variables = list(data.columns)
     variables.pop(0)
-    verify_header_and_data(header, variables, csv_file_name, data)
+    verify_header_and_data(header, variables, csv_file_name, data, disabled_headers)
     data = create_entry(data)
     # PrintFonts()
     settings = read_settings(settings_file_name)
@@ -92,7 +89,7 @@ try:
                     neglected_data_event, neglected_data_values_dict = neglected_data_window.read()
                     if neglected_data_event == done_button_text:
                         log_write(log, f"\nsaving data from yesterday\n{neglected_data_values_dict}")
-                        save_data(data, neglected_data_values_dict, csv_file_name, True)
+                        save_data(data, neglected_data_values_dict, csv_file_name, get_yesterday_date().isoformat())
                     if neglected_data_event == sg.WIN_CLOSED or neglected_data_event == done_button_text:
                         neglected_window.close()
                         break
@@ -138,7 +135,7 @@ try:
                     break
         elif event == edit_button_text:
             date_picker_window = DatePickerWindow(select_date_key, select_date_button_text)
-            picked_date = datetime.today()
+            picked_date = get_today_date() + timedelta(days=-1)
             while True:
                 date_picker_event, date_picker_dict = date_picker_window.read()
                 if date_picker_event == select_date_button_text or date_picker_event == sg.WIN_CLOSED:
@@ -154,7 +151,7 @@ try:
                         edit_data_event, edit_data_values_dict = edit_data_window.read()
                         if edit_data_event == done_button_text:
                             log_write(log, f"\nsaving data from date '{picked_date}'\n{edit_data_values_dict}")
-                            save_data(data, edit_data_values_dict, csv_file_name, False, picked_date)
+                            save_data(data, edit_data_values_dict, csv_file_name, picked_date)
                         if edit_data_event == sg.WIN_CLOSED or edit_data_event == done_button_text:
                             edit_data_window.close()
                             break
@@ -193,6 +190,9 @@ finally:
     else:
         log_write(log, f"{finally_string}")
     log.close()
+
+# format code and fix error warninggs
+# change text hover to white? or bright color idk
 
 # TODO Disallow 0 on denominator
 # TODO Disallow duplicate value for habit and category
@@ -238,5 +238,3 @@ finally:
 #       remove commented out code
 #   refer to: assets/reference/compiled.PNG
 #       assets folder -> check if folder exists and maybe unzip automatically?
-#       variables.txt -> handle msg, or create with ui
-#       create data folder -> check if folder exists and maybe unzip automatically?

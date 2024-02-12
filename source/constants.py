@@ -3,10 +3,11 @@ import os
 
 DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 
-data_folder = 'data'
-csv_file_name = os.path.abspath(os.path.join(DIR, data_folder, 'data.csv'))
-msg_file_name = os.path.abspath(os.path.join(DIR, data_folder, 'msg.txt'))
-log_file_name = os.path.abspath(os.path.join(DIR, data_folder, 'log.txt'))
+data_folder_name = 'data'
+data_folder = os.path.abspath(os.path.join(DIR, data_folder_name))
+csv_file_name = os.path.abspath(os.path.join(data_folder, 'data.csv'))
+msg_file_name = os.path.abspath(os.path.join(data_folder, 'msg.txt'))
+log_file_name = os.path.abspath(os.path.join(data_folder, 'log.txt'))
 variables_file_name = os.path.abspath(os.path.join(DIR, 'variables.csv'))
 settings_file_name = os.path.abspath(os.path.join(DIR, 'settings.json'))
 

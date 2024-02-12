@@ -24,12 +24,14 @@ def read_csv(file_name: str, data_file_name: str):
     return df
 
 def group_by_category(dataframe: DataFrame, column: str) -> list:
+    enabled_column = "enabled"
     category_column = "category"
     capitalized_columns = ["header"]
     categories = remove_duplicates(dataframe[category_column])
     result = []
     for category in categories:
-        result.append([to_capitalized(x) if column in capitalized_columns else x for x in list(dataframe.loc[dataframe[category_column] == category][column])])
+        column_data = list(dataframe.loc[(dataframe[category_column] == category) & (dataframe[enabled_column] == '1')][column])
+        result.append([to_capitalized(x) if column in capitalized_columns else x for x in column_data])
     return result
 
 def get_data(variables_file):
@@ -39,7 +41,8 @@ def get_data(variables_file):
     descriptions = group_by_category(variables_file, "tooltip")
     header = group_by_category(variables_file, "header")
     categories = remove_duplicates(flatten_list(group_by_category(variables_file, "category")))
-    return conditions, fractions, habit_messages, descriptions, header, categories
+    disabled_headers = list(variables_file.loc[(variables_file["enabled"] == '0')]["header"])
+    return conditions, fractions, habit_messages, descriptions, header, categories, disabled_headers
 
 def write_csv(file_name: str, data: DataFrame):
     cols = ','.join([col for col in data.columns])
@@ -56,7 +59,7 @@ def write_csv(file_name: str, data: DataFrame):
 def check_for_todays_entry(lastDate: str) -> int:
     try:
         # Fixes inputting data after midnight
-        current_date = date.today() + timedelta(days=-1) if datetime.now().hour < wakeup_time else date.today()
+        current_date = get_today_date()
         delta = current_date - date.fromisoformat(lastDate)
     except:
         raise Exception("check_for_todays_entry: Can't parse the date, it needs to be in the format 'yyyy-mm-dd'. \nDatabase probably got corrupted.")
@@ -65,8 +68,11 @@ def check_for_todays_entry(lastDate: str) -> int:
 def get_latest_date(data: DataFrame) -> str:
     return data.iloc[-1][date_header]
 
-def get_current_date() -> datetime.date:
+def get_today_date() -> date:
     return date.today() + timedelta(days=-1) if datetime.now().hour < wakeup_time else date.today()
+
+def get_yesterday_date() -> date:
+    return get_today_date() + timedelta(days=-1)
 
 def create_entry(data: DataFrame) -> DataFrame:
     delta_days = None
@@ -79,7 +85,7 @@ def create_entry(data: DataFrame) -> DataFrame:
     finally:
         delta_days = 1 if delta_days is None else delta_days
         # Fixes inputting data after midnight
-        current_date = get_current_date()
+        current_date = get_today_date()
         last_date = (current_date + timedelta(days=-1)).isoformat() if last_date is None else last_date
 
     if delta_days > 0:
@@ -97,7 +103,7 @@ def backup_data(csv_file_name: str, data: DataFrame):
         raise Exception(f"File {file_name} already exists.")
     write_csv(file_name, data)
 
-def save_data(data: DataFrame, checkbox_dict: dict, csv_file_name: str, fill_in_yesterday: bool = False, date: str = ''):
+def save_data(data: DataFrame, checkbox_dict: dict, csv_file_name: str, date: str = ''):
     offset = 0
     if date != '':
         if date not in data[date_header].values:
@@ -106,8 +112,9 @@ def save_data(data: DataFrame, checkbox_dict: dict, csv_file_name: str, fill_in_
         row_index = list(row_from_date.index)[0]
         last_index = list(data.index)[-1]
         offset = row_index - last_index - 1
+        # test if offset == -2 when neglected
     else:
-        offset = -2 if fill_in_yesterday else -1
+        offset = -1
 
     for key in checkbox_dict.keys():
         data.iloc[offset, data.columns.get_loc(to_lower_underscored(key))] = checkbox_dict[key]
@@ -120,7 +127,7 @@ def data_from_date_to_list(data: DataFrame, date: str, header: list):
     return result
 
 def todays_data_or_none(data: DataFrame, header: list):
-    today = str(get_current_date())
+    today = str(get_today_date())
     if len(data.tail(1)['date'].values) == 0:
         return None
     return data_from_date_to_list(data, today, header) if data.tail(1)['date'].values[0] == today else None
@@ -155,18 +162,20 @@ def create_file_if_doesnt_exist(file_name: str):
 #endregion
 
 #region Verifying
-def verify_header_and_data(header: list, data_variables: list, csv_file_name: str, data: DataFrame):
+def verify_header_and_data(header: list, data_variables: list, csv_file_name: str, data: DataFrame, disabled_headers: list):
     flat_header = [to_lower_underscored(item) for sublist in header for item in sublist]
     if len([item for item in data_variables if item not in flat_header]) > 0 or len([item for item in flat_header if item not in data_variables]) > 0:
-        backup_data(csv_file_name, data)
         for h in data_variables:
-            if h not in flat_header:
+            if h not in flat_header and h not in disabled_headers:
+                backup_data(csv_file_name, data)
                 print("header " + h + " was removed")
                 data.drop(h, inplace=True, axis=1)
         for h in flat_header:
             if h not in data_variables:
+                backup_data(csv_file_name, data)
                 print("header " + h + " was added")
                 data[h] = [None for item in range(data.shape[0])]
+                # maybe None is not the right value, it should be empty string
 
 def verify_variables(variables_file_name):
     try:
@@ -185,7 +194,7 @@ def verify_variables(variables_file_name):
         raise e
 
 def no_data_from_yesterday(data: DataFrame):
-    yesterday = (date.today() + timedelta(days=-2 if datetime.now().hour < wakeup_time else -1)).isoformat()
+    yesterday = get_yesterday_date().isoformat()
     last_column_row = data.loc[data[date_header] == yesterday]
     if data.shape[0] <= 1:
         return False
@@ -259,7 +268,7 @@ def get_popup_message(conditions: list, fractions: list, habit_messages: list, h
     candidate_messages.difference_update(candidate_messages.intersection(empty_messages))
 
     past_messages, last_date = read_past_messages(msg_file_name)
-    if last_date == str(get_current_date()):
+    if last_date == str(get_today_date()):
         return already_filled_in_today_message
 
     previous_message = past_messages[-1] if past_messages is not None else ''
@@ -310,7 +319,7 @@ def save_message_file(msg_file_name: str, header_list: list, todays_message: str
     if todays_message == already_filled_in_today_message:
         return
 
-    today = date.today().isoformat()
+    today = get_today_date()
     header, message = todays_message.split('\n')
     # longest_header = max(header_list, key=len)
     # spacing = '\t' * (len(longest_header) // 4 - len(header) // 4 + 2)
@@ -351,7 +360,7 @@ class Settings:
 
     @staticmethod
     def from_dict(dictionary: dict):
-        hue_offset = float(dictionary[SETTINGS_KEYS.hue_offset])
+        hue_offset = round(float(dictionary[SETTINGS_KEYS.hue_offset]), 4)
         data_days = int(dictionary[SETTINGS_KEYS.data_days])
         display_messages = bool(dictionary[SETTINGS_KEYS.display_messages])
         graph_expected_value = bool(dictionary[SETTINGS_KEYS.graph_expected_value])
@@ -445,7 +454,7 @@ def variables_row(category: str, header: str, tooltip: str, message: str, condit
 
     result = ''
     slap = ',,' if condition in empty_conditions else f'{replace_commas_for_double_spaces(message)},{condition},{numerator}/{denominator}'
-    result += f'{category.lower()},{join_white_spaced_header(header.lower())},{tooltip},{slap}\n'
+    result += f'1,{category.lower()},{join_white_spaced_header(header.lower())},{tooltip},{slap}\n'
     return result
 
 def generate_variables(variables_file_name: str, variables_init_values_dict: dict, habits_init_category_key: str,
@@ -461,7 +470,7 @@ def generate_variables(variables_file_name: str, variables_init_values_dict: dic
     numerators = values_from_keyword(habits_init_fraction_num_key, variables_init_values_dict)
     denominators = values_from_keyword(habits_init_fraction_den_key, variables_init_values_dict)
 
-    header = 'category,header,tooltip,message,condition,frequency'
+    header = 'enabled,category,header,tooltip,message,condition,frequency'
     file_content = f'{header}\n'
     for i in range(len(repeated_categories)):
         row = variables_row(repeated_categories[i], habits[i], questions[i], messages[i], conditions[i], numerators[i], denominators[i])

@@ -2,7 +2,7 @@
     "data_days": 30,
     "display_messages": true,
     "graph_expected_value": false,
-    "hue_offset": 0.045,
+    "hue_offset": 0.32100000000000006,
     "message_duration": 5,
     "random_messages": true,
     "scrollable_image": false,
