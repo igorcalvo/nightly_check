@@ -112,7 +112,6 @@ def save_data(data: DataFrame, checkbox_dict: dict, csv_file_name: str, date: st
         row_index = list(row_from_date.index)[0]
         last_index = list(data.index)[-1]
         offset = row_index - last_index - 1
-        # test if offset == -2 when neglected
     else:
         offset = -1
 
@@ -268,7 +267,7 @@ def get_popup_message(conditions: list, fractions: list, habit_messages: list, h
     candidate_messages.difference_update(candidate_messages.intersection(empty_messages))
 
     past_messages, last_date = read_past_messages(msg_file_name)
-    if last_date == str(get_today_date()):
+    if last_date == get_today_date().isoformat():
         return already_filled_in_today_message
 
     previous_message = past_messages[-1] if past_messages is not None else ''
