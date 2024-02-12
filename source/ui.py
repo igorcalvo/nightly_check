@@ -1,21 +1,21 @@
 import PySimpleGUI as sg
-import tkinter as tk
+from tkinter import Tk as tk_tk, font as tk_font
 import matplotlib.colors as clr
 import cv2 as cv
 from io import BytesIO
 from PIL import Image
 from base64 import b64decode
-# w, h = sg.Window.get_screen_size()
 from .core import get_matrix_data_by_header_indexes, Settings
 from .utils import pad_string, transpose, safe_value_from_dict, safe_bool_from_array, safe_value_from_array, \
     os_is_windows, settings_key_to_text, habit_init_key
 from .constants import COLORS, FONTS, CHECKBOX_PIXEL_LENGTH, MESSAGES, PATHS, SETTINGS_KEYS
+# w, h = sg.Window.get_screen_size()
 PATH = PATHS()
 PATH.__init__()
 
 def print_fonts():
-    root = tk.Tk()
-    font_list = list(tk.font.families())
+    root = tk_tk()
+    font_list = list(tk_font.families())
     font_list.sort()
     for f in font_list:
         print(f)
@@ -46,12 +46,10 @@ def generate_icon(hue_offset: float):
 
     bgr = cv.imread(PATH.standard_icon)
     hsv = cv.cvtColor(bgr, cv.COLOR_BGR2HSV)
-    h = hsv[:, :, 0]
-    s = hsv[:, :, 1]
-    v = hsv[:, :, 2]
+    h, s, v = hsv[:, :, 0], hsv[:, :, 1], hsv[:, :, 2]
 
     hsv_delta = 180 * hue_offset
-    h2 = cv.add(h, hsv_delta)
+    h2 = cv.add(h, hsv_delta) # type: ignore
     hsv2 = cv.merge([h2, s, v])
 
     result = cv.cvtColor(hsv2, cv.COLOR_HSV2BGR)
@@ -65,7 +63,7 @@ def InitUi(hueOffset: float):
 def CreateCheckBoxes(descriptions: list, header: list, sizes: list, default_values: list = []) -> list:
     #                  magic number to align checkboxes when the previous column has fewer rows
     return [[(sg.Checkbox(text=' ' + item,
-                          default=False if len(default_values) == 0 else get_matrix_data_by_header_indexes(default_values, header, item),
+                          default=False if len(default_values) == 0 else bool(get_matrix_data_by_header_indexes(default_values, header, item)),
                           key=item,
                           size=sizes[idx],
                           font=FONTS["ckb"],
@@ -139,7 +137,8 @@ def CreateMainLayout(categories: list, header: list, descriptions: list, done_bu
 
     return window_layout
 
-def MainWindow(categories: list, header: list, descriptions: list, done_button_text: str, style_button_text: str, data_button_text: str, edit_button_text: str, settings_button_text: str, csv_not_empty: bool, is_sub_window: bool, default_values: list = []):
+def MainWindow(categories: list, header: list, descriptions: list, done_button_text: str, style_button_text: str, data_button_text: str, edit_button_text: str,
+               settings_button_text: str, csv_not_empty: bool, is_sub_window: bool, default_values: list = []):
     longest_texts = [max([len(text) for text in col]) for col in header]
     window_size = (((sum(longest_texts) + 60) * CHECKBOX_PIXEL_LENGTH), 40 * max([len(h) for h in header]) + 75)
     layout = CreateMainLayout(categories, header, descriptions, done_button_text, style_button_text, data_button_text, edit_button_text, settings_button_text, window_size[0], csv_not_empty, is_sub_window, default_values)
@@ -355,15 +354,15 @@ def HabitInitHabitLayout(category_row: int,
                      size=20,
                      pad=(10, 0),
                      tooltip=MESSAGES.input_tooltip_habit,
-                     default_text=safe_value_from_dict(habit_init_key(habits_init_habit_key, category_row, row), values_dict)),
+                     default_text=str(safe_value_from_dict(habit_init_key(habits_init_habit_key, category_row, row), values_dict))),
         sg.InputText(key=habit_init_key(habits_init_question_key, category_row, row),
                      background_color=COLORS["pop_bkg"],
                      size=30,
                      tooltip=MESSAGES.input_tooltip_question,
-                     default_text=safe_value_from_dict(habit_init_key(habits_init_question_key, category_row, row), values_dict)),
+                     default_text=str(safe_value_from_dict(habit_init_key(habits_init_question_key, category_row, row), values_dict))),
         sg.VerticalSeparator(color=COLORS["hbi_sep"]),
         sg.Checkbox(text=MESSAGES.input_tooltip_track,
-                    default=safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True),
+                    default=bool(safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True)),
                     key=habit_init_key(habits_init_track_frequency_key, category_row, row),
                     size=16,
                     font=FONTS["ckb"],
@@ -378,8 +377,8 @@ def HabitInitHabitLayout(category_row: int,
                      size=60,
                      pad=((0, 10), (0, 0)),
                      tooltip=MESSAGES.input_tooltip_message,
-                     default_text=safe_value_from_dict(habit_init_key(habits_init_message_key, category_row, row), values_dict),
-                     visible=safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True)),
+                     default_text=str(safe_value_from_dict(habit_init_key(habits_init_message_key, category_row, row), values_dict)),
+                     visible=bool(safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True))),
         sg.Combo(values=['>=', '>', '=', '<', '<='],
                  default_value=safe_value_from_dict(habit_init_key(habits_init_condition_key, category_row, row), values_dict),
                  key=habit_init_key(habits_init_condition_key, category_row, row),
@@ -394,19 +393,20 @@ def HabitInitHabitLayout(category_row: int,
                  change_submits=True,
                  enable_events=True,
                  tooltip=MESSAGES.input_tooltip_combo,
-                 visible=safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True)),
+                 visible=bool(safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True))),
         sg.InputText(key=habit_init_key(habits_init_fraction_num_key, category_row, row),
                      background_color=COLORS["pop_bkg"],
                      size=3,
-                     default_text=safe_value_from_dict(habit_init_key(habits_init_fraction_num_key, category_row, row), values_dict),
-                     visible=safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True)),
-        sg.Text("in", key=("spacing", row), background_color=COLORS["win_bkg"], visible=safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True)),
+                     default_text=str(safe_value_from_dict(habit_init_key(habits_init_fraction_num_key, category_row, row), values_dict)),
+                     visible=bool(safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True))),
+        sg.Text("in", key=("spacing", row), background_color=COLORS["win_bkg"], visible=bool(safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row),values_dict, True))),
         sg.InputText(key=habit_init_key(habits_init_fraction_den_key, category_row, row),
                      background_color=COLORS["pop_bkg"],
                      size=3,
-                     default_text=safe_value_from_dict(habit_init_key(habits_init_fraction_den_key, category_row, row), values_dict),
-                     visible=safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True)),
-        sg.Text(pad_string("days", 5), key=("spacing_days", row), background_color=COLORS["win_bkg"], visible=safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True)),
+                     default_text=str(safe_value_from_dict(habit_init_key(habits_init_fraction_den_key, category_row, row), values_dict)),
+                     visible=bool(safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True))),
+        sg.Text(pad_string("days", 5), key=("spacing_days", row), background_color=COLORS["win_bkg"],
+                visible=bool(safe_value_from_dict(habit_init_key(habits_init_track_frequency_key, category_row, row), values_dict, True))),
     ] for row in range(habit_count)]
 
 def HabitInitCategoryLayout(category_count: int,
@@ -431,7 +431,7 @@ def HabitInitCategoryLayout(category_count: int,
                       size=20,
                       pad=10,
                       tooltip=MESSAGES.input_tooltip_category,
-                      default_text=safe_value_from_dict(habit_init_key(habits_init_category_key, row), values_dict)),
+                      default_text=str(safe_value_from_dict(habit_init_key(habits_init_category_key, row), values_dict))),
         sg.Text(pad_string("", 0), key=("spacing", row), background_color=COLORS["win_bkg"]),
         sg.Button(button_text=habits_init_add_habit_text,
                   key=habit_init_key(habits_init_add_habit_text, row),
@@ -446,7 +446,7 @@ def HabitInitCategoryLayout(category_count: int,
                   button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
                   pad=((0, button_padding), (0, 0)),
                   disabled=safe_bool_from_array(row - 1, habit_count))],
-        HabitInitHabitLayout(row, safe_value_from_dict(habit_init_key(habits_init_category_key, row), values_dict),
+        HabitInitHabitLayout(row, str(safe_value_from_dict(habit_init_key(habits_init_category_key, row), values_dict)),
                              safe_value_from_array(row - 1, habit_count), habits_init_habit_key,
                              habits_init_question_key, habits_init_track_frequency_key, habits_init_message_key,
                              habits_init_condition_key, habits_init_fraction_num_key, habits_init_fraction_den_key, values_dict),

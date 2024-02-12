@@ -1,4 +1,5 @@
 from base64 import b64encode
+from collections.abc import Iterable
 from io import BytesIO
 from pandas import DataFrame
 from sys import platform
@@ -91,7 +92,7 @@ def image_bytes_to_base64(image) -> str:
     base64_str = base64_bytes.decode('ascii')
     return base64_str
 
-def remove_duplicates(arr: list) -> list:
+def remove_duplicates(arr: Iterable) -> list:
     seen = set()
     seen_add = seen.add
     return [x for x in arr if not (x in seen or seen_add(x))]

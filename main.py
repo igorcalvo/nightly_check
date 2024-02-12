@@ -4,7 +4,8 @@ from source.ui import *
 from source.core import *
 from source.imggen import *
 from source.constants import *
-from sys import exc_info
+
+from traceback import format_exc
 
 values_dict = {}
 
@@ -24,7 +25,7 @@ try:
                                                  habits_init_fraction_den_key,category_count, {}, habit_count)
         variables_init_window = HabitsInitWindow(variables_init_layout)
         while True:
-            variables_init_event, variables_init_values_dict = variables_init_window.read()
+            variables_init_event, variables_init_values_dict = variables_init_window.read() # type: ignore
             if variables_init_event == habits_init_cat_add:
                 category_count += 1
                 habit_count.append(0)
@@ -72,7 +73,7 @@ try:
     variables.pop(0)
     verify_header_and_data(header, variables, csv_file_name, data, disabled_headers)
     data = create_entry(data)
-    # PrintFonts()
+    # print_fonts()
     settings = read_settings(settings_file_name)
     InitUi(settings.hue_offset)
     hue_offset = settings.hue_offset
@@ -80,13 +81,13 @@ try:
     if neglected:
         neglected_window = NeglectedPopUp(neglected_accept_text, neglected_reject_text)
         while True:
-            neglected_event, neglected_values_dic = neglected_window.read()
+            neglected_event, neglected_values_dic = neglected_window.read() # type: ignore
             if neglected_event == neglected_accept_text:
                 neglected_data_window = MainWindow(categories, header, descriptions, done_button_text,
                                                    style_button_text, data_button_text, edit_button_text,
                                                    settings_button_text, len(data) >= 1, True)
                 while True:
-                    neglected_data_event, neglected_data_values_dict = neglected_data_window.read()
+                    neglected_data_event, neglected_data_values_dict = neglected_data_window.read() # type: ignore
                     if neglected_data_event == done_button_text:
                         log_write(log, f"\nsaving data from yesterday\n{neglected_data_values_dict}")
                         save_data(data, neglected_data_values_dict, csv_file_name, get_yesterday_date().isoformat())
@@ -98,19 +99,19 @@ try:
                 break
     todays_data = todays_data_or_none(data, header)
     window = MainWindow(categories, header, descriptions, done_button_text, style_button_text, data_button_text,
-                        edit_button_text, settings_button_text, len(data) > 0, False, todays_data)
+                        edit_button_text, settings_button_text, len(data) > 0, False, todays_data) # type: ignore
     while True:
-        event, values_dict = window.read()
+        event, values_dict = window.read() # type: ignore
         if event == style_button_text:
             style_window = StyleWindow(style_button_text, slider_text_key, preview_window_text, set_button_text_key, hue_offset)
             while True:
-                style_event, style_values_dict = style_window.read()
+                style_event, style_values_dict = style_window.read() # type: ignore
                 if style_event == slider_text_key:
                     hue_offset = style_values_dict[slider_text_key]
                 elif style_event == preview_window_text:
                     preview_window = PreviewWindow(preview_window_text, preview_close_key, hue_offset)
                     while True:
-                        preview_event, preview_values_dict = preview_window.read()
+                        preview_event, preview_values_dict = preview_window.read() # type: ignore
                         if preview_event == preview_close_key or preview_event == sg.WIN_CLOSED:
                             preview_window.close()
                             break
@@ -125,7 +126,7 @@ try:
             img = generate_image(categories, header, conditions, settings.data_days, settings.graph_expected_value, settings.weekdays_language, graph_data)
             data_window = DataWindow(data_button_text, export_button_text, settings.scrollable_image, image_bytes_to_base64(img))
             while True:
-                data_event, data_values_dict = data_window.read()
+                data_event, data_values_dict = data_window.read() # type: ignore
                 if data_event == export_button_text:
                     export_image_file_name = data_values_dict[export_button_text]
                     if export_image_file_name:
@@ -137,7 +138,7 @@ try:
             date_picker_window = DatePickerWindow(select_date_key, select_date_button_text)
             picked_date = get_today_date() + timedelta(days=-1)
             while True:
-                date_picker_event, date_picker_dict = date_picker_window.read()
+                date_picker_event, date_picker_dict = date_picker_window.read() # type: ignore
                 if date_picker_event == select_date_button_text or date_picker_event == sg.WIN_CLOSED:
                     if date_picker_event is None and date_picker_dict is None:
                         date_picker_window.close()
@@ -148,7 +149,7 @@ try:
                                                   data_button_text, edit_button_text, settings_button_text,
                                                   len(data) > 0, True, data_from_date)
                     while True:
-                        edit_data_event, edit_data_values_dict = edit_data_window.read()
+                        edit_data_event, edit_data_values_dict = edit_data_window.read() # type: ignore
                         if edit_data_event == done_button_text:
                             log_write(log, f"\nsaving data from date '{picked_date}'\n{edit_data_values_dict}")
                             save_data(data, edit_data_values_dict, csv_file_name, picked_date)
@@ -160,7 +161,7 @@ try:
         elif event == settings_button_text:
             settings_window = SettingsWindow(settings, settings_button_text, settings_save_button_text, settings_cancel_button_text)
             while True:
-                settings_event, settings_dict = settings_window.read()
+                settings_event, settings_dict = settings_window.read() # type: ignore
                 if settings_event in [settings_save_button_text, settings_cancel_button_text, sg.WIN_CLOSED]:
                     if settings_event == settings_save_button_text:
                         settings = Settings.from_dict(settings_dict)
@@ -179,10 +180,9 @@ try:
 except Exception as e:
     if __debug__:
         raise(e)
+#   python -O main.py
     else:
-        e_type, e_obj, e_tb = exc_info()
-        e_filename = path.split(e_tb.tb_frame.f_code.co_filename)[1]
-        log_write(log, f"\n{e_obj} at line {e_tb.tb_lineno} of {e_filename}\n\n")
+        log_write(log, f"\n{format_exc()}\n")
 finally:
     finally_string = f"***** {date.today()} - {datetime.now().time().replace(microsecond=0)} *****\n"
     if values_dict is not None and any(values_dict.values()):
@@ -230,11 +230,5 @@ finally:
 #       	 anime fap e jogar
 
 #
-#   COMPILED CODE
-#   run: python -m PyInstaller --onefile main.py
-#   solution to assets problem: https://stackoverflow.com/q/31836104
-#   improve code
-#       remove unnecessary imports (from x import *)
-#       remove commented out code
-#   refer to: assets/reference/compiled.PNG
-#       assets folder -> check if folder exists and maybe unzip automatically?
+#   COMPILE
+#   Distribute as .py, add assets and a good readme

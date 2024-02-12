@@ -1,6 +1,6 @@
 from datetime import date, timedelta, datetime
 from os.path import exists, getsize, isdir
-from os import makedirs, path
+from os import makedirs
 from random import choice
 
 from .utils import *
@@ -126,7 +126,7 @@ def data_from_date_to_list(data: DataFrame, date: str, header: list):
     result = [[row_from_date[to_lower_underscored(h)].values[0] == 'True' for h in cat] for cat in header]
     return result
 
-def todays_data_or_none(data: DataFrame, header: list):
+def todays_data_or_none(data: DataFrame, header: list) -> list | None:
     today = str(get_today_date())
     if len(data.tail(1)['date'].values) == 0:
         return None
@@ -294,7 +294,7 @@ def get_popup_message(conditions: list, fractions: list, habit_messages: list, h
 
     return choice(list(candidate_messages))
 
-def read_past_messages(msg_file_name: str) -> (list | None, str | None):
+def read_past_messages(msg_file_name: str) -> tuple[list | None, str | None]:
     if not exists(msg_file_name):
         return None, None
     else:
@@ -321,10 +321,8 @@ def save_message_file(msg_file_name: str, header_list: list, todays_message: str
 
     today = get_today_date()
     header, message = todays_message.split('\n')
-    # longest_header = max(header_list, key=len)
-    # spacing = '\t' * (len(longest_header) // 4 - len(header) // 4 + 2)
     longest_header = max(flatten_list(header_list), key=len)
-    spacing = '\t' * (len(longest_header) // 4 - len(header) // 4)
+    spacing = '\t' * (len(longest_header) // 4 - len(header) // 4 + (0 if len(header) >= 4 else 1))
     spacing += '' if len(spacing) > 0 else '\t'
     data = f"\n{today}\t{header}{spacing}{message}"
     if not exists(msg_file_name):
