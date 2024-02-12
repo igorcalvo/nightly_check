@@ -3,9 +3,9 @@ __pycache__
 *.bak
 *.txt
 *.csv
-!assets/*.txt
 data*.csv
 backup/
 variables.csv
 settings.json
 assets/icons/iconColored.png
+!assets/reference/*.txt
