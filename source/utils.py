@@ -61,6 +61,33 @@ def settings_key_to_text(key: str) -> str:
 def flatten_list(l: list) -> list:
     return [item for sublist in l for item in sublist]
 
+def flatten_list_recursive(l: list, partial = []) -> list:
+    result = partial
+    deeper = []
+    for item in l:
+        if type(item) == type([]):
+            deeper.append(flatten_list_recursive(item, result))
+        else:
+            result.append(item)
+    return result
+
+def flatten_list_1(l: list) -> list:
+     result = []
+     for item in l:
+             if type(item) == type([]):
+                 for i in item:
+                     result.append(i)
+             else:
+                 result.append(item)
+     return result
+
+def wrap_list_items_in_list(l: list) -> list[list]:
+    return [[item] for item in l]
+
+def flatten_and_wrap(l: list) -> list[list]:
+    flat_list = flatten_list_recursive(l, [])
+    return wrap_list_items_in_list(flat_list)
+
 def get_value_from_df_by_row(colName: str, row: int, data: DataFrame):
     return data.iloc[row, data.columns.get_loc(colName)]
 
@@ -116,10 +143,14 @@ def safe_bool_from_array(index, array: list):
     else:
         return False
 
-def safe_value_from_array(index, array: list):
+def safe_value_from_array(index, array: list, default):
     if array is None:
         return 0
-    return array[index]
+    
+    if index < len(array):
+        return array[index]
+    else:
+        return default
 
 def habit_init_key(key: str, row: int, sub_row: int = 0):
     return f'{key}_{row}' if sub_row == 0 else f'{key}_{row}_{sub_row}'
