@@ -101,11 +101,11 @@ def df_row_from_date(df: DataFrame, date: str, date_header: str):
     row_from_date = df.loc[(df[date_header] == date)]
     return row_from_date
 
-def safe_value_from_dict(key, dictionary: dict, return_bool: bool = False):
+def safe_value_from_dict(key, dictionary: dict):
     if key in dictionary.keys():
         return dictionary[key]
     else:
-        return None if not return_bool else False
+        return None
 
 def safe_bool_from_array(index, array: list):
     if array is None:
