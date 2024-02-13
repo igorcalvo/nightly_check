@@ -88,6 +88,10 @@ def flatten_and_wrap(l: list) -> list[list]:
     flat_list = flatten_list_recursive(l, [])
     return wrap_list_items_in_list(flat_list)
 
+def flatten_and_wrap_1(l: list) -> list[list]:
+    flat_list = flatten_list_1(l)
+    return wrap_list_items_in_list(flat_list)
+
 def get_value_from_df_by_row(colName: str, row: int, data: DataFrame):
     return data.iloc[row, data.columns.get_loc(colName)]
 
@@ -143,14 +147,14 @@ def safe_bool_from_array(index, array: list):
     else:
         return False
 
-def safe_value_from_array(index, array: list, default):
+def safe_value_from_array(index, array: list, default_value):
     if array is None:
         return 0
     
     if index < len(array):
         return array[index]
     else:
-        return default
+        return default_value
 
 def habit_init_key(key: str, row: int, sub_row: int = 0):
     return f'{key}_{row}' if sub_row == 0 else f'{key}_{row}_{sub_row}'

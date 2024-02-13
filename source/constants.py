@@ -47,7 +47,6 @@ already_filled_in_today_message = "No message for you! You have already added yo
 wakeup_time = 14
 date_header = "date"
 # ----------------------------------------------------------------------------------------------------------------------
-CHECKBOX_PIXEL_LENGTH = 8 if not os_is_windows() else 10
 # | hue_offset | < 1
 
 # basis
