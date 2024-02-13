@@ -145,7 +145,7 @@ class MESSAGES:
     settings_tooltip_scrollable = "Enable window to be scrollable (useful if the number os habits is high)"
     settings_tooltip_messages_show = "Display a message before closing"
     settings_tooltip_random = "Pick a message among candidates randomly instead of according to coded logic"
-    settings_tooltip_duration = "How long the message is going to be displayed on the screen before closing the app"
+    settings_tooltip_duration = "How many seconds the message is going to be displayed on the screen for before closing the app"
 
 class PATHS:
     colored_icon = f"{DIR}/assets/icons/iconColored.png"

@@ -198,8 +198,8 @@ def no_data_from_yesterday(data: DataFrame):
     if data.shape[0] <= 1:
         return False
 
-    # TODO Improve code
-    if len([v for v in last_column_row.values[0] if v == '']) > 0:
+    # date, "", true, false
+    if len(set(last_column_row.values[0])) <= 2:
         return True
     return False
 #endregion
@@ -263,7 +263,8 @@ def get_popup_message(conditions: list, fractions: list, habit_messages: list, h
 
     # No idea why this is here
     empty_messages = set([cm if cm.split('\n')[-1] == '' else None for cm in candidate_messages])
-    empty_messages.remove(None)
+    if None in empty_messages:
+       empty_messages.remove(None)
     candidate_messages.difference_update(candidate_messages.intersection(empty_messages))
 
     past_messages, last_date = read_past_messages(msg_file_name)

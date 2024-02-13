@@ -191,35 +191,39 @@ finally:
         log_write(log, f"{finally_string}")
     log.close()
 
-# format code and fix error warninggs
+# format code
+# break into smaller files
+# break UI into more functions
+# delete commented code from data vizualization
+# merge style button into settings and remove it
+# check if possible to redraw after changing hue
 # change text hover to white? or bright color idk
-
-# TODO Disallow 0 on denominator
-# TODO Disallow duplicate value for habit and category
-# TODO Disallow freq > 1
-# validate variables
-#   duplicate columns
-#   empty columns
-#   handle empty tool tips
-#   handle empty direction
-#   handle empty frequency
-# TODO validate variables on form?
-# break code into smaller files? (core and ui into regions?)
-
-# TODO LIST - REAL
-# better ui
-#   columns instead of spacing text
-#   better width formula
+# allow for tkinter themes
 # pop up after n days (settings) reminding to view data
+# identidade visual: patrolling owl
 
-#   FUTURE
-#   have an indicator on the side of each row based on frequencies:
-#       all good
-#       improving, but still bad
-#       declining, but still good
-#       all bad
-#   have some sort of readme?
-#   TODO write reddit post!!!!!
+# MAJOR
+#   Validation
+#       Freq
+#           Disallow 0 on denominator
+#           Disallow duplicate value for habit and category
+#           Disallow freq > 1
+#       Variables
+#           duplicate categories
+#           duplicate headers
+#           empty categories
+#           handle empty tool tips
+#           handle empty direction
+#           handle empty frequency
+#       validate variables on form even possible?
+#   Indicator
+#       have an indicator on the side of each row based on frequencies:
+#           all good
+#           improving, but still bad
+#           declining, but still good
+#           all bad
+
+# FUTURE
 #   (week challenge?!?!?!?!)
 #       reward for completing challenge!!
 #       or completing streaks(i.e. 30 days working out)
@@ -228,7 +232,11 @@ finally:
 #       exemplo: nao malhar e comer a mais
 #       	 cel no trabalho e nao meditar
 #       	 anime fap e jogar
+#       for that, we'll have to link the habits somehow
 
-#
-#   COMPILE
-#   Distribute as .py, add assets and a good readme
+#   COMPILE and SHIP
+#       README.md
+#       Reddit post HG, Producitivy, Linux
+#       Capture video for clarity
+#       Lots of screenshots
+#       Distribute as .py, add assets

@@ -567,7 +567,7 @@ def SettingsWindowLayout(settings: Settings, settings_save_button_text: str, set
     checkbox_padding = 5
     sections_padding_y = 25
     sections_padding_x = 5
-    text_input_size = 8
+    text_input_size = 7
 
     appearance = [
         [
@@ -580,8 +580,9 @@ def SettingsWindowLayout(settings: Settings, settings_save_button_text: str, set
             )
         ],
         [
+            # I thought removing offset was more appropriate
             sg.Text(
-                text=settings_key_to_text(SETTINGS_KEYS.hue_offset),
+                text=settings_key_to_text(SETTINGS_KEYS.hue_offset).replace("Offset", ""),
                 text_color=COLORS["stg_txt"],
                 background_color=COLORS["stg_bkg"],
                 font=FONTS["pop"],
@@ -593,7 +594,8 @@ def SettingsWindowLayout(settings: Settings, settings_save_button_text: str, set
                          font=FONTS["ckb"],
                          tooltip=MESSAGES.settings_tooltip_hueoffset,
                          default_text=str(settings.hue_offset),
-                         size=text_input_size
+                         size=text_input_size,
+                         justification='r'
                          )
         ],
     ]
@@ -623,6 +625,7 @@ def SettingsWindowLayout(settings: Settings, settings_save_button_text: str, set
                          tooltip=MESSAGES.settings_tooltip_days,
                          default_text=str(settings.data_days),
                          size=text_input_size,
+                        justification='r'
                          ),
             sg.Text(
                 text=pad_string('', 5),
@@ -773,6 +776,7 @@ def SettingsWindowLayout(settings: Settings, settings_save_button_text: str, set
                          tooltip=MESSAGES.settings_tooltip_duration,
                          default_text=str(settings.message_duration),
                          size=text_input_size,
+                        justification='r'
                          ),
         ]
     ]
