@@ -2,3 +2,4 @@
 cp -r $1data/ $1backup/
 cp $1settings.json $1backup/
 cp $1variables.csv $1backup/
+echo "Done. Data saved in $1backup/"
