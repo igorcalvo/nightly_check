@@ -482,7 +482,7 @@ def HabitsInitLayout(habits_init_cat_add: str,
                      values_dict: dict,
                      habit_count: list):
     button_padding = 25
-    button_font_size = (20, 2)
+    button_font_size = (15, 2)
     show_scroll_bar = category_count + sum(flatten_list_1(habit_count)) > 20
     category_layout = HabitInitCategoryLayout(category_count, habits_init_category_key, habits_init_add_habit_text,
                       habits_init_del_habit_text, habits_init_track_frequency_key, habits_init_habit_key,
@@ -494,7 +494,7 @@ def HabitsInitLayout(habits_init_cat_add: str,
             scrollable=show_scroll_bar,
             vertical_scroll_only=show_scroll_bar,
             background_color=COLORS["win_bkg"],
-            visible=category_count > 0
+            visible=category_count > 0,
         )],
         [sg.HorizontalSeparator(color=COLORS["hbi_sep"])],
         [
