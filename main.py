@@ -1,11 +1,15 @@
 import datetime
-
-from source.ui import *
-from source.core import *
-from source.imggen import *
-from source.constants import *
-
 from traceback import format_exc
+
+from source.ui.data import *
+from source.ui.habit_init import *
+from source.ui.main_window import *
+from source.ui.settings import *
+from source.ui.utils import *
+
+from source.core import *
+from source.img_gen.image import *
+from source.constants import *
 
 values_dict = {}
 
@@ -190,6 +194,8 @@ finally:
     else:
         log_write(log, f"{finally_string}")
     log.close()
+
+# improve code for core and better imports on main
 
 # format code
 # break into smaller files
