@@ -1,8 +1,8 @@
 import PySimpleGUI as sg
 
-from source.core import get_matrix_data_by_header_indexes
-from source.utils import flatten_and_wrap, pad_string
 from source.constants import COLORS, FONTS, MESSAGES, PATHS
+from source.utils import flatten_and_wrap, pad_string
+from source.core.data_in import get_matrix_data_by_header_indexes
 
 PATH = PATHS()
 PATH.__init__()

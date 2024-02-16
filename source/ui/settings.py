@@ -1,8 +1,8 @@
 import PySimpleGUI as sg
 
 from source.constants import COLORS, FONTS, MESSAGES, PATHS, SETTINGS_KEYS
-from source.core import Settings
 from source.utils import pad_string, settings_key_to_text
+from source.core.settings import Settings
 from source.ui.utils import apply_hue_offset
 
 PATH = PATHS()

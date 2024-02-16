@@ -1,21 +1,18 @@
 from datetime import date, timedelta
 from PIL import Image, ImageFont, ImageDraw
 
+from source.constants import date_header
 from source.utils import (
     flatten_list,
     align_right,
     cycle_index,
     get_value_from_df_by_row,
 )
-from source.core import (
+from source.core.data_vis import (
     get_header_data,
     get_date_array,
     get_fail_indexes_list,
     get_expeted_value,
-    date_header,
-)
-from source.constants import font_families
-from source.img_gen.helper import (
     calculate_x_position,
     generate_y_positions,
     get_rgb_color,
@@ -23,6 +20,7 @@ from source.img_gen.helper import (
     segment_unit_into_list,
     text_list_max_len_to_pixels,
 )
+from source.constants import font_families
 
 
 def new_image(size_x: int, size_y: int, background_color=(255, 255, 255)):

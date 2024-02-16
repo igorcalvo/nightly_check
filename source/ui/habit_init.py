@@ -13,6 +13,7 @@ from source.utils import (
 PATH = PATHS()
 PATH.__init__()
 
+
 def HabitInitHabitLayout(
     row_in_habit_count: int,
     category_row: int,
@@ -33,18 +34,19 @@ def HabitInitHabitLayout(
             size=20,
             pad=(10, 0),
             tooltip=MESSAGES.input_tooltip_habit,
-            default_text=safe_value_from_dict( # type: ignore
+            default_text=safe_value_from_dict(  # type: ignore
                 habit_init_key(habits_init_habit_key, category_row, row_in_habit_count),
                 values_dict,
             ),
-        ),         sg.InputText(
+        ),
+        sg.InputText(
             key=habit_init_key(
                 habits_init_question_key, category_row, row_in_habit_count
             ),
             background_color=COLORS["pop_bkg"],
             size=30,
             tooltip=MESSAGES.input_tooltip_question,
-            default_text=safe_value_from_dict( # type: ignore
+            default_text=safe_value_from_dict(  # type: ignore
                 habit_init_key(
                     habits_init_question_key, category_row, row_in_habit_count
                 ),
@@ -228,7 +230,7 @@ def HabitInitCategoryLayout(
                     size=20,
                     pad=10,
                     tooltip=MESSAGES.input_tooltip_category,
-                    default_text=safe_value_from_dict( # type: ignore
+                    default_text=safe_value_from_dict(  # type: ignore
                         habit_init_key(habits_init_category_key, row), values_dict
                     ),
                 ),
@@ -260,7 +262,7 @@ def HabitInitCategoryLayout(
             habit_row = HabitInitHabitLayout(
                 habit,
                 row,
-                safe_value_from_dict(habit_init_key(habits_init_category_key, row), values_dict), # type: ignore
+                safe_value_from_dict(habit_init_key(habits_init_category_key, row), values_dict),  # type: ignore
                 habits_init_habit_key,
                 habits_init_question_key,
                 habits_init_track_frequency_key,

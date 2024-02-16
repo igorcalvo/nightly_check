@@ -1,206 +1,387 @@
-import datetime
+from datetime import datetime, date, timedelta
 from traceback import format_exc
+from PySimpleGUI import WIN_CLOSED
 
-from source.ui.data import *
-from source.ui.habit_init import *
-from source.ui.main_window import *
-from source.ui.settings import *
-from source.ui.utils import *
+from source.constants import data_folder, FILE_NAMES, HABITS_INIT, TEXTS_AND_KEYS
+from source.utils import file_not_exists
+from source.core.data_in import get_data_dataframe, read_csv, get_data, read_settings
+from source.core.data_out import (
+    create_folder_if_doesnt_exist,
+    create_file_if_doesnt_exist,
+    save_data,
+    log_write,
+    save_settings_file,
+    save_message_file,
+)
+from source.core.data_date import (
+    create_entry,
+    todays_data_or_none,
+    get_today_date,
+    data_from_date_to_list,
+    get_yesterday_date,
+)
+from source.core.settings import Settings
+from source.core.data_vis import image_bytes_to_base64
+from source.core.habit_messages import get_popup_message
+from source.core.habit_init import habit_index_from_event, generate_variables
+from source.core.validation import (
+    verify_variables,
+    verify_header_and_data,
+    no_data_from_yesterday,
+)
+from source.ui.habit_init import HabitsInitLayout, HabitsInitWindow, ReRenderHabitsInit
+from source.ui.utils import InitUi, normalize_hue
+from source.ui.main_window import NeglectedPopUp, MainWindow, PopUp, DatePickerWindow
+from source.ui.data import DataWindow
+from source.ui.settings import StyleWindow, PreviewWindow, SettingsWindow
+from source.image_gen import generate_image
 
-from source.core import *
-from source.img_gen.image import *
-from source.constants import *
 
 values_dict = {}
-
 create_folder_if_doesnt_exist(data_folder)
-create_file_if_doesnt_exist(log_file_name)
-log = open(log_file_name, 'r+')
+create_file_if_doesnt_exist(FILE_NAMES.log)
+log = open(FILE_NAMES.log, "r+")
+
 try:
-    if not exists(variables_file_name):
+    if file_not_exists(FILE_NAMES.variables):
         category_count = 0
         habit_count = []
-        variables_init_layout = HabitsInitLayout(habits_init_cat_add, habits_init_cat_remove, habits_init_generate_text,
-                                                 habits_init_categories_key, habits_init_category_key,
-                                                 habits_init_add_habit_text, habits_init_del_habit_text,
-                                                 habits_init_track_frequency_key, habits_init_habit_key,
-                                                 habits_init_question_key, habits_init_message_key,
-                                                 habits_init_condition_key, habits_init_fraction_num_key,
-                                                 habits_init_fraction_den_key,category_count, {}, habit_count)
+
+        variables_init_layout = HabitsInitLayout(
+            HABITS_INIT.cat_add,
+            HABITS_INIT.cat_remove,
+            HABITS_INIT.generate_text,
+            HABITS_INIT.categories_key,
+            HABITS_INIT.category_key,
+            HABITS_INIT.add_habit_text,
+            HABITS_INIT.del_habit_text,
+            HABITS_INIT.track_frequency_key,
+            HABITS_INIT.habit_key,
+            HABITS_INIT.question_key,
+            HABITS_INIT.message_key,
+            HABITS_INIT.condition_key,
+            HABITS_INIT.fraction_num_key,
+            HABITS_INIT.fraction_den_key,
+            category_count,
+            {},
+            habit_count,
+        )
         variables_init_window = HabitsInitWindow(variables_init_layout)
         while True:
-            variables_init_event, variables_init_values_dict = variables_init_window.read() # type: ignore
-            if variables_init_event == habits_init_cat_add:
+            variables_init_event, variables_init_values_dict = variables_init_window.read()  # type: ignore
+            if variables_init_event == HABITS_INIT.cat_add:
                 category_count += 1
                 habit_count.append(0)
-            elif variables_init_event == habits_init_cat_remove:
+            elif variables_init_event == HABITS_INIT.cat_remove:
                 category_count -= 1
                 habit_count.pop()
-            elif habits_init_add_habit_text in variables_init_event:
-                habit_count[habit_index_from_event(variables_init_event)] = habit_count[habit_index_from_event(variables_init_event)] + 1
-            elif habits_init_del_habit_text in variables_init_event:
-                habit_count[habit_index_from_event(variables_init_event)] = habit_count[habit_index_from_event(variables_init_event)] - 1
-            elif variables_init_event == habits_init_generate_text:
-                generate_variables(variables_file_name, variables_init_values_dict, habits_init_category_key, habits_init_habit_key,
-                                   habits_init_question_key, habit_count, habits_init_message_key,
-                                   habits_init_condition_key, habits_init_fraction_num_key, habits_init_fraction_den_key)
+            elif HABITS_INIT.add_habit_text in variables_init_event:
+                habit_count[habit_index_from_event(variables_init_event)] = (
+                    habit_count[habit_index_from_event(variables_init_event)] + 1
+                )
+            elif HABITS_INIT.del_habit_text in variables_init_event:
+                habit_count[habit_index_from_event(variables_init_event)] = (
+                    habit_count[habit_index_from_event(variables_init_event)] - 1
+                )
+            elif variables_init_event == HABITS_INIT.generate_text:
+                generate_variables(
+                    FILE_NAMES.variables,
+                    variables_init_values_dict,
+                    HABITS_INIT.category_key,
+                    HABITS_INIT.habit_key,
+                    HABITS_INIT.question_key,
+                    habit_count,
+                    HABITS_INIT.message_key,
+                    HABITS_INIT.condition_key,
+                    HABITS_INIT.fraction_num_key,
+                    HABITS_INIT.fraction_den_key,
+                )
                 variables_init_window.close()
                 break
-            elif variables_init_event == sg.WIN_CLOSED:
+            elif variables_init_event == WIN_CLOSED:
                 variables_init_window.close()
                 break
 
-            if habits_init_track_frequency_key in variables_init_event\
-                    or habits_init_del_habit_text in variables_init_event\
-                    or habits_init_add_habit_text in variables_init_event\
-                    or variables_init_event == habits_init_cat_remove\
-                    or variables_init_event == habits_init_cat_add:
-                variables_init_window = ReRenderHabitsInit(variables_init_window, habits_init_cat_add, habits_init_cat_remove,
-                                                           habits_init_generate_text, habits_init_categories_key,
-                                                           habits_init_category_key, habits_init_add_habit_text,
-                                                           habits_init_del_habit_text, habits_init_track_frequency_key,
-                                                           habits_init_habit_key, habits_init_question_key,
-                                                           habits_init_message_key, habits_init_condition_key,
-                                                           habits_init_fraction_num_key, habits_init_fraction_den_key,
-                                                           category_count, variables_init_values_dict, habit_count)
-    verify_variables(variables_file_name)
-    variables_file = read_csv(variables_file_name, csv_file_name)
-    conditions, fractions, habit_messages, descriptions, header, categories, disabled_headers = get_data(variables_file)
+            if (
+                HABITS_INIT.track_frequency_key in variables_init_event
+                or HABITS_INIT.del_habit_text in variables_init_event
+                or HABITS_INIT.add_habit_text in variables_init_event
+                or variables_init_event == HABITS_INIT.cat_remove
+                or variables_init_event == HABITS_INIT.cat_add
+            ):
+                variables_init_window = ReRenderHabitsInit(
+                    variables_init_window,
+                    HABITS_INIT.cat_add,
+                    HABITS_INIT.cat_remove,
+                    HABITS_INIT.generate_text,
+                    HABITS_INIT.categories_key,
+                    HABITS_INIT.category_key,
+                    HABITS_INIT.add_habit_text,
+                    HABITS_INIT.del_habit_text,
+                    HABITS_INIT.track_frequency_key,
+                    HABITS_INIT.habit_key,
+                    HABITS_INIT.question_key,
+                    HABITS_INIT.message_key,
+                    HABITS_INIT.condition_key,
+                    HABITS_INIT.fraction_num_key,
+                    HABITS_INIT.fraction_den_key,
+                    category_count,
+                    variables_init_values_dict,
+                    habit_count,
+                )
 
-    if not exists(csv_file_name):
-        cols = [to_lower_underscored(item) for item in flatten_list(header)]
-        cols.insert(0, date_header)
-        data = DataFrame(columns=cols)
-    else:
-        data = read_csv(csv_file_name, csv_file_name)
+    verify_variables(FILE_NAMES.variables)
+    variables_file = read_csv(FILE_NAMES.variables)
+
+    (
+        conditions,
+        fractions,
+        habit_messages,
+        descriptions,
+        header,
+        categories,
+        disabled_headers,
+    ) = get_data(variables_file)
+    data = get_data_dataframe(header)
     variables = list(data.columns)
     variables.pop(0)
-    verify_header_and_data(header, variables, csv_file_name, data, disabled_headers)
+    verify_header_and_data(header, variables, FILE_NAMES.csv, data, disabled_headers)
     data = create_entry(data)
+
     # print_fonts()
-    settings = read_settings(settings_file_name)
+    settings = read_settings(FILE_NAMES.settings)
     InitUi(settings.hue_offset)
     hue_offset = settings.hue_offset
+
     neglected = no_data_from_yesterday(data)
     if neglected:
-        neglected_window = NeglectedPopUp(neglected_accept_text, neglected_reject_text)
+        neglected_window = NeglectedPopUp(
+            TEXTS_AND_KEYS.neglected_accept_text, TEXTS_AND_KEYS.neglected_reject_text
+        )
         while True:
-            neglected_event, neglected_values_dic = neglected_window.read() # type: ignore
-            if neglected_event == neglected_accept_text:
-                neglected_data_window = MainWindow(categories, header, descriptions, done_button_text,
-                                                   style_button_text, data_button_text, edit_button_text,
-                                                   settings_button_text, len(data) >= 1, True)
+            neglected_event, neglected_values_dic = neglected_window.read()  # type: ignore
+            if neglected_event == TEXTS_AND_KEYS.neglected_accept_text:
+                neglected_data_window = MainWindow(
+                    categories,
+                    header,
+                    descriptions,
+                    TEXTS_AND_KEYS.done_button_text,
+                    TEXTS_AND_KEYS.style_button_text,
+                    TEXTS_AND_KEYS.data_button_text,
+                    TEXTS_AND_KEYS.edit_button_text,
+                    TEXTS_AND_KEYS.settings_button_text,
+                    len(data) >= 1,
+                    True,
+                )
                 while True:
-                    neglected_data_event, neglected_data_values_dict = neglected_data_window.read() # type: ignore
-                    if neglected_data_event == done_button_text:
-                        log_write(log, f"\nsaving data from yesterday\n{neglected_data_values_dict}")
-                        save_data(data, neglected_data_values_dict, csv_file_name, get_yesterday_date().isoformat())
-                    if neglected_data_event == sg.WIN_CLOSED or neglected_data_event == done_button_text:
+                    neglected_data_event, neglected_data_values_dict = neglected_data_window.read()  # type: ignore
+                    if neglected_data_event == TEXTS_AND_KEYS.done_button_text:
+                        log_write(
+                            log,
+                            f"\nsaving data from yesterday\n{neglected_data_values_dict}",
+                        )
+                        save_data(
+                            data,
+                            neglected_data_values_dict,
+                            FILE_NAMES.csv,
+                            get_yesterday_date().isoformat(),
+                        )
+                    if (
+                        neglected_data_event == WIN_CLOSED
+                        or neglected_data_event == TEXTS_AND_KEYS.done_button_text
+                    ):
                         neglected_window.close()
                         break
-            if neglected_event == sg.WIN_CLOSED or neglected_event == neglected_reject_text:
+            if (
+                neglected_event == WIN_CLOSED
+                or neglected_event == TEXTS_AND_KEYS.neglected_reject_text
+            ):
                 neglected_window.close()
                 break
+
     todays_data = todays_data_or_none(data, header)
-    window = MainWindow(categories, header, descriptions, done_button_text, style_button_text, data_button_text,
-                        edit_button_text, settings_button_text, len(data) > 0, False, todays_data) # type: ignore
+    window = MainWindow(
+        categories,
+        header,
+        descriptions,
+        TEXTS_AND_KEYS.done_button_text,
+        TEXTS_AND_KEYS.style_button_text,
+        TEXTS_AND_KEYS.data_button_text,
+        TEXTS_AND_KEYS.edit_button_text,
+        TEXTS_AND_KEYS.settings_button_text,
+        len(data) > 0,
+        False,
+        todays_data,  # type: ignore
+    )
     while True:
-        event, values_dict = window.read() # type: ignore
-        if event == style_button_text:
-            style_window = StyleWindow(style_button_text, slider_text_key, preview_window_text, set_button_text_key, hue_offset)
+        event, values_dict = window.read()  # type: ignore
+        if event == TEXTS_AND_KEYS.style_button_text:
+            style_window = StyleWindow(
+                TEXTS_AND_KEYS.style_button_text,
+                TEXTS_AND_KEYS.slider_text_key,
+                TEXTS_AND_KEYS.preview_window_text,
+                TEXTS_AND_KEYS.set_button_text_key,
+                hue_offset,
+            )
             while True:
-                style_event, style_values_dict = style_window.read() # type: ignore
-                if style_event == slider_text_key:
-                    hue_offset = style_values_dict[slider_text_key]
-                elif style_event == preview_window_text:
-                    preview_window = PreviewWindow(preview_window_text, preview_close_key, hue_offset)
+                style_event, style_values_dict = style_window.read()  # type: ignore
+                if style_event == TEXTS_AND_KEYS.slider_text_key:
+                    hue_offset = style_values_dict[TEXTS_AND_KEYS.slider_text_key]
+                elif style_event == TEXTS_AND_KEYS.preview_window_text:
+                    preview_window = PreviewWindow(
+                        TEXTS_AND_KEYS.preview_window_text,
+                        TEXTS_AND_KEYS.preview_close_key,
+                        hue_offset,
+                    )
                     while True:
-                        preview_event, preview_values_dict = preview_window.read() # type: ignore
-                        if preview_event == preview_close_key or preview_event == sg.WIN_CLOSED:
+                        preview_event, preview_values_dict = preview_window.read()  # type: ignore
+                        if (
+                            preview_event == TEXTS_AND_KEYS.preview_close_key
+                            or preview_event == WIN_CLOSED
+                        ):
                             preview_window.close()
                             break
-                elif style_event == set_button_text_key or style_event == sg.WIN_CLOSED:
-                    if style_event == set_button_text_key:
-                        settings.hue_offset = normalize_hue(settings.hue_offset, hue_offset)
-                        save_settings_file(settings, settings_file_name)
+                elif (
+                    style_event == TEXTS_AND_KEYS.set_button_text_key
+                    or style_event == WIN_CLOSED
+                ):
+                    if style_event == TEXTS_AND_KEYS.set_button_text_key:
+                        settings.hue_offset = normalize_hue(
+                            settings.hue_offset, hue_offset
+                        )
+                        save_settings_file(settings, FILE_NAMES.settings)
                     style_window.close()
                     break
-        elif event == data_button_text:
-            graph_data = read_csv(csv_file_name, csv_file_name)
-            img = generate_image(categories, header, conditions, settings.data_days, settings.graph_expected_value, settings.weekdays_language, graph_data)
-            data_window = DataWindow(data_button_text, export_button_text, settings.scrollable_image, image_bytes_to_base64(img))
+        elif event == TEXTS_AND_KEYS.data_button_text:
+            graph_data = read_csv(FILE_NAMES.csv)
+            img = generate_image(
+                categories,
+                header,
+                conditions,
+                settings.data_days,
+                settings.graph_expected_value,
+                settings.weekdays_language,
+                graph_data,
+            )
+            data_window = DataWindow(
+                TEXTS_AND_KEYS.data_button_text,
+                TEXTS_AND_KEYS.export_button_text,
+                settings.scrollable_image,
+                image_bytes_to_base64(img),
+            )
             while True:
-                data_event, data_values_dict = data_window.read() # type: ignore
-                if data_event == export_button_text:
-                    export_image_file_name = data_values_dict[export_button_text]
+                data_event, data_values_dict = data_window.read()  # type: ignore
+                if data_event == TEXTS_AND_KEYS.export_button_text:
+                    export_image_file_name = data_values_dict[
+                        TEXTS_AND_KEYS.export_button_text
+                    ]
                     if export_image_file_name:
                         img.save(export_image_file_name)
-                if data_event == sg.WIN_CLOSED or data_event == export_button_text:
+                if (
+                    data_event == WIN_CLOSED
+                    or data_event == TEXTS_AND_KEYS.export_button_text
+                ):
                     data_window.close()
                     break
-        elif event == edit_button_text:
-            date_picker_window = DatePickerWindow(select_date_key, select_date_button_text)
+        elif event == TEXTS_AND_KEYS.edit_button_text:
+            date_picker_window = DatePickerWindow(
+                TEXTS_AND_KEYS.select_date_key, TEXTS_AND_KEYS.select_date_button_text
+            )
             picked_date = get_today_date() + timedelta(days=-1)
             while True:
-                date_picker_event, date_picker_dict = date_picker_window.read() # type: ignore
-                if date_picker_event == select_date_button_text or date_picker_event == sg.WIN_CLOSED:
+                date_picker_event, date_picker_dict = date_picker_window.read()  # type: ignore
+                if (
+                    date_picker_event == TEXTS_AND_KEYS.select_date_button_text
+                    or date_picker_event == WIN_CLOSED
+                ):
                     if date_picker_event is None and date_picker_dict is None:
                         date_picker_window.close()
                         break
-                    picked_date = date_picker_dict[select_date_key]
+                    picked_date = date_picker_dict[TEXTS_AND_KEYS.select_date_key]
                     data_from_date = data_from_date_to_list(data, picked_date, header)
-                    edit_data_window = MainWindow(categories, header, descriptions, done_button_text, style_button_text,
-                                                  data_button_text, edit_button_text, settings_button_text,
-                                                  len(data) > 0, True, data_from_date)
+                    edit_data_window = MainWindow(
+                        categories,
+                        header,
+                        descriptions,
+                        TEXTS_AND_KEYS.done_button_text,
+                        TEXTS_AND_KEYS.style_button_text,
+                        TEXTS_AND_KEYS.data_button_text,
+                        TEXTS_AND_KEYS.edit_button_text,
+                        TEXTS_AND_KEYS.settings_button_text,
+                        len(data) > 0,
+                        True,
+                        data_from_date,
+                    )
                     while True:
-                        edit_data_event, edit_data_values_dict = edit_data_window.read() # type: ignore
-                        if edit_data_event == done_button_text:
-                            log_write(log, f"\nsaving data from date '{picked_date}'\n{edit_data_values_dict}")
-                            save_data(data, edit_data_values_dict, csv_file_name, picked_date)
-                        if edit_data_event == sg.WIN_CLOSED or edit_data_event == done_button_text:
+                        edit_data_event, edit_data_values_dict = edit_data_window.read()  # type: ignore
+                        if edit_data_event == TEXTS_AND_KEYS.done_button_text:
+                            log_write(
+                                log,
+                                f"\nsaving data from date '{picked_date}'\n{edit_data_values_dict}",
+                            )
+                            save_data(
+                                data, edit_data_values_dict, FILE_NAMES.csv, picked_date
+                            )
+                        if (
+                            edit_data_event == WIN_CLOSED
+                            or edit_data_event == TEXTS_AND_KEYS.done_button_text
+                        ):
                             edit_data_window.close()
                             break
                     date_picker_window.close()
                     break
-        elif event == settings_button_text:
-            settings_window = SettingsWindow(settings, settings_button_text, settings_save_button_text, settings_cancel_button_text)
+        elif event == TEXTS_AND_KEYS.settings_button_text:
+            settings_window = SettingsWindow(
+                settings,
+                TEXTS_AND_KEYS.settings_button_text,
+                TEXTS_AND_KEYS.settings_save_button_text,
+                TEXTS_AND_KEYS.settings_cancel_button_text,
+            )
             while True:
-                settings_event, settings_dict = settings_window.read() # type: ignore
-                if settings_event in [settings_save_button_text, settings_cancel_button_text, sg.WIN_CLOSED]:
-                    if settings_event == settings_save_button_text:
+                settings_event, settings_dict = settings_window.read()  # type: ignore
+                if settings_event in [
+                    TEXTS_AND_KEYS.settings_save_button_text,
+                    TEXTS_AND_KEYS.settings_cancel_button_text,
+                    WIN_CLOSED,
+                ]:
+                    if settings_event == TEXTS_AND_KEYS.settings_save_button_text:
                         settings = Settings.from_dict(settings_dict)
-                        save_settings_file(settings, settings_file_name)
+                        save_settings_file(settings, FILE_NAMES.settings)
                     settings_window.close()
                     break
-        elif event == done_button_text or event == sg.WIN_CLOSED:
-            if event == done_button_text:
-                data = save_data(data, values_dict, csv_file_name)
-                message = get_popup_message(conditions, fractions, habit_messages, header, data, msg_file_name, settings.random_messages)
+        elif event == TEXTS_AND_KEYS.done_button_text or event == WIN_CLOSED:
+            if event == TEXTS_AND_KEYS.done_button_text:
+                data = save_data(data, values_dict, FILE_NAMES.csv)
+                message = get_popup_message(
+                    conditions,
+                    fractions,
+                    habit_messages,
+                    header,
+                    data,
+                    FILE_NAMES.msg,
+                    settings.random_messages,
+                )
                 if message and settings.display_messages:
-                    save_message_file(msg_file_name, header, message)
+                    save_message_file(FILE_NAMES.msg, header, message)
                     PopUp(message, settings.message_duration)
             break
     window.close()
 except Exception as e:
     if __debug__:
-        raise(e)
-#   python -O main.py
+        raise (e)
+    #   python -O main.py
     else:
         log_write(log, f"\n{format_exc()}\n")
 finally:
-    finally_string = f"***** {date.today()} - {datetime.now().time().replace(microsecond=0)} *****\n"
+    finally_string = (
+        f"***** {date.today()} - {datetime.now().time().replace(microsecond=0)} *****\n"
+    )
     if values_dict is not None and any(values_dict.values()):
         log_write(log, f"{finally_string}{values_dict}\n\n")
     else:
         log_write(log, f"{finally_string}")
     log.close()
 
-# improve code for core and better imports on main
-
-# format code
-# break into smaller files
-# break UI into more functions
-# delete commented code from data vizualization
 # merge style button into settings and remove it
 # check if possible to redraw after changing hue
 # change text hover to white? or bright color idk
