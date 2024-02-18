@@ -382,6 +382,7 @@ finally:
         log_write(log, f"{finally_string}")
     log.close()
 
+# fix hueoffset starting at hue or rename it to offset.. I dont care
 # merge style button into settings and remove it
 # check if possible to redraw after changing hue
 # change text hover to white? or bright color idk

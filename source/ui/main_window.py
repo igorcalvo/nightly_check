@@ -22,6 +22,10 @@ def CreateMainLayout(
     default_values: list,
 ) -> list:
     max_cat_header_count = max([len(cat) for cat in headers])
+    category_padding = ((20, 0),(10, 0))
+    checkbox_padding = ((15, 0),(1, 1))
+    checkbox_padlast = ((15, 15),(1, 1))
+
     columns = [
         sg.Column(
             flatten_and_wrap(
@@ -31,7 +35,7 @@ def CreateMainLayout(
                             cat.upper(),
                             text_color=COLORS["cat_txt"],
                             background_color=COLORS["cat_bkg"],
-                            pad=((20, 20), (10, 0)),
+                            pad=category_padding,
                             font=FONTS["cat"],
                         )
                     ],
@@ -53,7 +57,7 @@ def CreateMainLayout(
                                 checkbox_color=COLORS["ckb_bkg"],
                                 text_color=COLORS["ckb_txt"],
                                 background_color=COLORS["win_bkg"],
-                                pad=((15, 0), (1, 1)),
+                                pad=checkbox_padlast if idx_cat == int(len(categories) - 1) else checkbox_padding,
                                 tooltip=get_matrix_data_by_header_indexes(
                                     descriptions, headers, item
                                 ),
@@ -68,7 +72,7 @@ def CreateMainLayout(
                                 font=FONTS["ckb"],
                                 text_color=COLORS["win_bkg"],
                                 background_color=COLORS["win_bkg"],
-                                pad=((15, 0), (1, 1)),
+                                pad=checkbox_padding,
                             )
                         ]
                         for i in range(max_cat_header_count - len(headers[idx_cat]))
