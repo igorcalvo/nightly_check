@@ -13,7 +13,6 @@ def CreateMainLayout(
     headers: list,
     descriptions: list,
     done_button_text: str,
-    style_button_text: str,
     data_button_text: str,
     edit_button_text: str,
     settings_button_text: str,
@@ -22,9 +21,9 @@ def CreateMainLayout(
     default_values: list,
 ) -> list:
     max_cat_header_count = max([len(cat) for cat in headers])
-    category_padding = ((20, 0),(10, 0))
-    checkbox_padding = ((15, 0),(1, 1))
-    checkbox_padlast = ((15, 15),(1, 1))
+    category_padding = ((20, 0), (10, 0))
+    checkbox_padding = ((15, 0), (1, 1))
+    checkbox_padlast = ((15, 15), (1, 1))
 
     columns = [
         sg.Column(
@@ -57,7 +56,11 @@ def CreateMainLayout(
                                 checkbox_color=COLORS["ckb_bkg"],
                                 text_color=COLORS["ckb_txt"],
                                 background_color=COLORS["win_bkg"],
-                                pad=checkbox_padlast if idx_cat == int(len(categories) - 1) else checkbox_padding,
+                                pad=(
+                                    checkbox_padlast
+                                    if idx_cat == int(len(categories) - 1)
+                                    else checkbox_padding
+                                ),
                                 tooltip=get_matrix_data_by_header_indexes(
                                     descriptions, headers, item
                                 ),
@@ -87,20 +90,11 @@ def CreateMainLayout(
 
     buttons_layout = [
         sg.Button(
-            style_button_text,
-            font=FONTS["btn"],
-            size=7,
-            button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
-            pad=(25, (5, 15)),
-            tooltip=MESSAGES.style_button_tooltip,
-        ),
-        sg.Push(background_color=COLORS["win_bkg"]),
-        sg.Button(
             settings_button_text,
             font=FONTS["btn"],
             size=7,
             button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
-            pad=(0, (5, 15)),
+            pad=(25, (5, 15)),
             tooltip=MESSAGES.settings_button_tooltip,
         ),
         sg.Push(background_color=COLORS["win_bkg"]),
@@ -151,7 +145,6 @@ def MainWindow(
     header: list,
     descriptions: list,
     done_button_text: str,
-    style_button_text: str,
     data_button_text: str,
     edit_button_text: str,
     settings_button_text: str,
@@ -164,7 +157,6 @@ def MainWindow(
         header,
         descriptions,
         done_button_text,
-        style_button_text,
         data_button_text,
         edit_button_text,
         settings_button_text,

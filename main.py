@@ -30,10 +30,10 @@ from source.core.validation import (
     no_data_from_yesterday,
 )
 from source.ui.habit_init import HabitsInitLayout, HabitsInitWindow, ReRenderHabitsInit
-from source.ui.utils import InitUi, normalize_hue
+from source.ui.utils import InitUi
 from source.ui.main_window import NeglectedPopUp, MainWindow, PopUp, DatePickerWindow
 from source.ui.data import DataWindow
-from source.ui.settings import StyleWindow, PreviewWindow, SettingsWindow
+from source.ui.settings import PreviewWindow, SettingsWindow
 from source.image_gen import generate_image
 
 
@@ -166,7 +166,6 @@ try:
                     header,
                     descriptions,
                     TEXTS_AND_KEYS.done_button_text,
-                    TEXTS_AND_KEYS.style_button_text,
                     TEXTS_AND_KEYS.data_button_text,
                     TEXTS_AND_KEYS.edit_button_text,
                     TEXTS_AND_KEYS.settings_button_text,
@@ -205,7 +204,6 @@ try:
         header,
         descriptions,
         TEXTS_AND_KEYS.done_button_text,
-        TEXTS_AND_KEYS.style_button_text,
         TEXTS_AND_KEYS.data_button_text,
         TEXTS_AND_KEYS.edit_button_text,
         TEXTS_AND_KEYS.settings_button_text,
@@ -215,44 +213,7 @@ try:
     )
     while True:
         event, values_dict = window.read()  # type: ignore
-        if event == TEXTS_AND_KEYS.style_button_text:
-            style_window = StyleWindow(
-                TEXTS_AND_KEYS.style_button_text,
-                TEXTS_AND_KEYS.slider_text_key,
-                TEXTS_AND_KEYS.preview_window_text,
-                TEXTS_AND_KEYS.set_button_text_key,
-                hue_offset,
-            )
-            while True:
-                style_event, style_values_dict = style_window.read()  # type: ignore
-                if style_event == TEXTS_AND_KEYS.slider_text_key:
-                    hue_offset = style_values_dict[TEXTS_AND_KEYS.slider_text_key]
-                elif style_event == TEXTS_AND_KEYS.preview_window_text:
-                    preview_window = PreviewWindow(
-                        TEXTS_AND_KEYS.preview_window_text,
-                        TEXTS_AND_KEYS.preview_close_key,
-                        hue_offset,
-                    )
-                    while True:
-                        preview_event, preview_values_dict = preview_window.read()  # type: ignore
-                        if (
-                            preview_event == TEXTS_AND_KEYS.preview_close_key
-                            or preview_event == WIN_CLOSED
-                        ):
-                            preview_window.close()
-                            break
-                elif (
-                    style_event == TEXTS_AND_KEYS.set_button_text_key
-                    or style_event == WIN_CLOSED
-                ):
-                    if style_event == TEXTS_AND_KEYS.set_button_text_key:
-                        settings.hue_offset = normalize_hue(
-                            settings.hue_offset, hue_offset
-                        )
-                        save_settings_file(settings, FILE_NAMES.settings)
-                    style_window.close()
-                    break
-        elif event == TEXTS_AND_KEYS.data_button_text:
+        if event == TEXTS_AND_KEYS.data_button_text:
             graph_data = read_csv(FILE_NAMES.csv)
             img = generate_image(
                 categories,
@@ -304,7 +265,6 @@ try:
                         header,
                         descriptions,
                         TEXTS_AND_KEYS.done_button_text,
-                        TEXTS_AND_KEYS.style_button_text,
                         TEXTS_AND_KEYS.data_button_text,
                         TEXTS_AND_KEYS.edit_button_text,
                         TEXTS_AND_KEYS.settings_button_text,
@@ -349,6 +309,23 @@ try:
                         save_settings_file(settings, FILE_NAMES.settings)
                     settings_window.close()
                     break
+                elif settings_event == TEXTS_AND_KEYS.slider_text_key:
+                    hue_offset = settings_dict[TEXTS_AND_KEYS.slider_text_key]
+                elif settings_event == TEXTS_AND_KEYS.preview_window_text:
+                    preview_window = PreviewWindow(
+                        TEXTS_AND_KEYS.preview_window_text,
+                        TEXTS_AND_KEYS.preview_close_key,
+                        settings.hue_offset,
+                        hue_offset,
+                    )
+                    while True:
+                        preview_event, preview_values_dict = preview_window.read()  # type: ignore
+                        if (
+                            preview_event == TEXTS_AND_KEYS.preview_close_key
+                            or preview_event == WIN_CLOSED
+                        ):
+                            preview_window.close()
+                            break
         elif event == TEXTS_AND_KEYS.done_button_text or event == WIN_CLOSED:
             if event == TEXTS_AND_KEYS.done_button_text:
                 data = save_data(data, values_dict, FILE_NAMES.csv)
@@ -382,13 +359,15 @@ finally:
         log_write(log, f"{finally_string}")
     log.close()
 
-# fix hueoffset starting at hue or rename it to offset.. I dont care
-# merge style button into settings and remove it
-# check if possible to redraw after changing hue
-# change text hover to white? or bright color idk
 # allow for tkinter themes
+# refactor colors (simplify for themes)
+# fix icons for titlebar in Qt
+# migrate to Qt
+# change text hover to white? or bright color idk
 # pop up after n days (settings) reminding to view data
 # identidade visual: patrolling owl
+# ship with scripts to run before shutdown
+# more consistent naming -> habit vs header
 
 # MAJOR
 #   Validation

@@ -16,9 +16,7 @@ class FILE_NAMES:
 
 class TEXTS_AND_KEYS:
     done_button_text = "Done"
-    style_button_text = "Style"
     slider_text_key = "Slider"
-    set_button_text_key = "Set"
     preview_window_text = "Preview"
     preview_close_key = "ClosePreview"
     data_button_text = "Data"
@@ -66,7 +64,7 @@ class MESSAGES:
     hue = "Slide to change hue"
     preview_text = "Preview"
     preview_tooltip = "Sample tooltip"
-    preview_checkbox = " " + "Sample Text"
+    preview_checkbox = " " + "This window will close in 3s."
     preview_close = "Close"
     neglected_title = "Yesterday"
     neglected = "It looks like you haven't input yesterday's data. Would you like to add it now?"
@@ -80,7 +78,7 @@ class MESSAGES:
     input_tooltip_combo = "Pick with what you want to achieve in mind, not when you want to see a message (failure)"
     input_tooltip_category = "Short word to represent a collection of habits"
     habits_title = "Habits File Generator"
-    settings_warning = "Changes will only take effect after restart"
+    settings_warning = "*** Changes will only take effect after restart ***"
     style_button_tooltip = "change app's hue"
     settings_button_tooltip = "edit settings"
     data_button_tooltip = "display past days' data"

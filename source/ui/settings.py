@@ -1,6 +1,13 @@
 import PySimpleGUI as sg
 
-from source.constants import COLORS, FONTS, MESSAGES, PATHS, SETTINGS_KEYS
+from source.constants import (
+    COLORS,
+    FONTS,
+    MESSAGES,
+    PATHS,
+    SETTINGS_KEYS,
+    TEXTS_AND_KEYS,
+)
 from source.utils import pad_string, settings_key_to_text
 from source.core.settings import Settings
 from source.ui.utils import apply_hue_offset
@@ -9,69 +16,12 @@ PATH = PATHS()
 PATH.__init__()
 
 
-def StyleWindow(
-    style_button_text: str,
-    slider_text_key: str,
-    preview_window_text: str,
-    set_button_text: str,
-    hue_offset: float,
+def PreviewWindow(
+    preview_window_text: str, preview_close_key: str, current_hue: float, new_hue: float
 ):
-    return sg.Window(
-        style_button_text,
-        [
-            [
-                sg.Text(
-                    pad_string(MESSAGES.hue, 0),
-                    background_color=COLORS["sld_bkg"],
-                    text_color=COLORS["sld_txt"],
-                )
-            ],
-            [
-                sg.Slider(
-                    range=(-0.5, 0.5),
-                    default_value=hue_offset,
-                    resolution=0.001,
-                    orientation="h",
-                    enable_events=True,
-                    key=slider_text_key,
-                    text_color=COLORS["sld_txt"],
-                    background_color=COLORS["sld_bkg"],
-                    trough_color=COLORS["sld_sld"],
-                    size=(50, 23),
-                )
-            ],
-            [
-                [
-                    sg.Button(
-                        preview_window_text,
-                        font=FONTS["btn"],
-                        size=7,
-                        pad=((5, 0), (15, 15)),
-                        key=preview_window_text,
-                        button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
-                    ),
-                    sg.Button(
-                        set_button_text,
-                        font=FONTS["btn"],
-                        size=7,
-                        pad=((322, 0), (15, 15)),
-                        key=set_button_text,
-                        button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
-                    ),
-                ]
-            ],
-        ],
-        return_keyboard_events=True,
-        use_custom_titlebar=True,
-        titlebar_background_color=COLORS["bar_bkg"],
-        titlebar_text_color=COLORS["bar_txt"],
-        titlebar_icon=PATH.style_icon,
-        background_color=COLORS["sld_bkg"],
-        relative_location=(-100, 0),
-    ).Finalize()
-
-
-def PreviewWindow(preview_window_text: str, preview_close_key: str, hue_offset: float):
+    print("current_hue", current_hue)
+    print("new_hue", new_hue)
+    hue_offset = new_hue - current_hue
     return sg.Window(
         preview_window_text,
         [
@@ -88,7 +38,7 @@ def PreviewWindow(preview_window_text: str, preview_close_key: str, hue_offset: 
                 sg.Checkbox(
                     text=pad_string(MESSAGES.preview_checkbox, 30),
                     default=False,
-                    size=15,
+                    size=30,
                     font=FONTS["ckb"],
                     checkbox_color=apply_hue_offset(COLORS["ckb_bkg"], hue_offset),
                     text_color=apply_hue_offset(COLORS["ckb_txt"], hue_offset),
@@ -117,7 +67,10 @@ def PreviewWindow(preview_window_text: str, preview_close_key: str, hue_offset: 
         titlebar_text_color=apply_hue_offset(COLORS["bar_txt"], hue_offset),
         titlebar_icon=PATHS.preview_icon,
         background_color=apply_hue_offset(COLORS["win_bkg"], hue_offset),
-        relative_location=(240, 0),
+        relative_location=(250, 20),
+        auto_close_duration=3,
+        auto_close=True,
+        force_toplevel=True,
     ).Finalize()
 
 
@@ -146,16 +99,25 @@ def SettingsWindowLayout(
                 background_color=COLORS["stg_bkg"],
                 font=FONTS["pop"],
             ),
-            sg.InputText(
-                key=SETTINGS_KEYS.hue_offset,
-                do_not_clear=True,
+            sg.Slider(
+                range=(-0.5, 0.5),
+                default_value=settings.hue_offset,
+                resolution=0.001,
+                orientation="h",
                 enable_events=True,
-                visible=True,
-                font=FONTS["ckb"],
-                tooltip=MESSAGES.settings_tooltip_hueoffset,
-                default_text=str(settings.hue_offset),
-                size=text_input_size,
-                justification="r",
+                key=TEXTS_AND_KEYS.slider_text_key,
+                text_color=COLORS["sld_txt"],
+                background_color=COLORS["sld_bkg"],
+                trough_color=COLORS["sld_sld"],
+                size=(50, 23),
+            ),
+            sg.Button(
+                TEXTS_AND_KEYS.preview_window_text,
+                font=FONTS["btn"],
+                size=7,
+                pad=((5, 0), (15, 15)),
+                key=TEXTS_AND_KEYS.preview_window_text,
+                button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
             ),
         ],
     ]
@@ -346,11 +308,12 @@ def SettingsWindowLayout(
     buttons = [
         [
             sg.Text(
-                text=pad_string("", 68),
-                text_color=COLORS["stg_bkg"],
+                text=MESSAGES.settings_warning,
+                text_color=COLORS["stg_txt"],
                 background_color=COLORS["stg_bkg"],
-                font=FONTS["ckb"],
+                font=FONTS["pop"],
             ),
+            sg.Push(background_color=COLORS["stg_bkg"]),
             sg.Button(
                 settings_cancel_button_text,
                 font=FONTS["btn"],
@@ -369,7 +332,7 @@ def SettingsWindowLayout(
                 settings_save_button_text,
                 font=FONTS["btn"],
                 size=7,
-                pad=((5, 0), (30, 15)),
+                pad=((5, 25), (30, 15)),
                 key=settings_save_button_text,
                 button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
             ),
@@ -397,6 +360,7 @@ def SettingsWindow(
         titlebar_text_color=COLORS["bar_txt"],
         titlebar_icon=PATH.settings_icon,
         background_color=COLORS["stg_bkg"],
-        size=(900, 360),
+        size=(900, 380),
         element_justification="l",
+        return_keyboard_events=True,
     )
