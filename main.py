@@ -2,7 +2,13 @@ from datetime import datetime, date, timedelta
 from traceback import format_exc
 from PySimpleGUI import WIN_CLOSED
 
-from source.constants import SETTINGS_KEYS, data_folder, FILE_NAMES, HABITS_INIT, TEXTS_AND_KEYS
+from source.constants import (
+    data_folder,
+    SETTINGS_KEYS,
+    FILE_NAMES,
+    HABITS_INIT,
+    TEXTS_AND_KEYS,
+)
 from source.utils import file_not_exists
 from source.core.data_in import get_data_dataframe, read_csv, get_data, read_settings
 from source.core.data_out import (
@@ -37,6 +43,7 @@ from source.ui.settings import PreviewWindow, SettingsWindow
 from source.image_gen import generate_image
 
 import PySimpleGUI as sg
+
 sg.change_look_and_feel("DarkRed")
 for x in sg.LOOK_AND_FEEL_TABLE["DarkRed"]["BACKGROUND"]:
     print(x)
@@ -52,20 +59,6 @@ try:
         habit_count = []
 
         variables_init_layout = HabitsInitLayout(
-            HABITS_INIT.cat_add,
-            HABITS_INIT.cat_remove,
-            HABITS_INIT.generate_text,
-            HABITS_INIT.categories_key,
-            HABITS_INIT.category_key,
-            HABITS_INIT.add_habit_text,
-            HABITS_INIT.del_habit_text,
-            HABITS_INIT.track_frequency_key,
-            HABITS_INIT.habit_key,
-            HABITS_INIT.question_key,
-            HABITS_INIT.message_key,
-            HABITS_INIT.condition_key,
-            HABITS_INIT.fraction_num_key,
-            HABITS_INIT.fraction_den_key,
             category_count,
             {},
             habit_count,
@@ -91,14 +84,7 @@ try:
                 generate_variables(
                     FILE_NAMES.var,
                     variables_init_values_dict,
-                    HABITS_INIT.category_key,
-                    HABITS_INIT.habit_key,
-                    HABITS_INIT.question_key,
                     habit_count,
-                    HABITS_INIT.message_key,
-                    HABITS_INIT.condition_key,
-                    HABITS_INIT.fraction_num_key,
-                    HABITS_INIT.fraction_den_key,
                 )
                 variables_init_window.close()
                 break
@@ -115,20 +101,6 @@ try:
             ):
                 variables_init_window = ReRenderHabitsInit(
                     variables_init_window,
-                    HABITS_INIT.cat_add,
-                    HABITS_INIT.cat_remove,
-                    HABITS_INIT.generate_text,
-                    HABITS_INIT.categories_key,
-                    HABITS_INIT.category_key,
-                    HABITS_INIT.add_habit_text,
-                    HABITS_INIT.del_habit_text,
-                    HABITS_INIT.track_frequency_key,
-                    HABITS_INIT.habit_key,
-                    HABITS_INIT.question_key,
-                    HABITS_INIT.message_key,
-                    HABITS_INIT.condition_key,
-                    HABITS_INIT.fraction_num_key,
-                    HABITS_INIT.fraction_den_key,
                     category_count,
                     variables_init_values_dict,
                     habit_count,
@@ -169,10 +141,6 @@ try:
                     categories,
                     header,
                     descriptions,
-                    TEXTS_AND_KEYS.done_button_text,
-                    TEXTS_AND_KEYS.data_button_text,
-                    TEXTS_AND_KEYS.edit_button_text,
-                    TEXTS_AND_KEYS.settings_button_text,
                     len(data) >= 1,
                     True,
                 )
@@ -207,10 +175,6 @@ try:
         categories,
         header,
         descriptions,
-        TEXTS_AND_KEYS.done_button_text,
-        TEXTS_AND_KEYS.data_button_text,
-        TEXTS_AND_KEYS.edit_button_text,
-        TEXTS_AND_KEYS.settings_button_text,
         len(data) > 0,
         False,
         todays_data,  # type: ignore
@@ -229,8 +193,6 @@ try:
                 graph_data,
             )
             data_window = DataWindow(
-                TEXTS_AND_KEYS.data_button_text,
-                TEXTS_AND_KEYS.export_button_text,
                 settings.scrollable_image,
                 image_bytes_to_base64(img),
             )
@@ -249,9 +211,7 @@ try:
                     data_window.close()
                     break
         elif event == TEXTS_AND_KEYS.edit_button_text:
-            date_picker_window = DatePickerWindow(
-                TEXTS_AND_KEYS.select_date_key, TEXTS_AND_KEYS.select_date_button_text
-            )
+            date_picker_window = DatePickerWindow()
             picked_date = get_today_date() + timedelta(days=-1)
             while True:
                 date_picker_event, date_picker_dict = date_picker_window.read()  # type: ignore
@@ -268,10 +228,6 @@ try:
                         categories,
                         header,
                         descriptions,
-                        TEXTS_AND_KEYS.done_button_text,
-                        TEXTS_AND_KEYS.data_button_text,
-                        TEXTS_AND_KEYS.edit_button_text,
-                        TEXTS_AND_KEYS.settings_button_text,
                         len(data) > 0,
                         True,
                         data_from_date,
@@ -297,10 +253,6 @@ try:
         elif event == TEXTS_AND_KEYS.settings_button_text:
             settings_window = SettingsWindow(
                 settings,
-                TEXTS_AND_KEYS.settings_button_text,
-                TEXTS_AND_KEYS.preview_window_text,
-                TEXTS_AND_KEYS.settings_save_button_text,
-                TEXTS_AND_KEYS.settings_cancel_button_text,
             )
             while True:
                 settings_event, settings_dict = settings_window.read()  # type: ignore

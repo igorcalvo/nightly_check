@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
 
-from source.constants import COLORS, FONTS, MESSAGES, PATHS
+from source.constants import COLORS, FONTS, MESSAGES, PATHS, HABITS_INIT
 from source.utils import (
     flatten_list_1,
     pad_string,
@@ -17,49 +17,41 @@ PATH.__init__()
 def HabitInitHabitLayout(
     row_in_habit_count: int,
     category_row: int,
-    category: str,
-    habits_init_habit_key: str,
-    habits_init_question_key: str,
-    habits_init_track_frequency_key: str,
-    habits_init_message_key: str,
-    habits_init_condition_key: str,
-    habits_init_fraction_num_key: str,
-    habits_init_fraction_den_key: str,
     values_dict: dict,
 ):
     layout = [
         sg.InputText(
-            key=habit_init_key(habits_init_habit_key, category_row, row_in_habit_count),
-            background_color=COLORS["pop_bkg"],
+            key=habit_init_key(HABITS_INIT.habit_key, category_row, row_in_habit_count),
+            background_color=COLORS["bar_txt"],
             size=20,
             pad=(10, 0),
             tooltip=MESSAGES.input_tooltip_habit,
             default_text=safe_value_from_dict(  # type: ignore
-                habit_init_key(habits_init_habit_key, category_row, row_in_habit_count),
+                habit_init_key(HABITS_INIT.habit_key, category_row, row_in_habit_count),
                 values_dict,
             ),
         ),
         sg.InputText(
             key=habit_init_key(
-                habits_init_question_key, category_row, row_in_habit_count
+                HABITS_INIT.question_key, category_row, row_in_habit_count
             ),
-            background_color=COLORS["pop_bkg"],
+            background_color=COLORS["bar_txt"],
             size=30,
             tooltip=MESSAGES.input_tooltip_question,
             default_text=safe_value_from_dict(  # type: ignore
                 habit_init_key(
-                    habits_init_question_key, category_row, row_in_habit_count
+                    HABITS_INIT.question_key, category_row, row_in_habit_count
                 ),
                 values_dict,
             ),
         ),
-        sg.VerticalSeparator(color=COLORS["hbi_sep"]),
+        sg.VerticalSeparator(color=COLORS["bar_bkg"]),
         sg.Checkbox(
             text=MESSAGES.input_tooltip_track,
             default=bool(
                 safe_value_from_dict(
                     habit_init_key(
-                        habits_init_track_frequency_key,
+                        HABITS_INIT.track_frequency_key,
                         category_row,
                         row_in_habit_count,
                     ),
@@ -67,12 +59,12 @@ def HabitInitHabitLayout(
                 )
             ),
             key=habit_init_key(
-                habits_init_track_frequency_key, category_row, row_in_habit_count
+                HABITS_INIT.track_frequency_key, category_row, row_in_habit_count
             ),
             size=16,
             font=FONTS["ckb"],
-            checkbox_color=COLORS["ckb_bkg"],
-            text_color=COLORS["ckb_txt"],
+            checkbox_color=COLORS["bar_bkg"],
+            text_color=COLORS["bar_txt"],
             background_color=COLORS["win_bkg"],
             pad=5,
             tooltip=MESSAGES.input_tooltip_checkbox,
@@ -80,17 +72,17 @@ def HabitInitHabitLayout(
         ),
         sg.InputText(
             key=habit_init_key(
-                habits_init_message_key, category_row, row_in_habit_count
+                HABITS_INIT.message_key, category_row, row_in_habit_count
             ),
-            background_color=COLORS["pop_bkg"],
+            background_color=COLORS["bar_txt"],
             size=60,
             pad=((0, 10), (0, 0)),
             tooltip=MESSAGES.input_tooltip_message,
-            default_text=safe_value_from_dict(habit_init_key(habits_init_message_key, category_row, row_in_habit_count), values_dict),  # type: ignore
+            default_text=safe_value_from_dict(habit_init_key(HABITS_INIT.message_key, category_row, row_in_habit_count), values_dict),  # type: ignore
             visible=bool(
                 safe_value_from_dict(
                     habit_init_key(
-                        habits_init_track_frequency_key,
+                        HABITS_INIT.track_frequency_key,
                         category_row,
                         row_in_habit_count,
                     ),
@@ -102,20 +94,20 @@ def HabitInitHabitLayout(
             values=[">=", ">", "=", "<", "<="],
             default_value=safe_value_from_dict(
                 habit_init_key(
-                    habits_init_condition_key, category_row, row_in_habit_count
+                    HABITS_INIT.condition_key, category_row, row_in_habit_count
                 ),
                 values_dict,
             ),
             key=habit_init_key(
-                habits_init_condition_key, category_row, row_in_habit_count
+                HABITS_INIT.condition_key, category_row, row_in_habit_count
             ),
             size=4,
             pad=5,
             auto_size_text=True,
-            background_color=COLORS["ckb_bkg"],
-            text_color=COLORS["ckb_txt"],
-            button_background_color=COLORS["dnb_bkg"],
-            button_arrow_color=COLORS["dnb_txt"],
+            background_color=COLORS["bar_bkg"],
+            text_color=COLORS["bar_txt"],
+            button_background_color=COLORS["bar_bkg"],
+            button_arrow_color=COLORS["bar_txt"],
             font=FONTS["ckb"],
             change_submits=True,
             enable_events=True,
@@ -123,7 +115,7 @@ def HabitInitHabitLayout(
             visible=bool(
                 safe_value_from_dict(
                     habit_init_key(
-                        habits_init_track_frequency_key,
+                        HABITS_INIT.track_frequency_key,
                         category_row,
                         row_in_habit_count,
                     ),
@@ -133,15 +125,15 @@ def HabitInitHabitLayout(
         ),
         sg.InputText(
             key=habit_init_key(
-                habits_init_fraction_num_key, category_row, row_in_habit_count
+                HABITS_INIT.fraction_num_key, category_row, row_in_habit_count
             ),
-            background_color=COLORS["pop_bkg"],
+            background_color=COLORS["bar_txt"],
             size=3,
-            default_text=safe_value_from_dict(habit_init_key(habits_init_fraction_num_key, category_row, row_in_habit_count), values_dict),  # type: ignore
+            default_text=safe_value_from_dict(habit_init_key(HABITS_INIT.fraction_num_key, category_row, row_in_habit_count), values_dict),  # type: ignore
             visible=bool(
                 safe_value_from_dict(
                     habit_init_key(
-                        habits_init_track_frequency_key,
+                        HABITS_INIT.track_frequency_key,
                         category_row,
                         row_in_habit_count,
                     ),
@@ -156,7 +148,7 @@ def HabitInitHabitLayout(
             visible=bool(
                 safe_value_from_dict(
                     habit_init_key(
-                        habits_init_track_frequency_key,
+                        HABITS_INIT.track_frequency_key,
                         category_row,
                         row_in_habit_count,
                     ),
@@ -166,15 +158,15 @@ def HabitInitHabitLayout(
         ),
         sg.InputText(
             key=habit_init_key(
-                habits_init_fraction_den_key, category_row, row_in_habit_count
+                HABITS_INIT.fraction_den_key, category_row, row_in_habit_count
             ),
-            background_color=COLORS["pop_bkg"],
+            background_color=COLORS["bar_txt"],
             size=3,
-            default_text=safe_value_from_dict(habit_init_key(habits_init_fraction_den_key, category_row, row_in_habit_count), values_dict),  # type: ignore
+            default_text=safe_value_from_dict(habit_init_key(HABITS_INIT.fraction_den_key, category_row, row_in_habit_count), values_dict),  # type: ignore
             visible=bool(
                 safe_value_from_dict(
                     habit_init_key(
-                        habits_init_track_frequency_key,
+                        HABITS_INIT.track_frequency_key,
                         category_row,
                         row_in_habit_count,
                     ),
@@ -189,7 +181,7 @@ def HabitInitHabitLayout(
             visible=bool(
                 safe_value_from_dict(
                     habit_init_key(
-                        habits_init_track_frequency_key,
+                        HABITS_INIT.track_frequency_key,
                         category_row,
                         row_in_habit_count,
                     ),
@@ -203,16 +195,6 @@ def HabitInitHabitLayout(
 
 def HabitInitCategoryLayout(
     category_count: int,
-    habits_init_category_key: str,
-    habits_init_add_habit_text: str,
-    habits_init_del_habit_text: str,
-    habits_init_track_frequency_key: str,
-    habits_init_habit_key: str,
-    habits_init_question_key: str,
-    habits_init_message_key: str,
-    habits_init_condition_key: str,
-    habits_init_fraction_num_key: str,
-    habits_init_fraction_den_key: str,
     values_dict: dict,
     habit_count: list,
 ):
@@ -222,16 +204,16 @@ def HabitInitCategoryLayout(
     layout = []
     for row in range(1, category_count + 1):
         category = [
-            [sg.HorizontalSeparator(color=COLORS["hbi_sep"])],
+            [sg.HorizontalSeparator(color=COLORS["bar_bkg"])],
             [
                 sg.InputText(
-                    key=habit_init_key(habits_init_category_key, row),
-                    background_color=COLORS["pop_bkg"],
+                    key=habit_init_key(HABITS_INIT.category_key, row),
+                    background_color=COLORS["bar_txt"],
                     size=20,
                     pad=10,
                     tooltip=MESSAGES.input_tooltip_category,
                     default_text=safe_value_from_dict(  # type: ignore
-                        habit_init_key(habits_init_category_key, row), values_dict
+                        habit_init_key(HABITS_INIT.category_key, row), values_dict
                     ),
                 ),
                 sg.Text(
@@ -240,19 +222,19 @@ def HabitInitCategoryLayout(
                     background_color=COLORS["win_bkg"],
                 ),
                 sg.Button(
-                    button_text=habits_init_add_habit_text,
-                    key=habit_init_key(habits_init_add_habit_text, row),
+                    button_text=HABITS_INIT.add_habit_text,
+                    key=habit_init_key(HABITS_INIT.add_habit_text, row),
                     font=FONTS["btn"],
                     size=button_size,
-                    button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
+                    button_color=(COLORS["bar_bkg"], COLORS["bar_txt"]),
                     pad=(button_padding, 0),
                 ),
                 sg.Button(
-                    button_text=habits_init_del_habit_text,
-                    key=habit_init_key(habits_init_del_habit_text, row),
+                    button_text=HABITS_INIT.del_habit_text,
+                    key=habit_init_key(HABITS_INIT.del_habit_text, row),
                     font=FONTS["btn"],
                     size=button_size,
-                    button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
+                    button_color=(COLORS["bar_bkg"], COLORS["bar_txt"]),
                     pad=((0, button_padding), (0, 0)),
                     disabled=safe_bool_from_array(row - 1, habit_count),
                 ),
@@ -262,14 +244,6 @@ def HabitInitCategoryLayout(
             habit_row = HabitInitHabitLayout(
                 habit,
                 row,
-                safe_value_from_dict(habit_init_key(habits_init_category_key, row), values_dict),  # type: ignore
-                habits_init_habit_key,
-                habits_init_question_key,
-                habits_init_track_frequency_key,
-                habits_init_message_key,
-                habits_init_condition_key,
-                habits_init_fraction_num_key,
-                habits_init_fraction_den_key,
                 values_dict,
             )
             category.append(habit_row)
@@ -278,20 +252,6 @@ def HabitInitCategoryLayout(
 
 
 def HabitsInitLayout(
-    habits_init_cat_add: str,
-    habits_init_cat_remove: str,
-    habits_init_generate_text: str,
-    habits_init_categories_key: str,
-    habits_init_category_key: str,
-    habits_init_add_habit_text: str,
-    habits_init_del_habit_text: str,
-    habits_init_track_frequency_key: str,
-    habits_init_habit_key: str,
-    habits_init_question_key: str,
-    habits_init_message_key: str,
-    habits_init_condition_key: str,
-    habits_init_fraction_num_key: str,
-    habits_init_fraction_den_key: str,
     category_count: int,
     values_dict: dict,
     habit_count: list,
@@ -301,16 +261,6 @@ def HabitsInitLayout(
     show_scroll_bar = category_count + sum(flatten_list_1(habit_count)) > 20
     category_layout = HabitInitCategoryLayout(
         category_count,
-        habits_init_category_key,
-        habits_init_add_habit_text,
-        habits_init_del_habit_text,
-        habits_init_track_frequency_key,
-        habits_init_habit_key,
-        habits_init_question_key,
-        habits_init_message_key,
-        habits_init_condition_key,
-        habits_init_fraction_num_key,
-        habits_init_fraction_den_key,
         values_dict,
         habit_count,
     )
@@ -324,29 +274,29 @@ def HabitsInitLayout(
                 visible=category_count > 0,
             )
         ],
-        [sg.HorizontalSeparator(color=COLORS["hbi_sep"])],
+        [sg.HorizontalSeparator(color=COLORS["bar_bkg"])],
         [
             sg.Push(background_color=COLORS["win_bkg"]),
             sg.Button(
-                habits_init_cat_add,
+                HABITS_INIT.cat_add,
                 font=FONTS["btn"],
                 size=button_font_size,
-                button_color=(COLORS["hbc_bkg"], COLORS["hbc_txt"]),
+                button_color=(COLORS["bar_bkg"], COLORS["cat_txt"]),
                 pad=button_padding,
             ),
             sg.Button(
-                habits_init_cat_remove,
+                HABITS_INIT.cat_remove,
                 font=FONTS["btn"],
                 size=button_font_size,
-                button_color=(COLORS["hbc_bkg"], COLORS["hbc_txt"]),
+                button_color=(COLORS["bar_bkg"], COLORS["cat_txt"]),
                 pad=((0, button_padding), (0, 0)),
                 disabled=category_count < 1,
             ),
             sg.Button(
-                habits_init_generate_text,
+                HABITS_INIT.generate_text,
                 font=FONTS["btn"],
                 size=button_font_size,
-                button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
+                button_color=(COLORS["bar_bkg"], COLORS["bar_txt"]),
                 pad=((0, button_padding), (0, 0)),
             ),
             sg.Push(background_color=COLORS["win_bkg"]),
@@ -374,39 +324,11 @@ def HabitsInitWindow(layout: list) -> sg.Window:
 
 def ReRenderHabitsInit(
     previous_windows: sg.Window,
-    habits_init_cat_add: str,
-    habits_init_cat_remove: str,
-    habits_init_generate_text: str,
-    habits_init_categories_key: str,
-    habits_init_category_key: str,
-    habits_init_add_habit_text: str,
-    habits_init_del_habit_text: str,
-    habits_init_track_frequency_key: str,
-    habits_init_habit_key: str,
-    habits_init_question_key: str,
-    habits_init_message_key: str,
-    habits_init_condition_key: str,
-    habits_init_fraction_num_key: str,
-    habits_init_fraction_den_key: str,
     category_count: int,
     values_dict: dict,
     habit_count: list,
 ) -> sg.Window:
     variables_init_layout = HabitsInitLayout(
-        habits_init_cat_add,
-        habits_init_cat_remove,
-        habits_init_generate_text,
-        habits_init_categories_key,
-        habits_init_category_key,
-        habits_init_add_habit_text,
-        habits_init_del_habit_text,
-        habits_init_track_frequency_key,
-        habits_init_habit_key,
-        habits_init_question_key,
-        habits_init_message_key,
-        habits_init_condition_key,
-        habits_init_fraction_num_key,
-        habits_init_fraction_den_key,
         category_count,
         values_dict,
         habit_count,

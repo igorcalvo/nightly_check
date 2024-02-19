@@ -10,8 +10,8 @@ class FILE_NAMES:
     csv = path.abspath(path.join(data_folder, "data.csv"))
     msg = path.abspath(path.join(data_folder, "msg.txt"))
     log = path.abspath(path.join(data_folder, "log.txt"))
-    var = path.abspath(path.join(DIR, "variables.csv"))
-    stg = path.abspath(path.join(DIR, "settings.json"))
+    var = path.abspath(path.join(data_folder, "variables.csv"))
+    stg = path.abspath(path.join(data_folder, "settings.json"))
 
 
 class TEXTS_AND_KEYS:
@@ -150,29 +150,6 @@ COLORS = {
     "win_bkg": win_bkg,
     "cat_txt": cat_txt,
     "sld_bkg": sld_bkg,
-
-    "cat_bkg": win_bkg,
-    "ckb_bkg": bar_bkg,
-    "ckb_txt": bar_txt,
-    "dnb_bkg": bar_bkg,
-    "dnb_txt": bar_txt,
-    "pop_bkg": bar_txt,
-    "pop_txt": bar_bkg,
-    "sld_txt": cat_txt,
-    "sld_sld": bar_txt,
-    "dat_txt": cat_txt,
-    "dat_bkg": sld_bkg,
-    "exp_txt": bar_txt,
-    "exp_bkg": bar_bkg,
-    "neg_txt": bar_txt,
-    "neg_bkg": bar_bkg,
-    "dtp_txt": bar_txt,
-    "dtp_bkg": bar_bkg,
-    "hbc_txt": bar_bkg,
-    "hbc_bkg": cat_txt,
-    "hbi_sep": bar_bkg,
-    "stg_bkg": win_bkg,
-    "stg_txt": bar_txt,
 }
 
 FONTS = {

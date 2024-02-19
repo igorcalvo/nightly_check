@@ -4,7 +4,7 @@ from source.utils import (
     join_white_spaced_header,
     flatten_list,
 )
-
+from source.constants import HABITS_INIT
 
 def habit_index_from_event(event: str):
     number = event.split("_")[-1]
@@ -42,34 +42,27 @@ def variables_row(
 def generate_variables(
     variables_file_name: str,
     variables_init_values_dict: dict,
-    habits_init_category_key: str,
-    habits_init_habit_key: str,
-    habits_init_question_key: str,
     habit_count: list,
-    habits_init_message_key: str,
-    habits_init_condition_key: str,
-    habits_init_fraction_num_key: str,
-    habits_init_fraction_den_key: str,
 ):
     categories = values_from_keyword(
-        habits_init_category_key, variables_init_values_dict
+        HABITS_INIT.category_key, variables_init_values_dict
     )
     repeated_categories = flatten_list(
         [[categories[idx] for i in range(item)] for idx, item in enumerate(habit_count)]
     )
-    habits = values_from_keyword(habits_init_habit_key, variables_init_values_dict)
+    habits = values_from_keyword(HABITS_INIT.habit_key, variables_init_values_dict)
     questions = values_from_keyword(
-        habits_init_question_key, variables_init_values_dict
+        HABITS_INIT.question_key, variables_init_values_dict
     )
-    messages = values_from_keyword(habits_init_message_key, variables_init_values_dict)
+    messages = values_from_keyword(HABITS_INIT.message_key, variables_init_values_dict)
     conditions = values_from_keyword(
-        habits_init_condition_key, variables_init_values_dict
+        HABITS_INIT.condition_key, variables_init_values_dict
     )
     numerators = values_from_keyword(
-        habits_init_fraction_num_key, variables_init_values_dict
+        HABITS_INIT.fraction_num_key, variables_init_values_dict
     )
     denominators = values_from_keyword(
-        habits_init_fraction_den_key, variables_init_values_dict
+        HABITS_INIT.fraction_den_key, variables_init_values_dict
     )
 
     header = "enabled,category,header,tooltip,message,condition,frequency"

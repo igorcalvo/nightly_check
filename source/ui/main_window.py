@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
 
-from source.constants import COLORS, FONTS, MESSAGES, PATHS
+from source.constants import COLORS, FONTS, MESSAGES, PATHS, TEXTS_AND_KEYS
 from source.utils import flatten_and_wrap, pad_string
 from source.core.data_in import get_matrix_data_by_header_indexes
 
@@ -12,10 +12,6 @@ def CreateMainLayout(
     categories: list,
     headers: list,
     descriptions: list,
-    done_button_text: str,
-    data_button_text: str,
-    edit_button_text: str,
-    settings_button_text: str,
     csv_not_empty: bool,
     is_sub_window: bool,
     default_values: list,
@@ -33,7 +29,7 @@ def CreateMainLayout(
                         sg.Text(
                             cat.upper(),
                             text_color=COLORS["cat_txt"],
-                            background_color=COLORS["cat_bkg"],
+                            background_color=COLORS["win_bkg"],
                             pad=category_padding,
                             font=FONTS["cat"],
                         )
@@ -53,8 +49,8 @@ def CreateMainLayout(
                                 ),
                                 key=item,
                                 font=FONTS["ckb"],
-                                checkbox_color=COLORS["ckb_bkg"],
-                                text_color=COLORS["ckb_txt"],
+                                checkbox_color=COLORS["bar_bkg"],
+                                text_color=COLORS["bar_txt"],
                                 background_color=COLORS["win_bkg"],
                                 pad=(
                                     checkbox_padlast
@@ -82,7 +78,7 @@ def CreateMainLayout(
                     ),
                 ]
             ),
-            background_color=COLORS["cat_bkg"],
+            background_color=COLORS["win_bkg"],
             justification="l",
         )
         for idx_cat, cat in enumerate(categories)
@@ -90,30 +86,30 @@ def CreateMainLayout(
 
     buttons_layout = [
         sg.Button(
-            settings_button_text,
+            TEXTS_AND_KEYS.settings_button_text,
             font=FONTS["btn"],
             size=7,
-            button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
+            button_color=(COLORS["bar_bkg"], COLORS["bar_txt"]),
             pad=(25, (5, 15)),
             tooltip=MESSAGES.settings_button_tooltip,
         ),
         sg.Push(background_color=COLORS["win_bkg"]),
         sg.Button(
-            data_button_text,
+            TEXTS_AND_KEYS.data_button_text,
             font=FONTS["btn"],
             size=7,
             disabled=not csv_not_empty,
-            button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
+            button_color=(COLORS["bar_bkg"], COLORS["bar_txt"]),
             pad=(0, (5, 15)),
             tooltip=MESSAGES.data_button_tooltip,
         ),
         sg.Push(background_color=COLORS["win_bkg"]),
         sg.Button(
-            edit_button_text,
+            TEXTS_AND_KEYS.edit_button_text,
             font=FONTS["btn"],
             size=7,
             disabled=not csv_not_empty,
-            button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
+            button_color=(COLORS["bar_bkg"], COLORS["bar_txt"]),
             pad=(0, (5, 15)),
             tooltip=MESSAGES.edit_button_tooltip,
         ),
@@ -122,10 +118,10 @@ def CreateMainLayout(
     done_button_layout = [
         sg.Push(background_color=COLORS["win_bkg"]),
         sg.Button(
-            done_button_text,
+            TEXTS_AND_KEYS.done_button_text,
             font=FONTS["btn"],
             size=7,
-            button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
+            button_color=(COLORS["bar_bkg"], COLORS["bar_txt"]),
             pad=(25, (5, 15)),
             tooltip=MESSAGES.done_button_tooltip,
         ),
@@ -144,10 +140,6 @@ def MainWindow(
     categories: list,
     header: list,
     descriptions: list,
-    done_button_text: str,
-    data_button_text: str,
-    edit_button_text: str,
-    settings_button_text: str,
     csv_not_empty: bool,
     is_sub_window: bool,
     default_values: list = [],
@@ -156,10 +148,6 @@ def MainWindow(
         categories,
         header,
         descriptions,
-        done_button_text,
-        data_button_text,
-        edit_button_text,
-        settings_button_text,
         csv_not_empty,
         is_sub_window,
         default_values,
@@ -182,8 +170,8 @@ def PopUp(message: str, message_duration: int):
         keep_on_top=True,
         auto_close=True,
         auto_close_duration=message_duration,
-        background_color=COLORS["pop_bkg"],
-        text_color=COLORS["pop_txt"],
+        background_color=COLORS["bar_txt"],
+        text_color=COLORS["bar_bkg"],
         no_titlebar=True,
         font=FONTS["pop"],
         line_width=len(message),
@@ -195,8 +183,8 @@ def NeglectedPopUp(accept_text: str, reject_text: str):
         [
             sg.Text(
                 MESSAGES.neglected,
-                text_color=COLORS["neg_txt"],
-                background_color=COLORS["neg_bkg"],
+                text_color=COLORS["bar_txt"],
+                background_color=COLORS["bar_bkg"],
                 pad=((15, 15), (10, 10)),
                 font=FONTS["pop"],
             )
@@ -208,12 +196,12 @@ def NeglectedPopUp(accept_text: str, reject_text: str):
                 size=7,
                 key=accept_text,
                 pad=((15, 0), (15, 15)),
-                button_color=(COLORS["dnb_txt"], COLORS["dnb_bkg"]),
+                button_color=(COLORS["bar_txt"], COLORS["bar_bkg"]),
             ),
             sg.Text(
                 pad_string("", 29),
-                text_color=COLORS["neg_txt"],
-                background_color=COLORS["neg_bkg"],
+                text_color=COLORS["bar_txt"],
+                background_color=COLORS["bar_bkg"],
                 font=FONTS["pop"],
             ),
             sg.Button(
@@ -222,7 +210,7 @@ def NeglectedPopUp(accept_text: str, reject_text: str):
                 size=7,
                 key=reject_text,
                 pad=((0, 15), (15, 15)),
-                button_color=(COLORS["dnb_txt"], COLORS["dnb_bkg"]),
+                button_color=(COLORS["bar_txt"], COLORS["bar_bkg"]),
             ),
         ],
     ]
@@ -234,43 +222,43 @@ def NeglectedPopUp(accept_text: str, reject_text: str):
         titlebar_background_color=COLORS["bar_bkg"],
         titlebar_text_color=COLORS["bar_txt"],
         titlebar_icon=PATH.yesterday_icon,
-        background_color=COLORS["neg_bkg"],
+        background_color=COLORS["bar_bkg"],
         relative_location=(0, 0),
         element_justification="c",
     ).Finalize()
 
 
-def DatePickerWindow(select_date_key: str, select_date_button_text: str):
+def DatePickerWindow():
     layout = [
         [
             sg.Text(
                 text=MESSAGES.date_text,
-                text_color=COLORS["dtp_txt"],
-                background_color=COLORS["dtp_bkg"],
+                text_color=COLORS["bar_txt"],
+                background_color=COLORS["bar_bkg"],
                 font=FONTS["pop"],
             )
         ],
         [
             sg.InputText(
-                key=select_date_key,
-                background_color=COLORS["dtp_bkg"],
+                key=TEXTS_AND_KEYS.select_date_key,
+                background_color=COLORS["bar_bkg"],
                 text_color="#ffffff",
                 size=20,
             ),
             sg.CalendarButton(
                 MESSAGES.date_calendar,
                 close_when_date_chosen=True,
-                target=select_date_key,
+                target=TEXTS_AND_KEYS.select_date_key,
                 format="%Y-%m-%d",
                 size=15,
-                button_color=(COLORS["dnb_txt"], COLORS["dnb_bkg"]),
+                button_color=(COLORS["bar_txt"], COLORS["bar_bkg"]),
             ),
             sg.Button(
-                select_date_button_text,
+                TEXTS_AND_KEYS.select_date_button_text,
                 font=FONTS["btn"],
                 size=7,
-                key=select_date_button_text,
-                button_color=(COLORS["dnb_txt"], COLORS["dnb_bkg"]),
+                key=TEXTS_AND_KEYS.select_date_button_text,
+                button_color=(COLORS["bar_txt"], COLORS["bar_bkg"]),
             ),
         ],
     ]
@@ -282,7 +270,7 @@ def DatePickerWindow(select_date_key: str, select_date_button_text: str):
         titlebar_background_color=COLORS["bar_bkg"],
         titlebar_text_color=COLORS["bar_txt"],
         titlebar_icon=PATH.yesterday_icon,
-        background_color=COLORS["dtp_bkg"],
+        background_color=COLORS["bar_bkg"],
         relative_location=(0, 0),
         element_justification="c",
     ).Finalize()
