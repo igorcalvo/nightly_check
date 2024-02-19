@@ -10,14 +10,13 @@ class FILE_NAMES:
     csv = path.abspath(path.join(data_folder, "data.csv"))
     msg = path.abspath(path.join(data_folder, "msg.txt"))
     log = path.abspath(path.join(data_folder, "log.txt"))
-    variables = path.abspath(path.join(DIR, "variables.csv"))
-    settings = path.abspath(path.join(DIR, "settings.json"))
+    var = path.abspath(path.join(DIR, "variables.csv"))
+    stg = path.abspath(path.join(DIR, "settings.json"))
 
 
 class TEXTS_AND_KEYS:
     done_button_text = "Done"
     slider_text_key = "Slider"
-    preview_window_text = "Preview"
     preview_close_key = "ClosePreview"
     data_button_text = "Data"
     export_button_text = "Export"
@@ -25,6 +24,7 @@ class TEXTS_AND_KEYS:
     neglected_reject_text = "No"
     edit_button_text = "Edit"
     settings_button_text = "Settings"
+    preview_window_text = "Preview"
     settings_save_button_text = "Save"
     settings_cancel_button_text = "Cancel"
     select_date_button_text = "Select"
@@ -50,6 +50,7 @@ class HABITS_INIT:
 
 class SETTINGS_KEYS:
     hue_offset = "hue_offset"
+    theme = "theme"
     data_days = "data_days"
     display_messages = "display_messages"
     graph_expected_value = "graph_expected_value"
@@ -57,6 +58,18 @@ class SETTINGS_KEYS:
     message_duration = "message_duration"
     random_messages = "random_messages"
     weekdays_language = "weekdays_language"
+
+
+class SETTINGS_DEFAULT_VALUES:
+    hue_offset = 0
+    theme = "Default"
+    data_days = 21
+    display_messages = True
+    graph_expected_value = False
+    scrollable_image = False
+    message_duration = 5
+    random_messages = True
+    weekdays_language = "jp" 
 
 
 class MESSAGES:
@@ -101,6 +114,7 @@ class MESSAGES:
         "Pick a message among candidates randomly instead of according to coded logic"
     )
     settings_tooltip_duration = "How many seconds the message is going to be displayed on the screen for before closing the app"
+    settings_tooltip_theme = "Select a theme"
 
 
 class PATHS:
@@ -134,8 +148,10 @@ COLORS = {
     "bar_bkg": bar_bkg,
     "bar_txt": bar_txt,
     "win_bkg": win_bkg,
-    "cat_bkg": win_bkg,
     "cat_txt": cat_txt,
+    "sld_bkg": sld_bkg,
+
+    "cat_bkg": win_bkg,
     "ckb_bkg": bar_bkg,
     "ckb_txt": bar_txt,
     "dnb_bkg": bar_bkg,
@@ -143,7 +159,6 @@ COLORS = {
     "pop_bkg": bar_txt,
     "pop_txt": bar_bkg,
     "sld_txt": cat_txt,
-    "sld_bkg": sld_bkg,
     "sld_sld": bar_txt,
     "dat_txt": cat_txt,
     "dat_bkg": sld_bkg,

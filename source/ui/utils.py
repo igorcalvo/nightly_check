@@ -1,4 +1,5 @@
 from tkinter import Tk as tk_tk, font as tk_font
+from PySimpleGUI import change_look_and_feel
 import matplotlib.colors as clr
 import cv2 as cv
 
@@ -56,6 +57,7 @@ def generate_icon(hue_offset: float):
     cv.imwrite(PATH.colored_icon, result)
 
 
-def InitUi(hueOffset: float):
+def InitUi(hueOffset: float, theme: str):
+    change_look_and_feel(theme) 
     generate_icon(hueOffset)
     update_COLORS(hueOffset)

@@ -2,7 +2,7 @@ from datetime import datetime, date, timedelta
 from traceback import format_exc
 from PySimpleGUI import WIN_CLOSED
 
-from source.constants import data_folder, FILE_NAMES, HABITS_INIT, TEXTS_AND_KEYS
+from source.constants import SETTINGS_KEYS, data_folder, FILE_NAMES, HABITS_INIT, TEXTS_AND_KEYS
 from source.utils import file_not_exists
 from source.core.data_in import get_data_dataframe, read_csv, get_data, read_settings
 from source.core.data_out import (
@@ -36,6 +36,10 @@ from source.ui.data import DataWindow
 from source.ui.settings import PreviewWindow, SettingsWindow
 from source.image_gen import generate_image
 
+import PySimpleGUI as sg
+sg.change_look_and_feel("DarkRed")
+for x in sg.LOOK_AND_FEEL_TABLE["DarkRed"]["BACKGROUND"]:
+    print(x)
 
 values_dict = {}
 create_folder_if_doesnt_exist(data_folder)
@@ -43,7 +47,7 @@ create_file_if_doesnt_exist(FILE_NAMES.log)
 log = open(FILE_NAMES.log, "r+")
 
 try:
-    if file_not_exists(FILE_NAMES.variables):
+    if file_not_exists(FILE_NAMES.var):
         category_count = 0
         habit_count = []
 
@@ -85,7 +89,7 @@ try:
                 )
             elif variables_init_event == HABITS_INIT.generate_text:
                 generate_variables(
-                    FILE_NAMES.variables,
+                    FILE_NAMES.var,
                     variables_init_values_dict,
                     HABITS_INIT.category_key,
                     HABITS_INIT.habit_key,
@@ -130,8 +134,8 @@ try:
                     habit_count,
                 )
 
-    verify_variables(FILE_NAMES.variables)
-    variables_file = read_csv(FILE_NAMES.variables)
+    verify_variables(FILE_NAMES.var)
+    variables_file = read_csv(FILE_NAMES.var)
 
     (
         conditions,
@@ -149,8 +153,8 @@ try:
     data = create_entry(data)
 
     # print_fonts()
-    settings = read_settings(FILE_NAMES.settings)
-    InitUi(settings.hue_offset)
+    settings = read_settings(FILE_NAMES.stg)
+    InitUi(settings.hue_offset, settings.theme)
     hue_offset = settings.hue_offset
 
     neglected = no_data_from_yesterday(data)
@@ -294,6 +298,7 @@ try:
             settings_window = SettingsWindow(
                 settings,
                 TEXTS_AND_KEYS.settings_button_text,
+                TEXTS_AND_KEYS.preview_window_text,
                 TEXTS_AND_KEYS.settings_save_button_text,
                 TEXTS_AND_KEYS.settings_cancel_button_text,
             )
@@ -306,11 +311,11 @@ try:
                 ]:
                     if settings_event == TEXTS_AND_KEYS.settings_save_button_text:
                         settings = Settings.from_dict(settings_dict)
-                        save_settings_file(settings, FILE_NAMES.settings)
+                        save_settings_file(settings, FILE_NAMES.stg)
                     settings_window.close()
                     break
-                elif settings_event == TEXTS_AND_KEYS.slider_text_key:
-                    hue_offset = settings_dict[TEXTS_AND_KEYS.slider_text_key]
+                elif settings_event == SETTINGS_KEYS.hue_offset:
+                    hue_offset = settings_dict[SETTINGS_KEYS.hue_offset]
                 elif settings_event == TEXTS_AND_KEYS.preview_window_text:
                     preview_window = PreviewWindow(
                         TEXTS_AND_KEYS.preview_window_text,
@@ -359,8 +364,11 @@ finally:
         log_write(log, f"{finally_string}")
     log.close()
 
+# https://github.com/PySimpleGUI/PySimpleGUI/issues/2412
+# https://github.com/PySimpleGUI/PySimpleGUI/blob/master/DemoPrograms/Demo_Look_And_Feel_Theme_Dump.py
 # allow for tkinter themes
 # refactor colors (simplify for themes)
+# move texts and keys to ui only
 # fix icons for titlebar in Qt
 # migrate to Qt
 # change text hover to white? or bright color idk

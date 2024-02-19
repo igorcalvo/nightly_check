@@ -5,6 +5,7 @@ from source.constants import (
     FONTS,
     MESSAGES,
     PATHS,
+    SETTINGS_DEFAULT_VALUES,
     SETTINGS_KEYS,
     TEXTS_AND_KEYS,
 )
@@ -19,8 +20,6 @@ PATH.__init__()
 def PreviewWindow(
     preview_window_text: str, preview_close_key: str, current_hue: float, new_hue: float
 ):
-    print("current_hue", current_hue)
-    print("new_hue", new_hue)
     hue_offset = new_hue - current_hue
     return sg.Window(
         preview_window_text,
@@ -75,11 +74,11 @@ def PreviewWindow(
 
 
 def SettingsWindowLayout(
-    settings: Settings, settings_save_button_text: str, settings_cancel_button_text: str
+    settings: Settings, preview_button_text: str, settings_save_button_text: str, settings_cancel_button_text: str
 ) -> list:
     checkbox_padding = 5
     sections_padding_y = 25
-    sections_padding_x = 5
+    sections_padding_x = 25
     text_input_size = 7
 
     appearance = [
@@ -98,6 +97,7 @@ def SettingsWindowLayout(
                 text_color=COLORS["stg_txt"],
                 background_color=COLORS["stg_bkg"],
                 font=FONTS["pop"],
+                pad=((sections_padding_x, 0), (0, 0)),
             ),
             sg.Slider(
                 range=(-0.5, 0.5),
@@ -105,17 +105,34 @@ def SettingsWindowLayout(
                 resolution=0.001,
                 orientation="h",
                 enable_events=True,
-                key=TEXTS_AND_KEYS.slider_text_key,
+                key=SETTINGS_KEYS.hue_offset,
                 text_color=COLORS["sld_txt"],
                 background_color=COLORS["sld_bkg"],
                 trough_color=COLORS["sld_sld"],
                 size=(50, 23),
             ),
+            sg.Combo(
+                values=sg.list_of_look_and_feel_values(),
+                default_value=settings.theme,
+                key=SETTINGS_KEYS.theme,
+                size=25,
+                pad=20,
+                auto_size_text=True,
+                background_color=COLORS["stg_bkg"],
+                text_color=COLORS["stg_txt"],
+                button_background_color=COLORS["win_bkg"],
+                button_arrow_color=COLORS["cat_txt"],
+                font=FONTS["pop"],
+                change_submits=True,
+                enable_events=True,
+                visible=True,
+                tooltip=MESSAGES.settings_tooltip_theme,
+            ),
             sg.Button(
-                TEXTS_AND_KEYS.preview_window_text,
+                preview_button_text,
                 font=FONTS["btn"],
                 size=7,
-                pad=((5, 0), (15, 15)),
+                pad=((5, sections_padding_x), (15, 15)),
                 key=TEXTS_AND_KEYS.preview_window_text,
                 button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
             ),
@@ -138,6 +155,7 @@ def SettingsWindowLayout(
                 text_color=COLORS["stg_txt"],
                 background_color=COLORS["stg_bkg"],
                 font=FONTS["pop"],
+                pad=((sections_padding_x, 0), (0, 0)),
             ),
             sg.InputText(
                 key=SETTINGS_KEYS.data_days,
@@ -177,7 +195,7 @@ def SettingsWindowLayout(
                 change_submits=True,
                 enable_events=True,
                 visible=True,
-                tooltip=MESSAGES.input_tooltip_combo,
+                tooltip=MESSAGES.settings_tooltip_day_of_week,
             ),
             sg.Text(
                 text=pad_string("", 2),
@@ -244,6 +262,7 @@ def SettingsWindowLayout(
                 text_color=COLORS["stg_txt"],
                 background_color=COLORS["stg_bkg"],
                 font=FONTS["pop"],
+                pad=((sections_padding_x, 0), (0, 0)),
             ),
             sg.Checkbox(
                 text="",
@@ -312,6 +331,7 @@ def SettingsWindowLayout(
                 text_color=COLORS["stg_txt"],
                 background_color=COLORS["stg_bkg"],
                 font=FONTS["pop"],
+                pad=((sections_padding_x , 0), (0, 0))
             ),
             sg.Push(background_color=COLORS["stg_bkg"]),
             sg.Button(
@@ -323,7 +343,7 @@ def SettingsWindowLayout(
                 button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
             ),
             sg.Text(
-                text=pad_string("", 5),
+                text=pad_string("", 1),
                 text_color=COLORS["stg_bkg"],
                 background_color=COLORS["stg_bkg"],
                 font=FONTS["ckb"],
@@ -332,7 +352,7 @@ def SettingsWindowLayout(
                 settings_save_button_text,
                 font=FONTS["btn"],
                 size=7,
-                pad=((5, 25), (30, 15)),
+                pad=((5, sections_padding_x), (30, 15)),
                 key=settings_save_button_text,
                 button_color=(COLORS["dnb_bkg"], COLORS["dnb_txt"]),
             ),
@@ -346,11 +366,12 @@ def SettingsWindowLayout(
 def SettingsWindow(
     settings: Settings,
     settings_button_text: str,
+    preview_button_text: str,
     settings_save_button_text: str,
     settings_cancel_button_text: str,
 ):
     layout = SettingsWindowLayout(
-        settings, settings_save_button_text, settings_cancel_button_text
+        settings, preview_button_text, settings_save_button_text, settings_cancel_button_text
     )
     return sg.Window(
         title=settings_button_text,
@@ -360,7 +381,7 @@ def SettingsWindow(
         titlebar_text_color=COLORS["bar_txt"],
         titlebar_icon=PATH.settings_icon,
         background_color=COLORS["stg_bkg"],
-        size=(900, 380),
+        size=(920, 380),
         element_justification="l",
         return_keyboard_events=True,
     )
