@@ -178,7 +178,7 @@ def PopUp(message: str, message_duration: int):
     )
 
 
-def NeglectedPopUp(accept_text: str, reject_text: str):
+def NeglectedPopUp():
     layout = [
         [
             sg.Text(
@@ -191,10 +191,10 @@ def NeglectedPopUp(accept_text: str, reject_text: str):
         ],
         [
             sg.Button(
-                accept_text,
+                TEXTS_AND_KEYS.neglected_accept_text,
                 font=FONTS["btn"],
                 size=7,
-                key=accept_text,
+                key=TEXTS_AND_KEYS.neglected_accept_text,
                 pad=((15, 0), (15, 15)),
                 button_color=(COLORS["bar_txt"], COLORS["bar_bkg"]),
             ),
@@ -205,10 +205,10 @@ def NeglectedPopUp(accept_text: str, reject_text: str):
                 font=FONTS["pop"],
             ),
             sg.Button(
-                reject_text,
+                TEXTS_AND_KEYS.neglected_reject_text,
                 font=FONTS["btn"],
                 size=7,
-                key=reject_text,
+                key=TEXTS_AND_KEYS.neglected_reject_text,
                 pad=((0, 15), (15, 15)),
                 button_color=(COLORS["bar_txt"], COLORS["bar_bkg"]),
             ),

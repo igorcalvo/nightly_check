@@ -17,11 +17,11 @@ PATH.__init__()
 
 
 def PreviewWindow(
-    preview_window_text: str, preview_close_key: str, current_hue: float, new_hue: float
+    current_hue: float, new_hue: float
 ):
     hue_offset = new_hue - current_hue
     return sg.Window(
-        preview_window_text,
+        TEXTS_AND_KEYS.preview_window_text,
         [
             [
                 sg.Text(
@@ -50,7 +50,7 @@ def PreviewWindow(
                     MESSAGES.preview_close,
                     font=FONTS["btn"],
                     size=7,
-                    key=preview_close_key,
+                    key=TEXTS_AND_KEYS.preview_close_key,
                     pad=((65, 0), (15, 15)),
                     button_color=(
                         apply_hue_offset(COLORS["bar_bkg"], hue_offset),

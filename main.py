@@ -58,11 +58,7 @@ try:
         category_count = 0
         habit_count = []
 
-        variables_init_layout = HabitsInitLayout(
-            category_count,
-            {},
-            habit_count,
-        )
+        variables_init_layout = HabitsInitLayout(category_count, {}, habit_count)
         variables_init_window = HabitsInitWindow(variables_init_layout)
         while True:
             variables_init_event, variables_init_values_dict = variables_init_window.read()  # type: ignore
@@ -82,9 +78,7 @@ try:
                 )
             elif variables_init_event == HABITS_INIT.generate_text:
                 generate_variables(
-                    FILE_NAMES.var,
-                    variables_init_values_dict,
-                    habit_count,
+                    FILE_NAMES.var, variables_init_values_dict, habit_count
                 )
                 variables_init_window.close()
                 break
@@ -131,9 +125,7 @@ try:
 
     neglected = no_data_from_yesterday(data)
     if neglected:
-        neglected_window = NeglectedPopUp(
-            TEXTS_AND_KEYS.neglected_accept_text, TEXTS_AND_KEYS.neglected_reject_text
-        )
+        neglected_window = NeglectedPopUp()
         while True:
             neglected_event, neglected_values_dic = neglected_window.read()  # type: ignore
             if neglected_event == TEXTS_AND_KEYS.neglected_accept_text:
@@ -193,8 +185,7 @@ try:
                 graph_data,
             )
             data_window = DataWindow(
-                settings.scrollable_image,
-                image_bytes_to_base64(img),
+                settings.scrollable_image, image_bytes_to_base64(img)
             )
             while True:
                 data_event, data_values_dict = data_window.read()  # type: ignore
@@ -251,9 +242,7 @@ try:
                     date_picker_window.close()
                     break
         elif event == TEXTS_AND_KEYS.settings_button_text:
-            settings_window = SettingsWindow(
-                settings,
-            )
+            settings_window = SettingsWindow(settings)
             while True:
                 settings_event, settings_dict = settings_window.read()  # type: ignore
                 if settings_event in [
@@ -269,12 +258,7 @@ try:
                 elif settings_event == SETTINGS_KEYS.hue_offset:
                     hue_offset = settings_dict[SETTINGS_KEYS.hue_offset]
                 elif settings_event == TEXTS_AND_KEYS.preview_window_text:
-                    preview_window = PreviewWindow(
-                        TEXTS_AND_KEYS.preview_window_text,
-                        TEXTS_AND_KEYS.preview_close_key,
-                        settings.hue_offset,
-                        hue_offset,
-                    )
+                    preview_window = PreviewWindow(settings.hue_offset, hue_offset)
                     while True:
                         preview_event, preview_values_dict = preview_window.read()  # type: ignore
                         if (
@@ -319,8 +303,6 @@ finally:
 # https://github.com/PySimpleGUI/PySimpleGUI/issues/2412
 # https://github.com/PySimpleGUI/PySimpleGUI/blob/master/DemoPrograms/Demo_Look_And_Feel_Theme_Dump.py
 # allow for tkinter themes
-# refactor colors (simplify for themes)
-# move texts and keys to ui only
 # fix icons for titlebar in Qt
 # migrate to Qt
 # change text hover to white? or bright color idk
