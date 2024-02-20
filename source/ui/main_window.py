@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
 
 from source.constants import COLORS, FONTS, MESSAGES, PATHS, TEXTS_AND_KEYS
-from source.utils import flatten_and_wrap, pad_string
+from source.utils import flatten_and_wrap, pad_string, date_ymd_to_mdy
 from source.core.data_in import get_matrix_data_by_header_indexes
 
 PATH = PATHS()
@@ -228,7 +228,7 @@ def NeglectedPopUp():
     ).Finalize()
 
 
-def DatePickerWindow():
+def DatePickerWindow(yesterdays_date: str):
     layout = [
         [
             sg.Text(
@@ -242,6 +242,7 @@ def DatePickerWindow():
             sg.InputText(
                 key=TEXTS_AND_KEYS.select_date_key,
                 background_color=COLORS["bar_bkg"],
+                default_text=yesterdays_date,
                 text_color="#ffffff",
                 size=20,
             ),
@@ -252,6 +253,7 @@ def DatePickerWindow():
                 format="%Y-%m-%d",
                 size=15,
                 button_color=(COLORS["bar_txt"], COLORS["bar_bkg"]),
+                default_date_m_d_y=date_ymd_to_mdy(yesterdays_date),
             ),
             sg.Button(
                 TEXTS_AND_KEYS.select_date_button_text,

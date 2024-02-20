@@ -156,3 +156,8 @@ def os_is_windows() -> bool:
 
 def file_not_exists(file_name) -> bool:
     return not exists(file_name) or getsize(file_name) == 0
+
+
+def date_ymd_to_mdy(date_str: str) -> tuple[int, int, int]:
+    date_list = date_str.split("-")
+    return (int(date_list[1]), int(date_list[2]), int(date_list[0]))

@@ -206,8 +206,8 @@ try:
                     data_window.close()
                     break
         elif event == TEXTS_AND_KEYS.edit_button_text:
-            date_picker_window = DatePickerWindow()
-            picked_date = get_today_date() + timedelta(days=-1)
+            picked_date = str(get_yesterday_date())
+            date_picker_window = DatePickerWindow(picked_date)
             while True:
                 date_picker_event, date_picker_dict = date_picker_window.read()  # type: ignore
                 if (
