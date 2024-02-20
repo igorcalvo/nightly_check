@@ -42,11 +42,15 @@ from source.ui.data import DataWindow
 from source.ui.settings import PreviewWindow, SettingsWindow
 from source.image_gen import generate_image
 
-import PySimpleGUI as sg
-
-sg.change_look_and_feel("DarkRed")
-for x in sg.LOOK_AND_FEEL_TABLE["DarkRed"]["BACKGROUND"]:
-    print(x)
+# from source.ui.utils import get_theme, get_all_keys_for_themes
+# from source.core.theme import THEME
+#
+# all_keys = get_all_keys_for_themes()
+# print(all_keys)
+# colors = get_theme("Topanga")
+# print(colors)
+# theme = THEME("Topanga").ACCENT1
+# print(theme)
 
 values_dict = {}
 create_folder_if_doesnt_exist(data_folder)
@@ -300,11 +304,13 @@ finally:
         log_write(log, f"{finally_string}")
     log.close()
 
+# PRIMEGEN JQ on themes, progress and depth
 # https://github.com/PySimpleGUI/PySimpleGUI/issues/2412
 # https://github.com/PySimpleGUI/PySimpleGUI/blob/master/DemoPrograms/Demo_Look_And_Feel_Theme_Dump.py
 # allow for tkinter themes
 # fix icons for titlebar in Qt
 # migrate to Qt
+# bash scripts current path
 # change text hover to white? or bright color idk
 # pop up after n days (settings) reminding to view data
 # identidade visual: patrolling owl

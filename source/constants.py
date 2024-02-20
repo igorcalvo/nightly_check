@@ -69,7 +69,7 @@ class SETTINGS_DEFAULT_VALUES:
     scrollable_image = False
     message_duration = 5
     random_messages = True
-    weekdays_language = "jp" 
+    weekdays_language = "jp"
 
 
 class MESSAGES:
@@ -128,6 +128,24 @@ class PATHS:
     settings_icon = f"{DIR}/assets/icons/cogwheel16.png"
 
 
+class THEME_PROPS:
+    ACCENT1 = "ACCENT1"
+    ACCENT2 = "ACCENT2"
+    ACCENT3 = "ACCENT3"
+    BACKGROUND = "BACKGROUND"
+    BORDER = "BORDER"
+    BUTTON = "BUTTON"
+    COLOR_LIST = "COLOR_LIST"
+    DESCRIPTION = "DESCRIPTION"
+    INPUT = "INPUT"
+    PROGRESS = "PROGRESS"
+    PROGRESS_DEPTH = "PROGRESS_DEPTH"
+    SCROLL = "SCROLL"
+    SLIDER_DEPTH = "SLIDER_DEPTH"
+    TEXT = "TEXT"
+    TEXT_INPUT = "TEXT_INPUT"
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 wakeup_time = 14
 date_header = "date"
@@ -137,20 +155,22 @@ already_filled_in_today_message = (
 # ----------------------------------------------------------------------------------------------------------------------
 # | hue_offset | < 1
 
-# basis
-bar_bkg = "#00274f"
-bar_txt = "#b1d8ff"
-win_bkg = "#002f5f"
-cat_txt = "#dbedff"
-sld_bkg = "#004080"
-
 COLORS = {
-    "bar_bkg": bar_bkg,
-    "bar_txt": bar_txt,
-    "win_bkg": win_bkg,
-    "cat_txt": cat_txt,
-    "sld_bkg": sld_bkg,
+    "bar_bkg": "#00274f",
+    "bar_txt": "#b1d8ff",
+    "win_bkg": "#002f5f",
+    "cat_txt": "#dbedff",
+    "sld_bkg": "#004080",
 }
+
+
+class COLORS2:
+    bar_bkg = "#00274f"
+    bar_txt = "#b1d8ff"
+    win_bkg = "#002f5f"
+    cat_txt = "#dbedff"
+    sld_bkg = "#004080"
+
 
 FONTS = {
     "cat": ("Cascadia Mono" if os_is_windows() else "Liberation Mono", 13, "bold"),

@@ -1,9 +1,10 @@
 from tkinter import Tk as tk_tk, font as tk_font
-from PySimpleGUI import change_look_and_feel
+from PySimpleGUI import change_look_and_feel, LOOK_AND_FEEL_TABLE
 import matplotlib.colors as clr
 import cv2 as cv
 
 from source.constants import COLORS, PATHS
+from source.core.theme import THEME
 
 PATH = PATHS()
 PATH.__init__()
@@ -58,6 +59,21 @@ def generate_icon(hue_offset: float):
 
 
 def InitUi(hueOffset: float, theme: str):
-    change_look_and_feel(theme) 
+    # change_look_and_feel(theme)
     generate_icon(hueOffset)
     update_COLORS(hueOffset)
+
+
+def get_all_keys_for_themes():
+    # ['ACCENT1', 'ACCENT2', 'ACCENT3', 'BACKGROUND', 'BORDER', 'BUTTON', 'COLOR_LIST', 'DESCRIPTION', 'INPUT', 'PROGRESS', 'PROGRESS_DEPTH', 'SCROLL', 'SLIDER_DEPTH', 'TEXT', 'TEXT_INPUT']
+    result = []
+    for theme in LOOK_AND_FEEL_TABLE.keys():
+        for key in LOOK_AND_FEEL_TABLE[theme].keys():
+            if key not in result:
+                result.append(key)
+    result.sort()
+    return result
+
+
+# def get_theme(theme: str) -> THEME:
+#     return THEME[theme] if theme in LOOK_AND_FEEL_TABLE.keys() else COLORS
