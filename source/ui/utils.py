@@ -1,10 +1,10 @@
 from tkinter import Tk as tk_tk, font as tk_font
-from PySimpleGUI import change_look_and_feel, LOOK_AND_FEEL_TABLE
+from PySimpleGUI import LOOK_AND_FEEL_TABLE
 import matplotlib.colors as clr
 import cv2 as cv
 
 from source.constants import COLORS, PATHS
-from source.core.theme import THEME
+from source.core.theme import DEFAULT_COLORS, THEME, THEME_PROPS, get_default_theme
 
 PATH = PATHS()
 PATH.__init__()
@@ -58,10 +58,26 @@ def generate_icon(hue_offset: float):
     cv.imwrite(PATH.colored_icon, result)
 
 
-def InitUi(hueOffset: float, theme: str):
+def populate_colors_dict(theme: THEME, hue_offset) -> dict:
+    result = {}
+    result[THEME_PROPS.BACKGROUND] = apply_hue_offset(theme.BACKGROUND, hue_offset)  # type: ignore
+    result[THEME_PROPS.BORDER] = theme.BORDER
+    result[THEME_PROPS.BUTTON] = tuple(apply_hue_offset(c, hue_offset) for c in theme.BUTTON)  # type: ignore
+    result[THEME_PROPS.INPUT] = apply_hue_offset(theme.INPUT, hue_offset)  # type: ignore
+    result[THEME_PROPS.SCROLL] = apply_hue_offset(theme.SCROLL, hue_offset)  # type: ignore
+    result[THEME_PROPS.TEXT] = apply_hue_offset(theme.TEXT, hue_offset)  # type: ignore
+    result[THEME_PROPS.TEXT_INPUT] = apply_hue_offset(theme.TEXT_INPUT, hue_offset)  # type: ignore
+    return result
+
+
+def InitUi(hue_offset: float, theme: str):
+    generate_icon(hue_offset)
+    ui_theme = get_theme(theme)
+    theme_dict = populate_colors_dict(ui_theme, hue_offset)
+    # for k in theme_dict.keys():
+    #     COLORS[k] = theme_dict[k]
     # change_look_and_feel(theme)
-    generate_icon(hueOffset)
-    update_COLORS(hueOffset)
+    update_COLORS(hue_offset)
 
 
 def get_all_keys_for_themes():
@@ -75,5 +91,23 @@ def get_all_keys_for_themes():
     return result
 
 
-# def get_theme(theme: str) -> THEME:
-#     return THEME[theme] if theme in LOOK_AND_FEEL_TABLE.keys() else COLORS
+def get_theme(theme: str) -> THEME:
+    return THEME(theme) if theme in LOOK_AND_FEEL_TABLE.keys() else get_default_theme()
+
+
+def get_cat_txt_color(bar_txt: str):
+    c1 = bar_txt
+    c2 = DEFAULT_COLORS.cat_txt
+
+    hsv1 = clr.rgb_to_hsv(clr.to_rgb(c1))
+    hsv2 = clr.rgb_to_hsv(clr.to_rgb(c2))
+
+    deltas = hsv2 - hsv1
+    hsv3 = hsv1 + deltas
+
+    for idx, v in enumerate(hsv3):
+        if v > 1:
+            hsv3[idx] = 1
+
+    color = clr.to_hex(hsv3)
+    return color

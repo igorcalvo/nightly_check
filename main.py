@@ -1,4 +1,4 @@
-from datetime import datetime, date, timedelta
+from datetime import datetime, date
 from traceback import format_exc
 from PySimpleGUI import WIN_CLOSED
 
@@ -9,6 +9,7 @@ from source.constants import (
     HABITS_INIT,
     TEXTS_AND_KEYS,
 )
+from source.core.theme import get_default_theme
 from source.utils import file_not_exists
 from source.core.data_in import get_data_dataframe, read_csv, get_data, read_settings
 from source.core.data_out import (
@@ -22,7 +23,6 @@ from source.core.data_out import (
 from source.core.data_date import (
     create_entry,
     todays_data_or_none,
-    get_today_date,
     data_from_date_to_list,
     get_yesterday_date,
 )
@@ -41,16 +41,6 @@ from source.ui.main_window import NeglectedPopUp, MainWindow, PopUp, DatePickerW
 from source.ui.data import DataWindow
 from source.ui.settings import PreviewWindow, SettingsWindow
 from source.image_gen import generate_image
-
-# from source.ui.utils import get_theme, get_all_keys_for_themes
-# from source.core.theme import THEME
-#
-# all_keys = get_all_keys_for_themes()
-# print(all_keys)
-# colors = get_theme("Topanga")
-# print(colors)
-# theme = THEME("Topanga").ACCENT1
-# print(theme)
 
 values_dict = {}
 create_folder_if_doesnt_exist(data_folder)
