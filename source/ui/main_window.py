@@ -3,6 +3,7 @@ import PySimpleGUI as sg
 from source.constants import COLORS, FONTS, MESSAGES, PATHS, TEXTS_AND_KEYS
 from source.utils import flatten_and_wrap, pad_string, date_ymd_to_mdy
 from source.core.data_in import get_matrix_data_by_header_indexes
+from source.core.theme import THEME_PROPS
 
 PATH = PATHS()
 PATH.__init__()
@@ -28,8 +29,8 @@ def CreateMainLayout(
                     [
                         sg.Text(
                             cat.upper(),
-                            text_color=COLORS["cat_txt"],
-                            background_color=COLORS["win_bkg"],
+                            text_color=COLORS[THEME_PROPS.CATEGORY],
+                            background_color=COLORS[THEME_PROPS.BACKGROUND],
                             pad=category_padding,
                             font=FONTS["cat"],
                         )
@@ -49,9 +50,9 @@ def CreateMainLayout(
                                 ),
                                 key=item,
                                 font=FONTS["ckb"],
-                                checkbox_color=COLORS["bar_bkg"],
-                                text_color=COLORS["bar_txt"],
-                                background_color=COLORS["win_bkg"],
+                                checkbox_color=COLORS[THEME_PROPS.BUTTON][0],
+                                text_color=COLORS[THEME_PROPS.BUTTON][1],
+                                background_color=COLORS[THEME_PROPS.BACKGROUND],
                                 pad=(
                                     checkbox_padlast
                                     if idx_cat == int(len(categories) - 1)
@@ -69,8 +70,8 @@ def CreateMainLayout(
                             sg.Text(
                                 text=" ",
                                 font=FONTS["ckb"],
-                                text_color=COLORS["win_bkg"],
-                                background_color=COLORS["win_bkg"],
+                                text_color=COLORS[THEME_PROPS.BACKGROUND],
+                                background_color=COLORS[THEME_PROPS.BACKGROUND],
                                 pad=checkbox_padding,
                             )
                         ]
@@ -78,7 +79,7 @@ def CreateMainLayout(
                     ),
                 ]
             ),
-            background_color=COLORS["win_bkg"],
+            background_color=COLORS[THEME_PROPS.BACKGROUND],
             justification="l",
         )
         for idx_cat, cat in enumerate(categories)
@@ -89,39 +90,39 @@ def CreateMainLayout(
             TEXTS_AND_KEYS.settings_button_text,
             font=FONTS["btn"],
             size=7,
-            button_color=(COLORS["bar_bkg"], COLORS["bar_txt"]),
+            button_color=(COLORS[THEME_PROPS.BUTTON][0], COLORS[THEME_PROPS.BUTTON][1]),
             pad=(25, (5, 15)),
             tooltip=MESSAGES.settings_button_tooltip,
         ),
-        sg.Push(background_color=COLORS["win_bkg"]),
+        sg.Push(background_color=COLORS[THEME_PROPS.BACKGROUND]),
         sg.Button(
             TEXTS_AND_KEYS.data_button_text,
             font=FONTS["btn"],
             size=7,
             disabled=not csv_not_empty,
-            button_color=(COLORS["bar_bkg"], COLORS["bar_txt"]),
+            button_color=(COLORS[THEME_PROPS.BUTTON][0], COLORS[THEME_PROPS.BUTTON][1]),
             pad=(0, (5, 15)),
             tooltip=MESSAGES.data_button_tooltip,
         ),
-        sg.Push(background_color=COLORS["win_bkg"]),
+        sg.Push(background_color=COLORS[THEME_PROPS.BACKGROUND]),
         sg.Button(
             TEXTS_AND_KEYS.edit_button_text,
             font=FONTS["btn"],
             size=7,
             disabled=not csv_not_empty,
-            button_color=(COLORS["bar_bkg"], COLORS["bar_txt"]),
+            button_color=(COLORS[THEME_PROPS.BUTTON][0], COLORS[THEME_PROPS.BUTTON][1]),
             pad=(0, (5, 15)),
             tooltip=MESSAGES.edit_button_tooltip,
         ),
     ]
 
     done_button_layout = [
-        sg.Push(background_color=COLORS["win_bkg"]),
+        sg.Push(background_color=COLORS[THEME_PROPS.BACKGROUND]),
         sg.Button(
             TEXTS_AND_KEYS.done_button_text,
             font=FONTS["btn"],
             size=7,
-            button_color=(COLORS["bar_bkg"], COLORS["bar_txt"]),
+            button_color=(COLORS[THEME_PROPS.BUTTON][0], COLORS[THEME_PROPS.BUTTON][1]),
             pad=(25, (5, 15)),
             tooltip=MESSAGES.done_button_tooltip,
         ),
@@ -156,10 +157,10 @@ def MainWindow(
         title=MESSAGES.app_title,
         layout=layout,
         use_custom_titlebar=True,
-        titlebar_background_color=COLORS["bar_bkg"],
-        titlebar_text_color=COLORS["bar_txt"],
+        titlebar_background_color=COLORS[THEME_PROPS.BUTTON][0],
+        titlebar_text_color=COLORS[THEME_PROPS.BUTTON][1],
         titlebar_icon=PATH.colored_icon,
-        background_color=COLORS["win_bkg"],
+        background_color=COLORS[THEME_PROPS.BACKGROUND],
         element_justification="l",
     )
 
@@ -170,8 +171,8 @@ def PopUp(message: str, message_duration: int):
         keep_on_top=True,
         auto_close=True,
         auto_close_duration=message_duration,
-        background_color=COLORS["bar_txt"],
-        text_color=COLORS["bar_bkg"],
+        background_color=COLORS[THEME_PROPS.BUTTON][1],
+        text_color=COLORS[THEME_PROPS.BUTTON][0],
         no_titlebar=True,
         font=FONTS["pop"],
         line_width=len(message),
@@ -183,8 +184,8 @@ def NeglectedPopUp():
         [
             sg.Text(
                 MESSAGES.neglected,
-                text_color=COLORS["bar_txt"],
-                background_color=COLORS["bar_bkg"],
+                text_color=COLORS[THEME_PROPS.BUTTON][1],
+                background_color=COLORS[THEME_PROPS.BUTTON][0],
                 pad=((15, 15), (10, 10)),
                 font=FONTS["pop"],
             )
@@ -196,12 +197,15 @@ def NeglectedPopUp():
                 size=7,
                 key=TEXTS_AND_KEYS.neglected_accept_text,
                 pad=((15, 0), (15, 15)),
-                button_color=(COLORS["bar_txt"], COLORS["bar_bkg"]),
+                button_color=(
+                    COLORS[THEME_PROPS.BUTTON][1],
+                    COLORS[THEME_PROPS.BUTTON][0],
+                ),
             ),
             sg.Text(
                 pad_string("", 29),
-                text_color=COLORS["bar_txt"],
-                background_color=COLORS["bar_bkg"],
+                text_color=COLORS[THEME_PROPS.BUTTON][1],
+                background_color=COLORS[THEME_PROPS.BUTTON][0],
                 font=FONTS["pop"],
             ),
             sg.Button(
@@ -210,7 +214,10 @@ def NeglectedPopUp():
                 size=7,
                 key=TEXTS_AND_KEYS.neglected_reject_text,
                 pad=((0, 15), (15, 15)),
-                button_color=(COLORS["bar_txt"], COLORS["bar_bkg"]),
+                button_color=(
+                    COLORS[THEME_PROPS.BUTTON][1],
+                    COLORS[THEME_PROPS.BUTTON][0],
+                ),
             ),
         ],
     ]
@@ -219,10 +226,10 @@ def NeglectedPopUp():
         layout,
         return_keyboard_events=True,
         use_custom_titlebar=True,
-        titlebar_background_color=COLORS["bar_bkg"],
-        titlebar_text_color=COLORS["bar_txt"],
+        titlebar_background_color=COLORS[THEME_PROPS.BUTTON][0],
+        titlebar_text_color=COLORS[THEME_PROPS.BUTTON][1],
         titlebar_icon=PATH.yesterday_icon,
-        background_color=COLORS["bar_bkg"],
+        background_color=COLORS[THEME_PROPS.BUTTON][0],
         relative_location=(0, 0),
         element_justification="c",
     ).Finalize()
@@ -233,18 +240,20 @@ def DatePickerWindow(yesterdays_date: str):
         [
             sg.Text(
                 text=MESSAGES.date_text,
-                text_color=COLORS["bar_txt"],
-                background_color=COLORS["bar_bkg"],
+                text_color=COLORS[THEME_PROPS.BUTTON][1],
+                background_color=COLORS[THEME_PROPS.BUTTON][0],
                 font=FONTS["pop"],
             )
         ],
         [
             sg.InputText(
                 key=TEXTS_AND_KEYS.select_date_key,
-                background_color=COLORS["bar_bkg"],
                 default_text=yesterdays_date,
-                text_color="#ffffff",
                 size=20,
+                background_color=COLORS[THEME_PROPS.INPUT],
+                text_color=COLORS[THEME_PROPS.TEXT_INPUT],
+                # background_color=COLORS[THEME_PROPS.BUTTON][0],
+                # text_color="#ffffff",
             ),
             sg.CalendarButton(
                 MESSAGES.date_calendar,
@@ -252,7 +261,10 @@ def DatePickerWindow(yesterdays_date: str):
                 target=TEXTS_AND_KEYS.select_date_key,
                 format="%Y-%m-%d",
                 size=15,
-                button_color=(COLORS["bar_txt"], COLORS["bar_bkg"]),
+                button_color=(
+                    COLORS[THEME_PROPS.BUTTON][1],
+                    COLORS[THEME_PROPS.BUTTON][0],
+                ),
                 default_date_m_d_y=date_ymd_to_mdy(yesterdays_date),
             ),
             sg.Button(
@@ -260,7 +272,10 @@ def DatePickerWindow(yesterdays_date: str):
                 font=FONTS["btn"],
                 size=7,
                 key=TEXTS_AND_KEYS.select_date_button_text,
-                button_color=(COLORS["bar_txt"], COLORS["bar_bkg"]),
+                button_color=(
+                    COLORS[THEME_PROPS.BUTTON][1],
+                    COLORS[THEME_PROPS.BUTTON][0],
+                ),
             ),
         ],
     ]
@@ -269,10 +284,10 @@ def DatePickerWindow(yesterdays_date: str):
         layout,
         return_keyboard_events=True,
         use_custom_titlebar=True,
-        titlebar_background_color=COLORS["bar_bkg"],
-        titlebar_text_color=COLORS["bar_txt"],
+        titlebar_background_color=COLORS[THEME_PROPS.BUTTON][0],
+        titlebar_text_color=COLORS[THEME_PROPS.BUTTON][1],
         titlebar_icon=PATH.yesterday_icon,
-        background_color=COLORS["bar_bkg"],
+        background_color=COLORS[THEME_PROPS.BUTTON][0],
         relative_location=(0, 0),
         element_justification="c",
     ).Finalize()

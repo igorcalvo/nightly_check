@@ -9,7 +9,6 @@ from source.constants import (
     HABITS_INIT,
     TEXTS_AND_KEYS,
 )
-from source.core.theme import get_default_theme
 from source.utils import file_not_exists
 from source.core.data_in import get_data_dataframe, read_csv, get_data, read_settings
 from source.core.data_out import (
@@ -36,7 +35,7 @@ from source.core.validation import (
     no_data_from_yesterday,
 )
 from source.ui.habit_init import HabitsInitLayout, HabitsInitWindow, ReRenderHabitsInit
-from source.ui.utils import InitUi
+from source.ui.utils import init_ui
 from source.ui.main_window import NeglectedPopUp, MainWindow, PopUp, DatePickerWindow
 from source.ui.data import DataWindow
 from source.ui.settings import PreviewWindow, SettingsWindow
@@ -114,8 +113,9 @@ try:
 
     # print_fonts()
     settings = read_settings(FILE_NAMES.stg)
-    InitUi(settings.hue_offset, settings.theme)
+    init_ui(settings.hue_offset, settings.theme)
     hue_offset = settings.hue_offset
+    theme = settings.theme
 
     neglected = no_data_from_yesterday(data)
     if neglected:
@@ -237,6 +237,8 @@ try:
                     break
         elif event == TEXTS_AND_KEYS.settings_button_text:
             settings_window = SettingsWindow(settings)
+            old_hue_offset = settings.hue_offset
+            old_theme = settings.theme
             while True:
                 settings_event, settings_dict = settings_window.read()  # type: ignore
                 if settings_event in [
@@ -251,8 +253,10 @@ try:
                     break
                 elif settings_event == SETTINGS_KEYS.hue_offset:
                     hue_offset = settings_dict[SETTINGS_KEYS.hue_offset]
+                elif settings_event == SETTINGS_KEYS.theme:
+                    theme = settings_dict[SETTINGS_KEYS.theme]
                 elif settings_event == TEXTS_AND_KEYS.preview_window_text:
-                    preview_window = PreviewWindow(settings.hue_offset, hue_offset)
+                    preview_window = PreviewWindow(hue_offset, theme)
                     while True:
                         preview_event, preview_values_dict = preview_window.read()  # type: ignore
                         if (
@@ -261,6 +265,7 @@ try:
                         ):
                             preview_window.close()
                             break
+            init_ui(old_hue_offset, old_theme)
         elif event == TEXTS_AND_KEYS.done_button_text or event == WIN_CLOSED:
             if event == TEXTS_AND_KEYS.done_button_text:
                 data = save_data(data, values_dict, FILE_NAMES.csv)
@@ -294,14 +299,9 @@ finally:
         log_write(log, f"{finally_string}")
     log.close()
 
-# PRIMEGEN JQ on themes, progress and depth
-# https://github.com/PySimpleGUI/PySimpleGUI/issues/2412
-# https://github.com/PySimpleGUI/PySimpleGUI/blob/master/DemoPrograms/Demo_Look_And_Feel_Theme_Dump.py
-# allow for tkinter themes
-# fix icons for titlebar in Qt
-# migrate to Qt
 # bash scripts current path
-# change text hover to white? or bright color idk
+# run scripts then test habit init from beggining
+
 # pop up after n days (settings) reminding to view data
 # identidade visual: patrolling owl
 # ship with scripts to run before shutdown
@@ -338,6 +338,7 @@ finally:
 #       	 cel no trabalho e nao meditar
 #       	 anime fap e jogar
 #       for that, we'll have to link the habits somehow
+#   migrate to Qt? -> fix icons in titlebar
 
 #   COMPILE and SHIP
 #       README.md

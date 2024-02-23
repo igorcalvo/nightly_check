@@ -1,6 +1,7 @@
 import PySimpleGUI as sg
 
 from source.constants import COLORS, FONTS, MESSAGES, PATHS, HABITS_INIT
+from source.core.theme import THEME_PROPS
 from source.utils import (
     flatten_list_1,
     pad_string,
@@ -22,7 +23,9 @@ def HabitInitHabitLayout(
     layout = [
         sg.InputText(
             key=habit_init_key(HABITS_INIT.habit_key, category_row, row_in_habit_count),
-            background_color=COLORS["bar_txt"],
+            # background_color=COLORS[THEME_PROPS.BUTTON][1],
+            background_color=COLORS[THEME_PROPS.INPUT],
+            text_color=COLORS[THEME_PROPS.TEXT_INPUT],
             size=20,
             pad=(10, 0),
             tooltip=MESSAGES.input_tooltip_habit,
@@ -35,7 +38,9 @@ def HabitInitHabitLayout(
             key=habit_init_key(
                 HABITS_INIT.question_key, category_row, row_in_habit_count
             ),
-            background_color=COLORS["bar_txt"],
+            # background_color=COLORS[THEME_PROPS.BUTTON][1],
+            background_color=COLORS[THEME_PROPS.INPUT],
+            text_color=COLORS[THEME_PROPS.TEXT_INPUT],
             size=30,
             tooltip=MESSAGES.input_tooltip_question,
             default_text=safe_value_from_dict(  # type: ignore
@@ -45,7 +50,7 @@ def HabitInitHabitLayout(
                 values_dict,
             ),
         ),
-        sg.VerticalSeparator(color=COLORS["bar_bkg"]),
+        sg.VerticalSeparator(color=COLORS[THEME_PROPS.BUTTON][0]),
         sg.Checkbox(
             text=MESSAGES.input_tooltip_track,
             default=bool(
@@ -63,9 +68,9 @@ def HabitInitHabitLayout(
             ),
             size=16,
             font=FONTS["ckb"],
-            checkbox_color=COLORS["bar_bkg"],
-            text_color=COLORS["bar_txt"],
-            background_color=COLORS["win_bkg"],
+            checkbox_color=COLORS[THEME_PROPS.BUTTON][0],
+            text_color=COLORS[THEME_PROPS.BUTTON][1],
+            background_color=COLORS[THEME_PROPS.BACKGROUND],
             pad=5,
             tooltip=MESSAGES.input_tooltip_checkbox,
             enable_events=True,
@@ -74,7 +79,9 @@ def HabitInitHabitLayout(
             key=habit_init_key(
                 HABITS_INIT.message_key, category_row, row_in_habit_count
             ),
-            background_color=COLORS["bar_txt"],
+            # background_color=COLORS[THEME_PROPS.BUTTON][1],
+            background_color=COLORS[THEME_PROPS.INPUT],
+            text_color=COLORS[THEME_PROPS.TEXT_INPUT],
             size=60,
             pad=((0, 10), (0, 0)),
             tooltip=MESSAGES.input_tooltip_message,
@@ -104,10 +111,10 @@ def HabitInitHabitLayout(
             size=4,
             pad=5,
             auto_size_text=True,
-            background_color=COLORS["bar_bkg"],
-            text_color=COLORS["bar_txt"],
-            button_background_color=COLORS["bar_bkg"],
-            button_arrow_color=COLORS["bar_txt"],
+            background_color=COLORS[THEME_PROPS.BUTTON][0],
+            text_color=COLORS[THEME_PROPS.BUTTON][1],
+            button_background_color=COLORS[THEME_PROPS.BUTTON][0],
+            button_arrow_color=COLORS[THEME_PROPS.BUTTON][1],
             font=FONTS["ckb"],
             change_submits=True,
             enable_events=True,
@@ -127,7 +134,9 @@ def HabitInitHabitLayout(
             key=habit_init_key(
                 HABITS_INIT.fraction_num_key, category_row, row_in_habit_count
             ),
-            background_color=COLORS["bar_txt"],
+            # background_color=COLORS[THEME_PROPS.BUTTON][1],
+            background_color=COLORS[THEME_PROPS.INPUT],
+            text_color=COLORS[THEME_PROPS.TEXT_INPUT],
             size=3,
             default_text=safe_value_from_dict(habit_init_key(HABITS_INIT.fraction_num_key, category_row, row_in_habit_count), values_dict),  # type: ignore
             visible=bool(
@@ -144,7 +153,7 @@ def HabitInitHabitLayout(
         sg.Text(
             "in",
             key=("spacing", row_in_habit_count),
-            background_color=COLORS["win_bkg"],
+            background_color=COLORS[THEME_PROPS.BACKGROUND],
             visible=bool(
                 safe_value_from_dict(
                     habit_init_key(
@@ -160,7 +169,9 @@ def HabitInitHabitLayout(
             key=habit_init_key(
                 HABITS_INIT.fraction_den_key, category_row, row_in_habit_count
             ),
-            background_color=COLORS["bar_txt"],
+            # background_color=COLORS[THEME_PROPS.BUTTON][1],
+            background_color=COLORS[THEME_PROPS.INPUT],
+            text_color=COLORS[THEME_PROPS.TEXT_INPUT],
             size=3,
             default_text=safe_value_from_dict(habit_init_key(HABITS_INIT.fraction_den_key, category_row, row_in_habit_count), values_dict),  # type: ignore
             visible=bool(
@@ -177,7 +188,7 @@ def HabitInitHabitLayout(
         sg.Text(
             pad_string("days", 5),
             key=("spacing_days", row_in_habit_count),
-            background_color=COLORS["win_bkg"],
+            background_color=COLORS[THEME_PROPS.BACKGROUND],
             visible=bool(
                 safe_value_from_dict(
                     habit_init_key(
@@ -204,11 +215,13 @@ def HabitInitCategoryLayout(
     layout = []
     for row in range(1, category_count + 1):
         category = [
-            [sg.HorizontalSeparator(color=COLORS["bar_bkg"])],
+            [sg.HorizontalSeparator(color=COLORS[THEME_PROPS.BUTTON][0])],
             [
                 sg.InputText(
                     key=habit_init_key(HABITS_INIT.category_key, row),
-                    background_color=COLORS["bar_txt"],
+                    # background_color=COLORS[THEME_PROPS.BUTTON][1],
+                    background_color=COLORS[THEME_PROPS.INPUT],
+                    text_color=COLORS[THEME_PROPS.TEXT_INPUT],
                     size=20,
                     pad=10,
                     tooltip=MESSAGES.input_tooltip_category,
@@ -219,14 +232,17 @@ def HabitInitCategoryLayout(
                 sg.Text(
                     pad_string("", 0),
                     key=("spacing", row),
-                    background_color=COLORS["win_bkg"],
+                    background_color=COLORS[THEME_PROPS.BACKGROUND],
                 ),
                 sg.Button(
                     button_text=HABITS_INIT.add_habit_text,
                     key=habit_init_key(HABITS_INIT.add_habit_text, row),
                     font=FONTS["btn"],
                     size=button_size,
-                    button_color=(COLORS["bar_bkg"], COLORS["bar_txt"]),
+                    button_color=(
+                        COLORS[THEME_PROPS.BUTTON][0],
+                        COLORS[THEME_PROPS.BUTTON][1],
+                    ),
                     pad=(button_padding, 0),
                 ),
                 sg.Button(
@@ -234,7 +250,10 @@ def HabitInitCategoryLayout(
                     key=habit_init_key(HABITS_INIT.del_habit_text, row),
                     font=FONTS["btn"],
                     size=button_size,
-                    button_color=(COLORS["bar_bkg"], COLORS["bar_txt"]),
+                    button_color=(
+                        COLORS[THEME_PROPS.BUTTON][0],
+                        COLORS[THEME_PROPS.BUTTON][1],
+                    ),
                     pad=((0, button_padding), (0, 0)),
                     disabled=safe_bool_from_array(row - 1, habit_count),
                 ),
@@ -270,25 +289,31 @@ def HabitsInitLayout(
                 flatten_list_1(category_layout),
                 scrollable=show_scroll_bar,
                 vertical_scroll_only=show_scroll_bar,
-                background_color=COLORS["win_bkg"],
+                background_color=COLORS[THEME_PROPS.BACKGROUND],
                 visible=category_count > 0,
             )
         ],
-        [sg.HorizontalSeparator(color=COLORS["bar_bkg"])],
+        [sg.HorizontalSeparator(color=COLORS[THEME_PROPS.BUTTON][0])],
         [
-            sg.Push(background_color=COLORS["win_bkg"]),
+            sg.Push(background_color=COLORS[THEME_PROPS.BACKGROUND]),
             sg.Button(
                 HABITS_INIT.cat_add,
                 font=FONTS["btn"],
                 size=button_font_size,
-                button_color=(COLORS["bar_bkg"], COLORS["cat_txt"]),
+                button_color=(
+                    COLORS[THEME_PROPS.BUTTON][0],
+                    COLORS[THEME_PROPS.CATEGORY],
+                ),
                 pad=button_padding,
             ),
             sg.Button(
                 HABITS_INIT.cat_remove,
                 font=FONTS["btn"],
                 size=button_font_size,
-                button_color=(COLORS["bar_bkg"], COLORS["cat_txt"]),
+                button_color=(
+                    COLORS[THEME_PROPS.BUTTON][0],
+                    COLORS[THEME_PROPS.CATEGORY],
+                ),
                 pad=((0, button_padding), (0, 0)),
                 disabled=category_count < 1,
             ),
@@ -296,10 +321,13 @@ def HabitsInitLayout(
                 HABITS_INIT.generate_text,
                 font=FONTS["btn"],
                 size=button_font_size,
-                button_color=(COLORS["bar_bkg"], COLORS["bar_txt"]),
+                button_color=(
+                    COLORS[THEME_PROPS.BUTTON][0],
+                    COLORS[THEME_PROPS.BUTTON][1],
+                ),
                 pad=((0, button_padding), (0, 0)),
             ),
-            sg.Push(background_color=COLORS["win_bkg"]),
+            sg.Push(background_color=COLORS[THEME_PROPS.BACKGROUND]),
         ],
     ]
     return layout
@@ -313,10 +341,10 @@ def HabitsInitWindow(layout: list) -> sg.Window:
         layout,
         return_keyboard_events=True,
         use_custom_titlebar=True,
-        titlebar_background_color=COLORS["bar_bkg"],
-        titlebar_text_color=COLORS["bar_txt"],
+        titlebar_background_color=COLORS[THEME_PROPS.BUTTON][0],
+        titlebar_text_color=COLORS[THEME_PROPS.BUTTON][1],
         titlebar_icon=PATH.init_icon,
-        background_color=COLORS["win_bkg"],
+        background_color=COLORS[THEME_PROPS.BACKGROUND],
         relative_location=(0, 0),
         element_justification="l",
     ).Finalize()

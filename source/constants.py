@@ -63,7 +63,7 @@ class SETTINGS_KEYS:
 
 class SETTINGS_DEFAULT_VALUES:
     hue_offset = 0
-    theme = "Default"
+    theme = "Classic"
     data_days = 21
     display_messages = True
     graph_expected_value = False
@@ -138,14 +138,7 @@ already_filled_in_today_message = (
 # ----------------------------------------------------------------------------------------------------------------------
 # | hue_offset | < 1
 
-# COLORS = {}
-COLORS = {
-    "bar_bkg": "#00274f",
-    "bar_txt": "#b1d8ff",
-    "win_bkg": "#002f5f",
-    "cat_txt": "#dbedff",
-    "sld_bkg": "#004080",
-}
+COLORS = {}
 
 FONTS = {
     "cat": ("Cascadia Mono" if os_is_windows() else "Liberation Mono", 13, "bold"),
@@ -156,7 +149,7 @@ FONTS = {
 
 font_families = {
     "consolas": path.join(DIR, r"assets/fonts/consola.ttf"),
-    "roboto": path.join(DIR, r"assets/fonts/Roboto-Bold.ttf"),
     "liberation": path.join(DIR, r"assets/fonts/LiberationMono-Bold.ttf"),
     "noto": path.join(DIR, r"assets/fonts/NotoSansJP-Regular.otf"),
+    # "roboto": path.join(DIR, r"assets/fonts/Roboto-Bold.ttf"),
 }

@@ -1,10 +1,16 @@
 from tkinter import Tk as tk_tk, font as tk_font
-from PySimpleGUI import LOOK_AND_FEEL_TABLE
+from PySimpleGUI import LOOK_AND_FEEL_TABLE, change_look_and_feel
 import matplotlib.colors as clr
 import cv2 as cv
 
-from source.constants import COLORS, PATHS
-from source.core.theme import DEFAULT_COLORS, THEME, THEME_PROPS, get_default_theme
+from source.constants import COLORS, PATHS, SETTINGS_DEFAULT_VALUES
+from source.core.theme import (
+    DEFAULT_COLORS,
+    THEME,
+    THEME_PROPS,
+    get_default_theme,
+    get_theme_from_table,
+)
 
 PATH = PATHS()
 PATH.__init__()
@@ -29,16 +35,20 @@ def normalize_hue(hue, offset):
         return new_hue
 
 
+def is_hex_color(color: str) -> bool:
+    if color in ["1234567890"] or "#" not in color:
+        return False
+    return True
+
+
 def apply_hue_offset(hex_color: str, hue_offset: float) -> str:
+    if not is_hex_color(hex_color):
+        return hex_color
+
     hsv = clr.rgb_to_hsv(clr.to_rgb(hex_color))
     new_hue = normalize_hue(hsv[0], hue_offset)
     hsv[0] = new_hue
     return clr.rgb2hex(clr.hsv_to_rgb(hsv))
-
-
-def update_COLORS(hue_offset: float):
-    for key in COLORS.keys():
-        COLORS[key] = apply_hue_offset(COLORS[key], hue_offset)
 
 
 def generate_icon(hue_offset: float):
@@ -70,14 +80,35 @@ def populate_colors_dict(theme: THEME, hue_offset) -> dict:
     return result
 
 
-def InitUi(hue_offset: float, theme: str):
+def get_cat_txt_color(bar_txt: str):
+    if not is_hex_color(bar_txt):
+        return bar_txt
+
+    c1 = bar_txt
+    c2 = DEFAULT_COLORS.cat_txt
+
+    hsv1 = clr.rgb_to_hsv(clr.to_rgb(c1))
+    hsv2 = clr.rgb_to_hsv(clr.to_rgb(c2))
+
+    deltas = hsv2 - hsv1
+    hsv3 = hsv1 + [0, deltas[1], 0]
+
+    if hsv3[1] > 1:
+        hsv3[1] = 1
+
+    color = clr.to_hex(clr.hsv_to_rgb(hsv3))
+    return color
+
+
+def init_ui(hue_offset: float, theme: str):
     generate_icon(hue_offset)
     ui_theme = get_theme(theme)
     theme_dict = populate_colors_dict(ui_theme, hue_offset)
-    # for k in theme_dict.keys():
-    #     COLORS[k] = theme_dict[k]
-    # change_look_and_feel(theme)
-    update_COLORS(hue_offset)
+    for k in theme_dict.keys():
+        COLORS[k] = theme_dict[k]
+    COLORS[THEME_PROPS.CATEGORY] = get_cat_txt_color(COLORS[THEME_PROPS.TEXT])
+    if theme != SETTINGS_DEFAULT_VALUES.theme:
+        change_look_and_feel(theme)
 
 
 def get_all_keys_for_themes():
@@ -92,22 +123,8 @@ def get_all_keys_for_themes():
 
 
 def get_theme(theme: str) -> THEME:
-    return THEME(theme) if theme in LOOK_AND_FEEL_TABLE.keys() else get_default_theme()
-
-
-def get_cat_txt_color(bar_txt: str):
-    c1 = bar_txt
-    c2 = DEFAULT_COLORS.cat_txt
-
-    hsv1 = clr.rgb_to_hsv(clr.to_rgb(c1))
-    hsv2 = clr.rgb_to_hsv(clr.to_rgb(c2))
-
-    deltas = hsv2 - hsv1
-    hsv3 = hsv1 + deltas
-
-    for idx, v in enumerate(hsv3):
-        if v > 1:
-            hsv3[idx] = 1
-
-    color = clr.to_hex(hsv3)
-    return color
+    return (
+        get_theme_from_table(theme)
+        if theme in LOOK_AND_FEEL_TABLE.keys()
+        else get_default_theme()
+    )

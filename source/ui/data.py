@@ -4,6 +4,7 @@ from PIL import Image
 from base64 import b64decode
 
 from source.constants import COLORS, FONTS, PATHS, TEXTS_AND_KEYS
+from source.core.theme import THEME_PROPS
 
 PATH = PATHS()
 PATH.__init__()
@@ -22,6 +23,8 @@ def DataWindow(
                 do_not_clear=False,
                 enable_events=True,
                 visible=False,
+                background_color=COLORS[THEME_PROPS.INPUT],
+                text_color=COLORS[THEME_PROPS.TEXT_INPUT],
             ),
             sg.FileSaveAs(
                 button_text=TEXTS_AND_KEYS.export_button_text,
@@ -29,7 +32,10 @@ def DataWindow(
                 initial_folder="%HomeDrive%",
                 file_types=(("PNG", ".png"), ("JPG", ".jpg")),
                 pad=((width - 50, 5), (5, 5)),
-                button_color=(COLORS["bar_bkg"], COLORS["bar_txt"]),
+                button_color=(
+                    COLORS[THEME_PROPS.BUTTON][0],
+                    COLORS[THEME_PROPS.BUTTON][1],
+                ),
             ),
         ],
     ]
@@ -38,9 +44,9 @@ def DataWindow(
         [[sg.Column(layout, scrollable=scrollable_image, key="Column")]],
         return_keyboard_events=True,
         use_custom_titlebar=True,
-        titlebar_background_color=COLORS["bar_bkg"],
-        titlebar_text_color=COLORS["bar_txt"],
+        titlebar_background_color=COLORS[THEME_PROPS.BUTTON][0],
+        titlebar_text_color=COLORS[THEME_PROPS.BUTTON][1],
         titlebar_icon=PATH.data_icon,
-        background_color=COLORS["sld_bkg"],
+        background_color=COLORS[THEME_PROPS.SCROLL],
         relative_location=(0, -15),
     ).Finalize()
