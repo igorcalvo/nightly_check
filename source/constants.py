@@ -1,4 +1,3 @@
-from source.core.theme import get_default_theme
 from .utils import os_is_windows
 from os import path, pardir
 
@@ -89,7 +88,7 @@ class MESSAGES:
     input_tooltip_question = "Simple yes or no question to help you determine whether you have completed a task or not"
     input_tooltip_checkbox = "Enables message pop up if you fail to perform a task within a determined frequency"
     input_tooltip_message = "Message you'll get when you fail to complete the task within a defined frequency"
-    input_tooltip_combo = "Pick with what you want to achieve in mind, not when you want to see a message (failure)"
+    input_tooltip_combo = "Pick with what you want to achieve in mind (success), not when you want to see a message (failure)"
     input_tooltip_category = "Short word to represent a collection of habits"
     habits_title = "Habits File Generator"
     settings_warning = "*** Changes will only take effect after restart ***"

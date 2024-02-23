@@ -5,6 +5,7 @@ from source.constants import (
     FONTS,
     MESSAGES,
     PATHS,
+    SETTINGS_DEFAULT_VALUES,
     SETTINGS_KEYS,
     TEXTS_AND_KEYS,
 )
@@ -81,7 +82,7 @@ def SettingsWindowLayout(
     text_input_size = 7
 
     available_themes = sg.list_of_look_and_feel_values()
-    available_themes.append("Classic")
+    available_themes.append(SETTINGS_DEFAULT_VALUES.theme)
     available_themes = sorted(available_themes)
 
     appearance = [

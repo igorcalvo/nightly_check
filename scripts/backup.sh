@@ -1,3 +1,3 @@
-# sh Code/NightlyCheck/scripts/backup.sh /home/calvo/Code/NightlyCheck/
-cp -r $1data/ $1backup/
-echo "Done. Data saved in $1backup/"
+dest=$(pwd)/../backup/
+cp -r $(pwd)/../data/ $dest
+echo "Done. Data saved in $dest"

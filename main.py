@@ -8,6 +8,7 @@ from source.constants import (
     FILE_NAMES,
     HABITS_INIT,
     TEXTS_AND_KEYS,
+    SETTINGS_DEFAULT_VALUES,
 )
 from source.utils import file_not_exists
 from source.core.data_in import get_data_dataframe, read_csv, get_data, read_settings
@@ -50,6 +51,7 @@ try:
     if file_not_exists(FILE_NAMES.var):
         category_count = 0
         habit_count = []
+        init_ui(SETTINGS_DEFAULT_VALUES.hue_offset, SETTINGS_DEFAULT_VALUES.theme)
 
         variables_init_layout = HabitsInitLayout(category_count, {}, habit_count)
         variables_init_window = HabitsInitWindow(variables_init_layout)
@@ -299,9 +301,7 @@ finally:
         log_write(log, f"{finally_string}")
     log.close()
 
-# bash scripts current path
-# run scripts then test habit init from beggining
-
+# ui habit init description for fields, just tooltip is too ambiguous
 # pop up after n days (settings) reminding to view data
 # identidade visual: patrolling owl
 # ship with scripts to run before shutdown
