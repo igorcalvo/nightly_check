@@ -76,11 +76,13 @@ def save_data(data: DataFrame, checkbox_dict: dict, csv_file_name: str, date: st
     return data
 
 
-def save_message_file(msg_file_name: str, header_list: list, todays_message: str):
+def save_message_file(
+    new_day_time: int, msg_file_name: str, header_list: list, todays_message: str
+):
     if todays_message == already_filled_in_today_message:
         return
 
-    today = get_today_date()
+    today = get_today_date(new_day_time)
     header, message = todays_message.split("\n")
     longest_header = max(flatten_list(header_list), key=len)
     spacing = "\t" * (

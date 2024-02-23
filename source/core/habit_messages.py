@@ -80,6 +80,7 @@ def determine_successful_today(
 
 
 def get_popup_message(
+    new_day_time: int,
     conditions: list,
     fractions: list,
     habit_messages: list,
@@ -121,7 +122,7 @@ def get_popup_message(
     )
 
     past_messages, last_date = read_past_messages(msg_file_name)
-    if last_date == get_today_date().isoformat():
+    if last_date == get_today_date(new_day_time).isoformat():
         return already_filled_in_today_message
 
     previous_message = past_messages[-1] if past_messages is not None else ""

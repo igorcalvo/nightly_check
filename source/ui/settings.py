@@ -101,7 +101,7 @@ def SettingsWindowLayout(
                 text_color=COLORS[THEME_PROPS.BUTTON][1],
                 background_color=COLORS[THEME_PROPS.BACKGROUND],
                 font=FONTS["pop"],
-                pad=((sections_padding_x, 0), (0, 0)),
+                pad=((sections_padding_x, sections_padding_x), (0, 0)),
             ),
             sg.Slider(
                 range=(-0.5, 0.5),
@@ -114,6 +114,27 @@ def SettingsWindowLayout(
                 background_color=COLORS[THEME_PROPS.SCROLL],
                 trough_color=COLORS[THEME_PROPS.BUTTON][1],
                 size=(50, 23),
+            ),
+            sg.Button(
+                TEXTS_AND_KEYS.preview_window_text,
+                font=FONTS["btn"],
+                size=(20, 2),
+                pad=((3 * sections_padding_x - 15, sections_padding_x), (15, 15)),
+                key=TEXTS_AND_KEYS.preview_window_text,
+                button_color=(
+                    COLORS[THEME_PROPS.BUTTON][0],
+                    COLORS[THEME_PROPS.BUTTON][1],
+                ),
+            ),
+
+        ],
+        [
+            sg.Text(
+                text=settings_key_to_text(SETTINGS_KEYS.theme),
+                text_color=COLORS[THEME_PROPS.BUTTON][1],
+                background_color=COLORS[THEME_PROPS.BACKGROUND],
+                font=FONTS["pop"],
+                pad=((sections_padding_x, sections_padding_x + 10), (0, 0)),
             ),
             sg.Combo(
                 values=available_themes,
@@ -133,16 +154,16 @@ def SettingsWindowLayout(
                 tooltip=MESSAGES.settings_tooltip_theme,
             ),
             sg.Button(
-                TEXTS_AND_KEYS.preview_window_text,
+                TEXTS_AND_KEYS.preview_themes_window_text,
                 font=FONTS["btn"],
-                size=7,
-                pad=((5, sections_padding_x), (15, 15)),
-                key=TEXTS_AND_KEYS.preview_window_text,
+                size=15,
+                pad=((2 * sections_padding_x + 15, 0), (15, 15)),
+                key=TEXTS_AND_KEYS.preview_themes_window_text,
                 button_color=(
                     COLORS[THEME_PROPS.BUTTON][0],
                     COLORS[THEME_PROPS.BUTTON][1],
                 ),
-            ),
+            ),    
         ],
     ]
 
@@ -335,6 +356,40 @@ def SettingsWindowLayout(
         ],
     ]
 
+    misc = [
+        [
+            sg.Text(
+                text=MESSAGES.settings_section_misc,
+                text_color=COLORS[THEME_PROPS.CATEGORY],
+                background_color=COLORS[THEME_PROPS.BACKGROUND],
+                font=FONTS["cat"],
+                pad=((sections_padding_x, 0), (sections_padding_y, 5)),
+            ),
+        ],
+        [
+            sg.Text(
+                text=settings_key_to_text(SETTINGS_KEYS.new_day_time),
+                text_color=COLORS[THEME_PROPS.BUTTON][1],
+                background_color=COLORS[THEME_PROPS.BACKGROUND],
+                font=FONTS["pop"],
+                pad=((sections_padding_x, 0), (0, 0)),
+            ),
+            sg.InputText(
+                key=SETTINGS_KEYS.new_day_time,
+                do_not_clear=True,
+                enable_events=True,
+                visible=True,
+                font=FONTS["ckb"],
+                tooltip=MESSAGES.settings_tooltip_new_day_time,
+                default_text=str(settings.new_day_time),
+                size=text_input_size,
+                justification="r",
+                background_color=COLORS[THEME_PROPS.INPUT],
+                text_color=COLORS[THEME_PROPS.TEXT_INPUT],
+            ),
+        ]
+    ]
+
     buttons = [
         [
             sg.Text(
@@ -376,7 +431,7 @@ def SettingsWindowLayout(
         ]
     ]
 
-    layout = [appearance, data_visualization, messages, buttons]
+    layout = [appearance, data_visualization, messages, misc, buttons]
     return layout
 
 
@@ -394,7 +449,7 @@ def SettingsWindow(
         titlebar_text_color=COLORS[THEME_PROPS.BUTTON][1],
         titlebar_icon=PATH.settings_icon,
         background_color=COLORS[THEME_PROPS.BACKGROUND],
-        size=(920, 380),
+        size=(900, 540),
         element_justification="l",
         return_keyboard_events=True,
     )

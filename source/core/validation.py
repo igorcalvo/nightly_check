@@ -55,8 +55,8 @@ def verify_variables(variables_file_name):
         raise e
 
 
-def no_data_from_yesterday(data: DataFrame):
-    yesterday = get_yesterday_date().isoformat()
+def no_data_from_yesterday(new_day_time: int, data: DataFrame):
+    yesterday = get_yesterday_date(new_day_time).isoformat()
     last_column_row = data.loc[data[date_header] == yesterday]
     if data.shape[0] <= 1:
         return False

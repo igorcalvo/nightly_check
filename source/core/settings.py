@@ -13,7 +13,8 @@ class Settings:
         scrollable_image: bool = SETTINGS_DEFAULT_VALUES.scrollable_image,
         message_duration: int = SETTINGS_DEFAULT_VALUES.message_duration,
         random_messages: bool = SETTINGS_DEFAULT_VALUES.random_messages,
-        weekdays_language: str = SETTINGS_DEFAULT_VALUES.weekdays_language, 
+        weekdays_language: str = SETTINGS_DEFAULT_VALUES.weekdays_language,
+        new_day_time: int = SETTINGS_DEFAULT_VALUES.new_day_time,
     ):
         self.hue_offset = hue_offset
         self.theme = theme
@@ -24,6 +25,7 @@ class Settings:
         self.message_duration = message_duration
         self.random_messages = random_messages
         self.weekdays_language = weekdays_language
+        self.new_day_time = new_day_time
 
     def to_json(self):
         return dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
@@ -39,6 +41,7 @@ class Settings:
         message_duration = int(dictionary[SETTINGS_KEYS.message_duration])
         random_messages = bool(dictionary[SETTINGS_KEYS.random_messages])
         weekdays_language = str(dictionary[SETTINGS_KEYS.weekdays_language])
+        new_day_time = int(dictionary[SETTINGS_KEYS.new_day_time])
         return Settings(
             hue_offset,
             theme,
@@ -49,6 +52,7 @@ class Settings:
             message_duration,
             random_messages,
             weekdays_language,
+            new_day_time,
         )
 
     @staticmethod

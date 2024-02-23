@@ -24,7 +24,8 @@ class TEXTS_AND_KEYS:
     neglected_reject_text = "No"
     edit_button_text = "Edit"
     settings_button_text = "Settings"
-    preview_window_text = "Preview"
+    preview_window_text = "Preview Appearance"
+    preview_themes_window_text = "Preview Themes"
     settings_save_button_text = "Save"
     settings_cancel_button_text = "Cancel"
     select_date_button_text = "Select"
@@ -58,6 +59,7 @@ class SETTINGS_KEYS:
     message_duration = "message_duration"
     random_messages = "random_messages"
     weekdays_language = "weekdays_language"
+    new_day_time = "new_day_time"
 
 
 class SETTINGS_DEFAULT_VALUES:
@@ -70,6 +72,7 @@ class SETTINGS_DEFAULT_VALUES:
     message_duration = 5
     random_messages = True
     weekdays_language = "jp"
+    new_day_time = 6
 
 
 class MESSAGES:
@@ -100,6 +103,7 @@ class MESSAGES:
     settings_section_appearance = "APPEARANCE"
     settings_section_data_visualization = "DATA VISUALIZATION"
     settings_section_messages = "MESSAGES"
+    settings_section_misc = "MISCELLANEOUS"
     settings_tooltip_hueoffset = "offset of hue according to base theme in the HSV schema (between -0.5 and +0.5)"
     settings_tooltip_days = "Number of back days to display data of"
     settings_tooltip_day_of_week = "Language to display weekday's symbols in"
@@ -115,6 +119,9 @@ class MESSAGES:
     )
     settings_tooltip_duration = "How many seconds the message is going to be displayed on the screen for before closing the app"
     settings_tooltip_theme = "Select a theme"
+    settings_tooltip_new_day_time = (
+        "Hour after which a new day starts - useful for people who sleep after midnight"
+    )
 
 
 class PATHS:
@@ -129,10 +136,9 @@ class PATHS:
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-wakeup_time = 14
 date_header = "date"
 already_filled_in_today_message = (
-    "No message for you! You have already added your entry in today."
+    "No message for you! You have already added in an entry for today."
 )
 # ----------------------------------------------------------------------------------------------------------------------
 # | hue_offset | < 1

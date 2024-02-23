@@ -1,5 +1,5 @@
 from tkinter import Tk as tk_tk, font as tk_font
-from PySimpleGUI import LOOK_AND_FEEL_TABLE, change_look_and_feel
+from PySimpleGUI import LOOK_AND_FEEL_TABLE, change_look_and_feel, theme_previewer
 import matplotlib.colors as clr
 import cv2 as cv
 
@@ -128,3 +128,7 @@ def get_theme(theme: str) -> THEME:
         if theme in LOOK_AND_FEEL_TABLE.keys()
         else get_default_theme()
     )
+
+
+def preview_themes():
+    return theme_previewer(columns=8, scrollable=True)

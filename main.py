@@ -36,7 +36,7 @@ from source.core.validation import (
     no_data_from_yesterday,
 )
 from source.ui.habit_init import HabitsInitLayout, HabitsInitWindow, ReRenderHabitsInit
-from source.ui.utils import init_ui
+from source.ui.utils import init_ui, preview_themes
 from source.ui.main_window import NeglectedPopUp, MainWindow, PopUp, DatePickerWindow
 from source.ui.data import DataWindow
 from source.ui.settings import PreviewWindow, SettingsWindow
@@ -111,15 +111,15 @@ try:
     variables = list(data.columns)
     variables.pop(0)
     verify_header_and_data(header, variables, FILE_NAMES.csv, data, disabled_headers)
-    data = create_entry(data)
 
     # print_fonts()
     settings = read_settings(FILE_NAMES.stg)
     init_ui(settings.hue_offset, settings.theme)
     hue_offset = settings.hue_offset
     theme = settings.theme
+    data = create_entry(settings.new_day_time, data)
 
-    neglected = no_data_from_yesterday(data)
+    neglected = no_data_from_yesterday(settings.new_day_time, data)
     if neglected:
         neglected_window = NeglectedPopUp()
         while True:
@@ -143,7 +143,9 @@ try:
                             data,
                             neglected_data_values_dict,
                             FILE_NAMES.csv,
-                            get_yesterday_date().isoformat(),
+                            get_yesterday_date(
+                                settings.new_day_time,
+                            ).isoformat(),
                         )
                     if (
                         neglected_data_event == WIN_CLOSED
@@ -158,7 +160,7 @@ try:
                 neglected_window.close()
                 break
 
-    todays_data = todays_data_or_none(data, header)
+    todays_data = todays_data_or_none(settings.new_day_time, data, header)
     window = MainWindow(
         categories,
         header,
@@ -198,7 +200,7 @@ try:
                     data_window.close()
                     break
         elif event == TEXTS_AND_KEYS.edit_button_text:
-            picked_date = str(get_yesterday_date())
+            picked_date = str(get_yesterday_date(settings.new_day_time))
             date_picker_window = DatePickerWindow(picked_date)
             while True:
                 date_picker_event, date_picker_dict = date_picker_window.read()  # type: ignore
@@ -257,6 +259,8 @@ try:
                     hue_offset = settings_dict[SETTINGS_KEYS.hue_offset]
                 elif settings_event == SETTINGS_KEYS.theme:
                     theme = settings_dict[SETTINGS_KEYS.theme]
+                elif settings_event == TEXTS_AND_KEYS.preview_themes_window_text:
+                    preview_themes()
                 elif settings_event == TEXTS_AND_KEYS.preview_window_text:
                     preview_window = PreviewWindow(hue_offset, theme)
                     while True:
@@ -272,6 +276,7 @@ try:
             if event == TEXTS_AND_KEYS.done_button_text:
                 data = save_data(data, values_dict, FILE_NAMES.csv)
                 message = get_popup_message(
+                    settings.new_day_time,
                     conditions,
                     fractions,
                     habit_messages,
@@ -281,7 +286,9 @@ try:
                     settings.random_messages,
                 )
                 if message and settings.display_messages:
-                    save_message_file(FILE_NAMES.msg, header, message)
+                    save_message_file(
+                        settings.new_day_time, FILE_NAMES.msg, header, message
+                    )
                     PopUp(message, settings.message_duration)
             break
     window.close()
@@ -301,14 +308,16 @@ finally:
         log_write(log, f"{finally_string}")
     log.close()
 
-# ui habit init description for fields, just tooltip is too ambiguous
 # pop up after n days (settings) reminding to view data
+# ui horizontal bar on data if data_days > n to be found
+# more consistent naming -> habit vs header
+# ui habit init description for fields, just tooltip is too ambiguous
+# ui to load habits.csv (load init habit)
 # identidade visual: patrolling owl
 # ship with scripts to run before shutdown
-# more consistent naming -> habit vs header
 
 # MAJOR
-#   Validation
+#   *** Validation ***
 #       Freq
 #           Disallow 0 on denominator
 #           Disallow duplicate value for habit and category
@@ -336,7 +345,7 @@ finally:
 #   alerta baseado em tema conta mais:
 #       exemplo: nao malhar e comer a mais
 #       	 cel no trabalho e nao meditar
-#       	 anime fap e jogar
+#       	 anime e jogar
 #       for that, we'll have to link the habits somehow
 #   migrate to Qt? -> fix icons in titlebar
 
