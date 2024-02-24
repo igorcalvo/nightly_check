@@ -1,9 +1,20 @@
 from tkinter import Tk as tk_tk, font as tk_font
-from PySimpleGUI import LOOK_AND_FEEL_TABLE, change_look_and_feel, theme_previewer
+from PySimpleGUI import (
+    LOOK_AND_FEEL_TABLE,
+    change_look_and_feel,
+    theme_previewer,
+    Window,
+)
 import matplotlib.colors as clr
 import cv2 as cv
 
-from source.constants import COLORS, PATHS, SETTINGS_DEFAULT_VALUES
+from source.constants import (
+    COLORS,
+    PATHS,
+    SETTINGS_DEFAULT_VALUES,
+    habit_init_scrollable_threshold,
+    height_coefficient,
+)
 from source.core.theme import (
     DEFAULT_COLORS,
     THEME,
@@ -11,6 +22,7 @@ from source.core.theme import (
     get_default_theme,
     get_theme_from_table,
 )
+from source.utils import flatten_list_1
 
 PATH = PATHS()
 PATH.__init__()
@@ -132,3 +144,20 @@ def get_theme(theme: str) -> THEME:
 
 def preview_themes():
     return theme_previewer(columns=8, scrollable=True)
+
+
+def show_habit_init_scroll_bar(category_count: int, habit_count: list) -> bool:
+    return (
+        category_count + sum(flatten_list_1(habit_count))
+        > habit_init_scrollable_threshold
+    )
+
+
+def get_min_win_size() -> tuple[int, int]:
+    w, h = Window.get_screen_size()
+    h = round(height_coefficient * h)
+    if w < 2 * 1920 and w % 1920 != 0:
+        w = round(0.9 * w)
+    else:
+        w = round(0.9 * 1920)
+    return (w, h)

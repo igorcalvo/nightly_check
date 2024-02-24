@@ -6,6 +6,7 @@ from source.utils import (
 )
 from source.constants import HABITS_INIT
 
+
 def habit_index_from_event(event: str):
     number = event.split("_")[-1]
     return int(number) - 1

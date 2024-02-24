@@ -5,6 +5,7 @@ from base64 import b64decode
 
 from source.constants import COLORS, FONTS, PATHS, TEXTS_AND_KEYS
 from source.core.theme import THEME_PROPS
+from source.ui.utils import get_min_win_size
 
 PATH = PATHS()
 PATH.__init__()
@@ -41,7 +42,16 @@ def DataWindow(
     ]
     return sg.Window(
         TEXTS_AND_KEYS.data_button_text,
-        [[sg.Column(layout, scrollable=scrollable_image, key="Column")]],
+        [
+            [
+                sg.Column(
+                    layout,
+                    scrollable=scrollable_image,
+                    key="Column",
+                    size=(None, None) if not scrollable_image else get_min_win_size(),
+                )
+            ]
+        ],
         return_keyboard_events=True,
         use_custom_titlebar=True,
         titlebar_background_color=COLORS[THEME_PROPS.BUTTON][0],

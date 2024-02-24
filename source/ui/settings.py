@@ -126,7 +126,6 @@ def SettingsWindowLayout(
                     COLORS[THEME_PROPS.BUTTON][1],
                 ),
             ),
-
         ],
         [
             sg.Text(
@@ -163,7 +162,7 @@ def SettingsWindowLayout(
                     COLORS[THEME_PROPS.BUTTON][0],
                     COLORS[THEME_PROPS.BUTTON][1],
                 ),
-            ),    
+            ),
         ],
     ]
 
@@ -387,7 +386,7 @@ def SettingsWindowLayout(
                 background_color=COLORS[THEME_PROPS.INPUT],
                 text_color=COLORS[THEME_PROPS.TEXT_INPUT],
             ),
-        ]
+        ],
     ]
 
     buttons = [

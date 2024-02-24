@@ -1,6 +1,14 @@
 import PySimpleGUI as sg
 
-from source.constants import COLORS, FONTS, MESSAGES, PATHS, HABITS_INIT
+from source.constants import (
+    COLORS,
+    FONTS,
+    MESSAGES,
+    PATHS,
+    HABITS_INIT,
+    habit_init_width,
+    height_coefficient,
+)
 from source.core.theme import THEME_PROPS
 from source.utils import (
     flatten_list_1,
@@ -10,6 +18,7 @@ from source.utils import (
     safe_value_from_array,
     habit_init_key,
 )
+from source.ui.utils import get_min_win_size, show_habit_init_scroll_bar
 
 PATH = PATHS()
 PATH.__init__()
@@ -277,7 +286,7 @@ def HabitsInitLayout(
 ):
     button_padding = 25
     button_font_size = (15, 2)
-    show_scroll_bar = category_count + sum(flatten_list_1(habit_count)) > 20
+    show_scroll_bar = show_habit_init_scroll_bar(category_count, habit_count)
     category_layout = HabitInitCategoryLayout(
         category_count,
         values_dict,
@@ -291,6 +300,11 @@ def HabitsInitLayout(
                 vertical_scroll_only=show_scroll_bar,
                 background_color=COLORS[THEME_PROPS.BACKGROUND],
                 visible=category_count > 0,
+                size=(
+                    (None, None)
+                    if not show_habit_init_scroll_bar(category_count, habit_count)
+                    else (habit_init_width, round(height_coefficient * 1080))
+                ),
             )
         ],
         [sg.HorizontalSeparator(color=COLORS[THEME_PROPS.BUTTON][0])],

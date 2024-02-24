@@ -36,7 +36,10 @@ from source.core.validation import (
     no_data_from_yesterday,
 )
 from source.ui.habit_init import HabitsInitLayout, HabitsInitWindow, ReRenderHabitsInit
-from source.ui.utils import init_ui, preview_themes
+from source.ui.utils import (
+    init_ui,
+    preview_themes,
+)
 from source.ui.main_window import NeglectedPopUp, MainWindow, PopUp, DatePickerWindow
 from source.ui.data import DataWindow
 from source.ui.settings import PreviewWindow, SettingsWindow
@@ -309,8 +312,8 @@ finally:
     log.close()
 
 # pop up after n days (settings) reminding to view data
-# ui horizontal bar on data if data_days > n to be found
 # more consistent naming -> habit vs header
+# why so many Path and path init?
 # ui habit init description for fields, just tooltip is too ambiguous
 # ui to load habits.csv (load init habit)
 # identidade visual: patrolling owl

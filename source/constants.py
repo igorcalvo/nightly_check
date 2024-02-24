@@ -140,6 +140,9 @@ date_header = "date"
 already_filled_in_today_message = (
     "No message for you! You have already added in an entry for today."
 )
+habit_init_scrollable_threshold = 20
+habit_init_width = 1250
+height_coefficient = 0.80
 # ----------------------------------------------------------------------------------------------------------------------
 # | hue_offset | < 1
 
