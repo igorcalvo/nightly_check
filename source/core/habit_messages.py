@@ -1,15 +1,15 @@
 from pandas import DataFrame
 from random import choice
 
-from source.constants import already_filled_in_today_message
+from source.constants import already_filled_in_today_message, category_habit_separator
 from source.utils import (
     to_lower_underscored,
     flatten_list,
     replace_double_spaces_for_commas,
     get_value_from_df_by_row,
 )
-from source.core.data_in import get_matrix_data_by_header_indexes, read_past_messages
-from source.core.data_date import get_today_date
+from source.core.data_in import get_matrix_data_by_header_indexes, get_category
+from source.core.data_date import get_latest_date, get_today_date
 
 
 def calculate_frequency(
@@ -85,14 +85,17 @@ def get_popup_message(
     fractions: list,
     habit_messages: list,
     header: list,
+    categories: list,
     data: DataFrame,
-    msg_file_name: str,
+    messages: DataFrame,
     random_messages: bool,
 ) -> str | None:
+    todays_date = get_today_date(new_day_time)
     flat_header = flatten_list(header)
     message_data = [
         (
             check_habit(h, conditions, fractions, header, data),
+            get_category(h, header, categories),
             h,
             get_matrix_data_by_header_indexes(habit_messages, header, h),
         )
@@ -101,11 +104,12 @@ def get_popup_message(
     message_data.sort(key=lambda m: m[0][1], reverse=True)
 
     # m[0] = (frequency, nominal, failed: bool)
-    # m[1] = header
-    # m[2] = nessage
+    # m[1] = category
+    # m[2] = habit
+    # m[3] = message
     candidate_messages = set(
         [
-            f"{get_matrix_data_by_header_indexes(header, habit_messages, m[2])}\n{m[2]}"
+            f"{m[1].upper()}{category_habit_separator}{get_matrix_data_by_header_indexes(header, habit_messages, m[3])}\n{m[3]}"
             for m in message_data
             if m[0][2]
         ]
@@ -121,8 +125,9 @@ def get_popup_message(
         candidate_messages.intersection(empty_messages)
     )
 
-    past_messages, last_date = read_past_messages(msg_file_name)
-    if last_date == get_today_date(new_day_time).isoformat():
+    last_date = get_latest_date(messages)
+    past_messages = list(messages["message"])
+    if last_date == todays_date.isoformat() and messages.iloc[-1]["message"] != "":
         return already_filled_in_today_message
 
     previous_message = past_messages[-1] if past_messages is not None else ""
@@ -155,4 +160,5 @@ def get_popup_message(
             if f"{m[-2]}\n{m[-1]}" in candidate_messages:
                 return f"{m[-2]}\n{m[-1]}"
 
-    return choice(list(candidate_messages))
+    todays_message = choice(list(candidate_messages))
+    return todays_message

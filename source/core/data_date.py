@@ -33,7 +33,15 @@ def check_for_todays_entry(new_day_time: int, last_date: str) -> int:
     return delta.days
 
 
-def create_entry(new_day_time: int, data: DataFrame) -> DataFrame:
+def create_entry(date, data: DataFrame) -> DataFrame:
+    di = dict.fromkeys(data.columns.values, "")
+    di[date_header] = str(date)
+    df_row = DataFrame([di])
+    data = concat([data, df_row], ignore_index=True)
+    return data
+
+
+def create_entries(new_day_time: int, data: DataFrame) -> DataFrame:
     delta_days = None
     last_date = None
     try:
@@ -52,12 +60,10 @@ def create_entry(new_day_time: int, data: DataFrame) -> DataFrame:
         )
 
     if delta_days > 0:
-        di = dict.fromkeys(data.columns.values, "")
         for day in range(delta_days):
-            new_date = date.fromisoformat(last_date)
-            di[date_header] = str(new_date + timedelta(days=(day + 1)))
-            df_row = DataFrame([di])
-            data = concat([data, df_row], ignore_index=True)
+            new_date = date.fromisoformat(last_date) + timedelta(days=(day + 1))
+            print("typeof new_date", type(new_date))
+            data = create_entry(new_date, data)
     return data
 
 

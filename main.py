@@ -11,7 +11,13 @@ from source.constants import (
     SETTINGS_DEFAULT_VALUES,
 )
 from source.utils import file_not_exists
-from source.core.data_in import get_data_dataframe, read_csv, get_data, read_settings
+from source.core.data_in import (
+    get_data_dataframe,
+    read_csv,
+    get_data,
+    read_messages,
+    read_settings,
+)
 from source.core.data_out import (
     create_folder_if_doesnt_exist,
     create_file_if_doesnt_exist,
@@ -21,7 +27,7 @@ from source.core.data_out import (
     save_message_file,
 )
 from source.core.data_date import (
-    create_entry,
+    create_entries,
     todays_data_or_none,
     data_from_date_to_list,
     get_yesterday_date,
@@ -117,10 +123,11 @@ try:
 
     # print_fonts()
     settings = read_settings(FILE_NAMES.stg)
+    messages = read_messages(FILE_NAMES.msg, settings.new_day_time)
     init_ui(settings.hue_offset, settings.theme)
     hue_offset = settings.hue_offset
     theme = settings.theme
-    data = create_entry(settings.new_day_time, data)
+    data = create_entries(settings.new_day_time, data)
 
     neglected = no_data_from_yesterday(settings.new_day_time, data)
     if neglected:
@@ -255,7 +262,7 @@ try:
                 ]:
                     if settings_event == TEXTS_AND_KEYS.settings_save_button_text:
                         settings = Settings.from_dict(settings_dict)
-                        save_settings_file(settings, FILE_NAMES.stg)
+                        save_settings_file(FILE_NAMES.stg, settings)
                     settings_window.close()
                     break
                 elif settings_event == SETTINGS_KEYS.hue_offset:
@@ -284,14 +291,13 @@ try:
                     fractions,
                     habit_messages,
                     header,
+                    categories,
                     data,
-                    FILE_NAMES.msg,
+                    messages,
                     settings.random_messages,
                 )
                 if message and settings.display_messages:
-                    save_message_file(
-                        settings.new_day_time, FILE_NAMES.msg, header, message
-                    )
+                    save_message_file(FILE_NAMES.msg, messages, message, False)
                     PopUp(message, settings.message_duration)
             break
     window.close()

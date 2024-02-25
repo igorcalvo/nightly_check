@@ -4,7 +4,7 @@ from source.utils import (
     join_white_spaced_header,
     flatten_list,
 )
-from source.constants import HABITS_INIT
+from source.constants import HABITS_INIT, variables_csv_header
 
 
 def habit_index_from_event(event: str):
@@ -66,8 +66,7 @@ def generate_variables(
         HABITS_INIT.fraction_den_key, variables_init_values_dict
     )
 
-    header = "enabled,category,header,tooltip,message,condition,frequency"
-    file_content = f"{header}\n"
+    file_content = f"{variables_csv_header}\n"
     for i in range(len(repeated_categories)):
         row = variables_row(
             repeated_categories[i],

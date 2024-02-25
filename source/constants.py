@@ -8,7 +8,7 @@ data_folder = path.abspath(path.join(DIR, data_folder_name))
 
 class FILE_NAMES:
     csv = path.abspath(path.join(data_folder, "data.csv"))
-    msg = path.abspath(path.join(data_folder, "msg.txt"))
+    msg = path.abspath(path.join(data_folder, "messages.csv"))
     log = path.abspath(path.join(data_folder, "log.txt"))
     var = path.abspath(path.join(data_folder, "variables.csv"))
     stg = path.abspath(path.join(data_folder, "settings.json"))
@@ -135,8 +135,21 @@ class PATHS:
     settings_icon = f"{DIR}/assets/icons/cogwheel16.png"
 
 
-# ----------------------------------------------------------------------------------------------------------------------
 date_header = "date"
+
+
+class MESSAGES_HEADERS:
+    date = date_header
+    category = "category"
+    habit = "habit"
+    message = "message"
+    data_reminder = "data_reminder"
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+variables_csv_header = "enabled,category,header,tooltip,message,condition,frequency"
+messages_csv_header = f"{date_header},category,habit,message,data_reminder"
+category_habit_separator = " - "
 already_filled_in_today_message = (
     "No message for you! You have already added in an entry for today."
 )

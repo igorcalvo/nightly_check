@@ -1,7 +1,7 @@
-from pandas import DataFrame
-from os.path import exists
+from pandas import DataFrame, read_csv as pandas_read_csv
 
-from source.constants import FILE_NAMES, date_header
+from source.constants import FILE_NAMES, date_header, messages_csv_header
+from source.core.data_date import create_entry, get_today_date
 from source.utils import (
     replace_commas_for_double_spaces,
     replace_double_spaces_for_commas,
@@ -11,11 +11,10 @@ from source.utils import (
     file_not_exists,
     to_lower_underscored,
 )
-from source.core.validation import rid_message_file_of_blank_lines
 from source.core.settings import Settings
 
 
-def read_csv(file_name: str):
+def read_csv(file_name: str) -> DataFrame:
     with open(file_name, "r") as file:
         lines = file.readlines()
         file.close()
@@ -72,6 +71,13 @@ def group_by_category(dataframe: DataFrame, column: str) -> list:
     return result
 
 
+def get_category(habit: str, header: list[list[str]], categories: list[str]) -> str:
+    for idx, cat in enumerate(header):
+        if habit in cat:
+            return categories[idx]
+    raise Exception(f"get_category: couldn't find category for {habit}")
+
+
 def get_data(variables_file):
     fractions = group_by_category(variables_file, "frequency")
     conditions = group_by_category(variables_file, "condition")
@@ -109,18 +115,6 @@ def get_matrix_data_by_header_indexes(
     return ""
 
 
-def read_past_messages(msg_file_name: str) -> tuple[list | None, str | None]:
-    if not exists(msg_file_name):
-        return None, None
-    else:
-        rid_message_file_of_blank_lines(msg_file_name)
-        with open(msg_file_name, "r") as f:
-            # lines = [l.split('\t')[-1].replace('\n', '') for l in f.readlines()]
-            lines = [l.replace("\t\t", "\t").split("\t") for l in f.readlines()]
-            f.close()
-            return [f"{l[1]}\n{l[2]}" for l in lines], lines[-1][0]
-
-
 def read_settings(settings_file_name: str) -> Settings:
     settings: Settings = Settings()
     if file_not_exists(settings_file_name):
@@ -133,3 +127,17 @@ def read_settings(settings_file_name: str) -> Settings:
         settingsObj = Settings.from_json(settings_file_content)
         s.close()
     return settingsObj
+
+
+def read_messages(messages_file_name: str, new_day_time: int) -> DataFrame:
+    if file_not_exists(messages_file_name):
+        messages = DataFrame(columns=messages_csv_header.split(","))
+    else:
+        messages = pandas_read_csv(FILE_NAMES.msg)
+        messages.fillna("")
+
+    today = str(get_today_date(new_day_time))
+    if today not in list(messages[date_header].values):
+        messages = create_entry(today, messages)
+
+    return messages

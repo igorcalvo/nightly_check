@@ -1,11 +1,15 @@
-from pandas import DataFrame
+from pandas import DataFrame, options as pandas_options
 from datetime import date
 from os.path import exists, isdir
 from os import makedirs
 
-from source.constants import date_header, already_filled_in_today_message
-from source.utils import df_row_from_date, to_lower_underscored, flatten_list
-from source.core.data_date import get_today_date
+from source.constants import (
+    date_header,
+    already_filled_in_today_message,
+    category_habit_separator,
+    MESSAGES_HEADERS,
+)
+from source.utils import df_row_from_date, to_lower_underscored
 from source.core.settings import Settings
 
 
@@ -77,27 +81,28 @@ def save_data(data: DataFrame, checkbox_dict: dict, csv_file_name: str, date: st
 
 
 def save_message_file(
-    new_day_time: int, msg_file_name: str, header_list: list, todays_message: str
+    messages_file_name: str,
+    messages: DataFrame,
+    todays_message: str,
+    view_data_reminder_displayed: bool,
 ):
-    if todays_message == already_filled_in_today_message:
-        return
+    if todays_message != "":
+        ([cat, hab], msg) = (
+            todays_message.split("\n")[0].split(category_habit_separator),
+            todays_message.split("\n")[1],
+        )
+        pandas_options.mode.chained_assignment = None
+        messages_row = messages.iloc[-1]
+        messages_row[MESSAGES_HEADERS.category] = cat
+        messages_row[MESSAGES_HEADERS.habit] = hab
+        messages_row[MESSAGES_HEADERS.message] = msg
+        messages_row[MESSAGES_HEADERS.data_reminder] = view_data_reminder_displayed
+        messages.iloc[-1] = messages_row
 
-    today = get_today_date(new_day_time)
-    header, message = todays_message.split("\n")
-    longest_header = max(flatten_list(header_list), key=len)
-    spacing = "\t" * (
-        len(longest_header) // 4 - len(header) // 4 + (0 if len(header) >= 4 else 1)
-    )
-    spacing += "" if len(spacing) > 0 else "\t"
-    data = f"\n{today}\t{header}{spacing}{message}"
-    if not exists(msg_file_name):
-        data = data.replace("\n", "")
-    with open(msg_file_name, "a") as f:
-        f.write(data)
-        f.close()
+    messages.to_csv(messages_file_name, index=False)
 
 
-def save_settings_file(settings: Settings, settings_file_name: str):
+def save_settings_file(settings_file_name: str, settings: Settings):
     with open(settings_file_name, "w") as s:
         s.write(settings.to_json())
         s.close()
