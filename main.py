@@ -3,12 +3,14 @@ from traceback import format_exc
 from PySimpleGUI import WIN_CLOSED
 
 from source.constants import (
+    MESSAGES,
     data_folder,
     SETTINGS_KEYS,
     FILE_NAMES,
     HABITS_INIT,
     TEXTS_AND_KEYS,
     SETTINGS_DEFAULT_VALUES,
+    data_visualization_reminder_duration,
 )
 from source.utils import file_not_exists
 from source.core.data_in import (
@@ -34,7 +36,10 @@ from source.core.data_date import (
 )
 from source.core.settings import Settings
 from source.core.data_vis import image_bytes_to_base64
-from source.core.habit_messages import get_popup_message
+from source.core.habit_messages import (
+    get_popup_message,
+    should_show_data_visualization_reminder,
+)
 from source.core.habit_init import habit_index_from_event, generate_variables
 from source.core.validation import (
     verify_variables,
@@ -128,6 +133,9 @@ try:
     hue_offset = settings.hue_offset
     theme = settings.theme
     data = create_entries(settings.new_day_time, data)
+    showed_data_vis_reminder = should_show_data_visualization_reminder(
+        settings.show_data_vis_reminder, settings.data_vis_reminder_days, messages
+    )
 
     neglected = no_data_from_yesterday(settings.new_day_time, data)
     if neglected:
@@ -178,6 +186,10 @@ try:
         len(data) > 0,
         False,
         todays_data,  # type: ignore
+    )
+    PopUp(
+        MESSAGES.settings_data_vis_reminder_message,
+        data_visualization_reminder_duration,
     )
     while True:
         event, values_dict = window.read()  # type: ignore
@@ -297,7 +309,9 @@ try:
                     settings.random_messages,
                 )
                 if message and settings.display_messages:
-                    save_message_file(FILE_NAMES.msg, messages, message, False)
+                    save_message_file(
+                        FILE_NAMES.msg, messages, message, showed_data_vis_reminder
+                    )
                     PopUp(message, settings.message_duration)
             break
     window.close()
@@ -317,7 +331,6 @@ finally:
         log_write(log, f"{finally_string}")
     log.close()
 
-# pop up after n days (settings) reminding to view data
 # more consistent naming -> habit vs header
 # why so many Path and path init?
 # ui habit init description for fields, just tooltip is too ambiguous

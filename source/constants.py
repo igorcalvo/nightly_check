@@ -60,6 +60,8 @@ class SETTINGS_KEYS:
     random_messages = "random_messages"
     weekdays_language = "weekdays_language"
     new_day_time = "new_day_time"
+    show_data_vis_reminder = "show_data_vis_reminder"
+    data_vis_reminder_days = "data_vis_reminder_days"
 
 
 class SETTINGS_DEFAULT_VALUES:
@@ -73,6 +75,8 @@ class SETTINGS_DEFAULT_VALUES:
     random_messages = True
     weekdays_language = "jp"
     new_day_time = 6
+    show_data_vis_reminder = True
+    data_vis_reminder_days = 7
 
 
 class MESSAGES:
@@ -122,6 +126,15 @@ class MESSAGES:
     settings_tooltip_new_day_time = (
         "Hour after which a new day starts - useful for people who sleep after midnight"
     )
+    settings_tooltip_show_data_vis_reminder = (
+        "Display popup periodically reminding you to check your data"
+    )
+    settings_tooltip_data_vis_reminder_days = (
+        "How many days until the next reminder to check your data"
+    )
+    settings_data_vis_reminder_message = (
+        "Have you recently checked how you are doing?\nMaybe you should check it."
+    )
 
 
 class PATHS:
@@ -156,6 +169,7 @@ already_filled_in_today_message = (
 habit_init_scrollable_threshold = 20
 habit_init_width = 1250
 height_coefficient = 0.80
+data_visualization_reminder_duration = 3
 # ----------------------------------------------------------------------------------------------------------------------
 # | hue_offset | < 1
 

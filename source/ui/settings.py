@@ -227,16 +227,11 @@ def SettingsWindowLayout(
                 tooltip=MESSAGES.settings_tooltip_day_of_week,
             ),
             sg.Text(
-                text=pad_string("", 2),
-                text_color=COLORS[THEME_PROPS.BACKGROUND],
-                background_color=COLORS[THEME_PROPS.BACKGROUND],
-                font=FONTS["ckb"],
-            ),
-            sg.Text(
                 text=settings_key_to_text(SETTINGS_KEYS.graph_expected_value),
                 text_color=COLORS[THEME_PROPS.BUTTON][1],
                 background_color=COLORS[THEME_PROPS.BACKGROUND],
                 font=FONTS["pop"],
+                pad=((2 * sections_padding_x, 0), (0, 0)),
             ),
             sg.Checkbox(
                 text="",
@@ -249,17 +244,14 @@ def SettingsWindowLayout(
                 pad=((checkbox_padding, 0), (1, 1)),
                 tooltip=MESSAGES.settings_tooltip_expected,
             ),
-            sg.Text(
-                text=pad_string("", 2),
-                text_color=COLORS[THEME_PROPS.BACKGROUND],
-                background_color=COLORS[THEME_PROPS.BACKGROUND],
-                font=FONTS["ckb"],
-            ),
+        ],
+        [
             sg.Text(
                 text=settings_key_to_text(SETTINGS_KEYS.scrollable_image),
                 text_color=COLORS[THEME_PROPS.BUTTON][1],
                 background_color=COLORS[THEME_PROPS.BACKGROUND],
                 font=FONTS["pop"],
+                pad=((sections_padding_x, 0), (sections_padding_y, 0)),
             ),
             sg.Checkbox(
                 text="",
@@ -269,8 +261,53 @@ def SettingsWindowLayout(
                 checkbox_color=COLORS[THEME_PROPS.BUTTON][0],
                 text_color=COLORS[THEME_PROPS.BUTTON][1],
                 background_color=COLORS[THEME_PROPS.BACKGROUND],
-                pad=((checkbox_padding, 0), (1, 1)),
+                pad=((checkbox_padding, 0), (sections_padding_y, 1)),
                 tooltip=MESSAGES.settings_tooltip_scrollable,
+            ),
+            sg.Text(
+                text=settings_key_to_text(SETTINGS_KEYS.show_data_vis_reminder),
+                text_color=COLORS[THEME_PROPS.BUTTON][1],
+                background_color=COLORS[THEME_PROPS.BACKGROUND],
+                font=FONTS["pop"],
+                pad=(
+                    (2 * sections_padding_x + sections_padding_x // 2, 0),
+                    (sections_padding_y, 0),
+                ),
+            ),
+            sg.Checkbox(
+                text="",
+                default=bool(settings.show_data_vis_reminder),
+                key=SETTINGS_KEYS.show_data_vis_reminder,
+                font=FONTS["pop"],
+                checkbox_color=COLORS[THEME_PROPS.BUTTON][0],
+                text_color=COLORS[THEME_PROPS.BUTTON][1],
+                background_color=COLORS[THEME_PROPS.BACKGROUND],
+                pad=((checkbox_padding, 0), (sections_padding_y, 1)),
+                tooltip=MESSAGES.settings_tooltip_show_data_vis_reminder,
+            ),
+            sg.Text(
+                text=settings_key_to_text(SETTINGS_KEYS.data_vis_reminder_days),
+                text_color=COLORS[THEME_PROPS.BUTTON][1],
+                background_color=COLORS[THEME_PROPS.BACKGROUND],
+                font=FONTS["pop"],
+                pad=(
+                    (2 * sections_padding_x + sections_padding_x // 2 - 5, 0),
+                    (sections_padding_y, 0),
+                ),
+            ),
+            sg.InputText(
+                key=SETTINGS_KEYS.data_vis_reminder_days,
+                do_not_clear=True,
+                enable_events=True,
+                visible=True,
+                font=FONTS["ckb"],
+                tooltip=MESSAGES.settings_tooltip_data_vis_reminder_days,
+                default_text=str(settings.data_vis_reminder_days),
+                size=text_input_size,
+                justification="r",
+                background_color=COLORS[THEME_PROPS.INPUT],
+                text_color=COLORS[THEME_PROPS.TEXT_INPUT],
+                pad=((checkbox_padding, 0), (sections_padding_y, 0)),
             ),
         ],
     ]
@@ -305,16 +342,11 @@ def SettingsWindowLayout(
                 tooltip=MESSAGES.settings_tooltip_messages_show,
             ),
             sg.Text(
-                text=pad_string("", 3),
-                text_color=COLORS[THEME_PROPS.BACKGROUND],
-                background_color=COLORS[THEME_PROPS.BACKGROUND],
-                font=FONTS["ckb"],
-            ),
-            sg.Text(
                 text=settings_key_to_text(SETTINGS_KEYS.random_messages),
                 text_color=COLORS[THEME_PROPS.BUTTON][1],
                 background_color=COLORS[THEME_PROPS.BACKGROUND],
                 font=FONTS["pop"],
+                pad=((sections_padding_x + sections_padding_x // 2, 0), (0, 0)),
             ),
             sg.Checkbox(
                 text="",
@@ -328,16 +360,11 @@ def SettingsWindowLayout(
                 tooltip=MESSAGES.settings_tooltip_random,
             ),
             sg.Text(
-                text=pad_string("", 7),
-                text_color=COLORS[THEME_PROPS.BACKGROUND],
-                background_color=COLORS[THEME_PROPS.BACKGROUND],
-                font=FONTS["ckb"],
-            ),
-            sg.Text(
                 text=settings_key_to_text(SETTINGS_KEYS.message_duration),
                 text_color=COLORS[THEME_PROPS.BUTTON][1],
                 background_color=COLORS[THEME_PROPS.BACKGROUND],
                 font=FONTS["pop"],
+                pad=((4 * sections_padding_x - 5, 0), (0, 0)),
             ),
             sg.InputText(
                 key=SETTINGS_KEYS.message_duration,
@@ -448,7 +475,7 @@ def SettingsWindow(
         titlebar_text_color=COLORS[THEME_PROPS.BUTTON][1],
         titlebar_icon=PATH.settings_icon,
         background_color=COLORS[THEME_PROPS.BACKGROUND],
-        size=(900, 540),
+        size=(900, 590),
         element_justification="l",
         return_keyboard_events=True,
     )

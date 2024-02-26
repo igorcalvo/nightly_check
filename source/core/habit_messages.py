@@ -1,7 +1,12 @@
 from pandas import DataFrame
 from random import choice
+from datetime import date, timedelta
 
-from source.constants import already_filled_in_today_message, category_habit_separator
+from source.constants import (
+    MESSAGES_HEADERS,
+    already_filled_in_today_message,
+    category_habit_separator,
+)
 from source.utils import (
     to_lower_underscored,
     flatten_list,
@@ -162,3 +167,23 @@ def get_popup_message(
 
     todays_message = choice(list(candidate_messages))
     return todays_message
+
+
+def should_show_data_visualization_reminder(
+    show_data_vis_reminder: bool, data_vis_reminder_days: int, messages: DataFrame
+) -> bool:
+    if not show_data_vis_reminder:
+        return False
+
+    shown = messages.loc[(messages[MESSAGES_HEADERS.data_reminder] == "True")]
+    if len(shown.values) == 0:
+        return True
+
+    latest = shown.iloc[-1][MESSAGES_HEADERS.data_reminder]
+    today = messages.iloc[-1][MESSAGES_HEADERS.date]
+    if today >= str(
+        date.fromisoformat(latest) + timedelta(days=data_vis_reminder_days)
+    ):
+        return True
+
+    return False

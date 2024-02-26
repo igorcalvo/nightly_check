@@ -15,6 +15,8 @@ class Settings:
         random_messages: bool = SETTINGS_DEFAULT_VALUES.random_messages,
         weekdays_language: str = SETTINGS_DEFAULT_VALUES.weekdays_language,
         new_day_time: int = SETTINGS_DEFAULT_VALUES.new_day_time,
+        show_data_vis_reminder: bool = SETTINGS_DEFAULT_VALUES.show_data_vis_reminder,
+        data_vis_reminder_days: int = SETTINGS_DEFAULT_VALUES.data_vis_reminder_days,
     ):
         self.hue_offset = hue_offset
         self.theme = theme
@@ -26,6 +28,8 @@ class Settings:
         self.random_messages = random_messages
         self.weekdays_language = weekdays_language
         self.new_day_time = new_day_time
+        self.show_data_vis_reminder = show_data_vis_reminder
+        self.data_vis_reminder_days = data_vis_reminder_days
 
     def to_json(self):
         return dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
@@ -42,6 +46,8 @@ class Settings:
         random_messages = bool(dictionary[SETTINGS_KEYS.random_messages])
         weekdays_language = str(dictionary[SETTINGS_KEYS.weekdays_language])
         new_day_time = int(dictionary[SETTINGS_KEYS.new_day_time])
+        show_data_vis_reminder = bool(dictionary[SETTINGS_KEYS.show_data_vis_reminder])
+        data_vis_reminder_days = int(dictionary[SETTINGS_KEYS.data_vis_reminder_days])
         return Settings(
             hue_offset,
             theme,
@@ -53,6 +59,8 @@ class Settings:
             random_messages,
             weekdays_language,
             new_day_time,
+            show_data_vis_reminder,
+            data_vis_reminder_days,
         )
 
     @staticmethod
