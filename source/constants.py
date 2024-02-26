@@ -160,7 +160,7 @@ class MESSAGES_HEADERS:
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-variables_csv_header = "enabled,category,header,tooltip,message,condition,frequency"
+variables_csv_header = "enabled,category,habit,tooltip,message,condition,frequency"
 messages_csv_header = f"{date_header},category,habit,message,data_reminder"
 category_habit_separator = " - "
 already_filled_in_today_message = (

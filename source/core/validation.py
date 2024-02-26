@@ -7,23 +7,23 @@ from source.core.data_out import backup_data
 
 
 def verify_header_and_data(
-    header: list,
+    habits: list,
     data_variables: list,
     csv_file_name: str,
     data: DataFrame,
-    disabled_headers: list,
+    disabled_habits: list,
 ):
-    flat_header = [to_lower_underscored(item) for sublist in header for item in sublist]
+    flat_habits = [to_lower_underscored(item) for sublist in habits for item in sublist]
     if (
-        len([item for item in data_variables if item not in flat_header]) > 0
-        or len([item for item in flat_header if item not in data_variables]) > 0
+        len([item for item in data_variables if item not in flat_habits]) > 0
+        or len([item for item in flat_habits if item not in data_variables]) > 0
     ):
         for h in data_variables:
-            if h not in flat_header and h not in disabled_headers:
+            if h not in flat_habits and h not in disabled_habits:
                 backup_data(csv_file_name, data)
                 print("header " + h + " was removed")
                 data.drop(h, inplace=True, axis=1)
-        for h in flat_header:
+        for h in flat_habits:
             if h not in data_variables:
                 backup_data(csv_file_name, data)
                 print("header " + h + " was added")

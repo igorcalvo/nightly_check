@@ -9,7 +9,7 @@ from source.utils import (
     get_value_from_df_by_row,
 )
 from source.core.data_vis import (
-    get_header_data,
+    get_habit_data,
     get_date_array,
     get_fail_indexes_list,
     get_expeted_value,
@@ -59,17 +59,17 @@ def write_category_header(
         (0, 0, 0),
         "liberation",
     )
-    header_font_size_length = 7
-    header_font_size_spacing = 1
+    habit_font_size_length = 7
+    habit_font_size_spacing = 1
     magic_number = 5
-    header_font_constant = header_font_size_length + header_font_size_spacing
+    habit_font_constant = habit_font_size_length + habit_font_size_spacing
     oldest_date = date(
         int(latest_date.split("-")[0]),
         int(latest_date.split("-")[1]),
         int(latest_date.split("-")[2]),
     ) + timedelta(days=(-squares + 1))
     current_date = oldest_date
-    initial_pos_x = position[0] + max_category_len * header_font_constant + magic_number
+    initial_pos_x = position[0] + max_category_len * habit_font_constant + magic_number
     for s in range(squares):
         if current_date.day == 1 or (oldest_date - current_date).days % 7 == 0:
             write(
@@ -141,7 +141,7 @@ def draw_line_of_squares(
 def write_all(
     image,
     categories: list,
-    header_list: list,
+    habits: list,
     conditions: list,
     data,
     position: tuple,
@@ -156,7 +156,7 @@ def write_all(
     graph_expected_value: bool,
     weekdays_language: str,
 ):
-    max_header_len = max([len(h) for h in flatten_list(header_list)])
+    max_habit_len = max([len(h) for h in flatten_list(habits)])
     max_category_len = max([len(c) for c in categories])
     max_category_text_offset = text_list_max_len_to_pixels(categories)
     initial_pos = [position[0], position[1]]
@@ -169,7 +169,7 @@ def write_all(
             (initial_pos[0], initial_pos[1]),
             sqr_size,
             2,
-            len(header_list[category_index]),
+            len(habits[category_index]),
         )
         write_category_header(
             image,
@@ -184,38 +184,38 @@ def write_all(
             squares,
             get_value_from_df_by_row(date_header, -1, data),
         )
-        for header_index, header in enumerate(header_list[category_index]):
-            expected_value = get_expeted_value(header, header_list, conditions)
-            header_data = get_header_data(
+        for habit_index, habit in enumerate(habits[category_index]):
+            expected_value = get_expeted_value(habit, habits, conditions)
+            habit_data = get_habit_data(
                 data,
                 date_array,
                 squares,
-                header,
+                habit,
                 expected_value if graph_expected_value else True,
             )
             fail_list = get_fail_indexes_list(
-                header_data, expected_value if graph_expected_value else True
+                habit_data, expected_value if graph_expected_value else True
             )
-            hueOffset = (hues[1] - hues[0]) / (len(header_list[category_index]) + 1)
+            hueOffset = (hues[1] - hues[0]) / (len(habits[category_index]) + 1)
             write(
                 image,
-                category_positions[header_index],
-                align_right(header, max_header_len),
+                category_positions[habit_index],
+                align_right(habit, max_habit_len),
                 (0, 0, 0),
             )
             draw_line_of_squares(
                 image,
                 (
                     initial_pos[0] + max_x_delta + text_squares_x_spacing,
-                    category_positions[header_index][1] - text_squares_y_offset,
+                    category_positions[habit_index][1] - text_squares_y_offset,
                 ),
                 sqr_size,
                 sqr_border,
                 squares,
                 fail_list,
                 # GetRGBColor(0.5, 0.75, 1)
-                # GetRGBColor(hues[category_index], saturations[header_index], 1),
-                get_rgb_color(hues[category_index] + header_index * hueOffset, 0.85, 1),
+                # GetRGBColor(hues[category_index], saturations[habit_index], 1),
+                get_rgb_color(hues[category_index] + habit_index * hueOffset, 0.85, 1),
                 get_rgb_color(0, 0, 0.75),
             )
         initial_pos[1] = initial_pos[1] + next_category_position + category_y_spacing
@@ -238,17 +238,17 @@ def write_all(
 
 def generate_image(
     categories: list,
-    header: list,
+    habits: list,
     conditions: list,
     data_days: int,
     graph_expected_value: bool,
     weekdays_language: str,
     data,
 ):
-    flat_header_list = flatten_list(header)
+    flat_habit_list = flatten_list(habits)
     initial_x = 25
     initial_y = 50
-    rows = len(flat_header_list)
+    rows = len(flat_habit_list)
     rows_y_spacing = 2
     categories_length = len(categories)
 
@@ -256,7 +256,7 @@ def generate_image(
     sqrBorder = 1
     squares = min([data_days, len(data.index)])
 
-    max_x_delta = text_list_max_len_to_pixels(flat_header_list)
+    max_x_delta = text_list_max_len_to_pixels(flat_habit_list)
 
     text_squares_x_spacing = int(0.5 * sqrSize)
     text_squares_y_offset = int(0.25 * sqrSize)
@@ -277,7 +277,7 @@ def generate_image(
     write_all(
         img,
         categories,
-        header,
+        habits,
         conditions,
         data,
         (initial_x, initial_y),

@@ -10,7 +10,7 @@ from source.core.data_in import get_matrix_data_by_header_indexes
 from source.core.data_date import get_latest_date
 
 
-def get_date_array(data: DataFrame, squares: int) -> list:
+def get_date_array(data: DataFrame, squares: int) -> list[str]:
     latest_date_iso = get_latest_date(data)
     latest_date_value = datetime.fromisoformat(latest_date_iso)
     result = [
@@ -20,29 +20,29 @@ def get_date_array(data: DataFrame, squares: int) -> list:
     return result
 
 
-def get_expeted_value(header: str, headerList: list, conditions: list) -> bool:
-    condition = get_matrix_data_by_header_indexes(conditions, headerList, header)
+def get_expeted_value(habit: str, habit_list: list, conditions: list) -> bool:
+    condition = get_matrix_data_by_header_indexes(conditions, habit_list, habit)
     return False if condition in ["=", "<=", "<"] else True
 
 
-def get_header_data(
+def get_habit_data(
     data: DataFrame,
     date_array: list,
     squares: int,
-    header: str,
+    habit: str,
     expected_value: bool = True,
-) -> list:
-    column_header = to_lower_underscored(header)
-    header_data = data[[date_header, column_header]]
-    header_data = header_data.reset_index()
+) -> list[bool]:
+    column_habit = to_lower_underscored(habit)
+    habit_data = data[[date_header, column_habit]]
+    habit_data = habit_data.reset_index()
 
     result = [not expected_value for item in range(squares)]
     for index, date_value in enumerate(date_array):
         try:
             data_value = get_value_from_df_by_value(
-                date_header, date_value, header_data
+                date_header, date_value, habit_data
             )
-            value = data_value[column_header].values[0]
+            value = data_value[column_habit].values[0]
             if value == str(expected_value):
                 result[index] = expected_value
         except:
@@ -51,9 +51,9 @@ def get_header_data(
     return result
 
 
-def get_fail_indexes_list(headerData: list, expectedValue: bool = True) -> list:
+def get_fail_indexes_list(habit_data: list, expectedValue: bool = True) -> list[int]:
     result = []
-    for index, item in enumerate(headerData):
+    for index, item in enumerate(habit_data):
         if item != expectedValue:
             result.append(index)
     return result
@@ -71,7 +71,7 @@ def image_bytes_to_base64(image) -> str:
 
 def segment_unit_into_list(
     n: int, min_offset: float = 0, max_offset: float = 1
-) -> list:
+) -> list[float]:
     if n <= 0:
         raise Exception(f"SegmentUnitIntoList: n can't be <= 0. Got: {n}")
     elif min_offset >= max_offset or min_offset < 0 or max_offset > 1:
@@ -83,7 +83,7 @@ def segment_unit_into_list(
     return result
 
 
-def get_rgb_color(hue: float, saturation: float, value: float) -> tuple:
+def get_rgb_color(hue: float, saturation: float, value: float) -> tuple[int, ...]:
     # 0 to 1
     rgb_float = hsv_to_rgb((hue, saturation, value))
     result = tuple(int(v * 255) for v in rgb_float)

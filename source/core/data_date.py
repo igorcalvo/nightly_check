@@ -66,23 +66,23 @@ def create_entries(new_day_time: int, data: DataFrame) -> DataFrame:
     return data
 
 
-def data_from_date_to_list(data: DataFrame, date: str, header: list):
+def data_from_date_to_list(data: DataFrame, date: str, habits: list):
     row_from_date = df_row_from_date(data, date, date_header)
     result = [
         [row_from_date[to_lower_underscored(h)].values[0] == "True" for h in cat]
-        for cat in header
+        for cat in habits 
     ]
     return result
 
 
 def todays_data_or_none(
-    new_day_time: int, data: DataFrame, header: list
+    new_day_time: int, data: DataFrame, habits: list
 ) -> list | None:
     today = str(get_today_date(new_day_time))
     if len(data.tail(1)["date"].values) == 0:
         return None
     return (
-        data_from_date_to_list(data, today, header)
+        data_from_date_to_list(data, today, habits)
         if data.tail(1)["date"].values[0] == today
         else None
     )

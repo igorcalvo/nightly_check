@@ -117,14 +117,14 @@ try:
         fractions,
         habit_messages,
         descriptions,
-        header,
+        habits,
         categories,
-        disabled_headers,
+        disabled_habits,
     ) = get_data(variables_file)
-    data = get_data_dataframe(header)
+    data = get_data_dataframe(habits)
     variables = list(data.columns)
     variables.pop(0)
-    verify_header_and_data(header, variables, FILE_NAMES.csv, data, disabled_headers)
+    verify_header_and_data(habits, variables, FILE_NAMES.csv, data, disabled_habits)
 
     # print_fonts()
     settings = read_settings(FILE_NAMES.stg)
@@ -133,7 +133,7 @@ try:
     hue_offset = settings.hue_offset
     theme = settings.theme
     data = create_entries(settings.new_day_time, data)
-    showed_data_vis_reminder = should_show_data_visualization_reminder(
+    show_data_vis_reminder = should_show_data_visualization_reminder(
         settings.show_data_vis_reminder, settings.data_vis_reminder_days, messages
     )
 
@@ -145,7 +145,7 @@ try:
             if neglected_event == TEXTS_AND_KEYS.neglected_accept_text:
                 neglected_data_window = MainWindow(
                     categories,
-                    header,
+                    habits,
                     descriptions,
                     len(data) >= 1,
                     True,
@@ -178,26 +178,27 @@ try:
                 neglected_window.close()
                 break
 
-    todays_data = todays_data_or_none(settings.new_day_time, data, header)
+    todays_data = todays_data_or_none(settings.new_day_time, data, habits)
     window = MainWindow(
         categories,
-        header,
+        habits,
         descriptions,
         len(data) > 0,
         False,
         todays_data,  # type: ignore
     )
-    PopUp(
-        MESSAGES.settings_data_vis_reminder_message,
-        data_visualization_reminder_duration,
-    )
+    if show_data_vis_reminder:
+        PopUp(
+            MESSAGES.settings_data_vis_reminder_message,
+            data_visualization_reminder_duration,
+        )
     while True:
         event, values_dict = window.read()  # type: ignore
         if event == TEXTS_AND_KEYS.data_button_text:
             graph_data = read_csv(FILE_NAMES.csv)
             img = generate_image(
                 categories,
-                header,
+                habits,
                 conditions,
                 settings.data_days,
                 settings.graph_expected_value,
@@ -234,10 +235,10 @@ try:
                         date_picker_window.close()
                         break
                     picked_date = date_picker_dict[TEXTS_AND_KEYS.select_date_key]
-                    data_from_date = data_from_date_to_list(data, picked_date, header)
+                    data_from_date = data_from_date_to_list(data, picked_date, habits)
                     edit_data_window = MainWindow(
                         categories,
-                        header,
+                        habits,
                         descriptions,
                         len(data) > 0,
                         True,
@@ -302,7 +303,7 @@ try:
                     conditions,
                     fractions,
                     habit_messages,
-                    header,
+                    habits,
                     categories,
                     data,
                     messages,
@@ -310,7 +311,7 @@ try:
                 )
                 if message and settings.display_messages:
                     save_message_file(
-                        FILE_NAMES.msg, messages, message, showed_data_vis_reminder
+                        FILE_NAMES.msg, messages, message, show_data_vis_reminder
                     )
                     PopUp(message, settings.message_duration)
             break
@@ -331,12 +332,13 @@ finally:
         log_write(log, f"{finally_string}")
     log.close()
 
-# more consistent naming -> habit vs header
+# more consistent typing list -> list[list[str]]
 # why so many Path and path init?
 # ui habit init description for fields, just tooltip is too ambiguous
 # ui to load habits.csv (load init habit)
 # identidade visual: patrolling owl
 # ship with scripts to run before shutdown
+# sort imports
 
 # MAJOR
 #   *** Validation ***

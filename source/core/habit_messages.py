@@ -39,19 +39,19 @@ def calculate_frequency(
 
 
 def parse_frequency(
-    column: str, conditions: list, fractions: list, header: list
+    column: str, conditions: list, fractions: list, habits: list
 ) -> tuple:
-    condition = get_matrix_data_by_header_indexes(conditions, header, column)
-    fraction = get_matrix_data_by_header_indexes(fractions, header, column)
+    condition = get_matrix_data_by_header_indexes(conditions, habits, column)
+    fraction = get_matrix_data_by_header_indexes(fractions, habits, column)
     if "/" not in fraction:
         return condition, 0, 1
     return condition, int(fraction.split("/")[0]), int(fraction.split("/")[1])
 
 
 def check_habit(
-    column: str, conditions: list, fractions: list, header: list, data: DataFrame
+    column: str, conditions: list, fractions: list, habits: list, data: DataFrame
 ) -> tuple:
-    condition, num, den = parse_frequency(column, conditions, fractions, header)
+    condition, num, den = parse_frequency(column, conditions, fractions, habits)
     nominal = num / den
     trues = [
         1 if str(x) == "True" else 0
@@ -63,16 +63,16 @@ def check_habit(
 
 
 def determine_successful_today(
-    data: DataFrame, conditions: list, header: list, habit_messages: list
+    data: DataFrame, conditions: list, habits: list, habit_messages: list
 ) -> list:
     expectation = [[False if d == "<" else True for d in arr] for arr in conditions]
 
-    reality = [[] for item in range(len(header))]
-    for idx1, sublist in enumerate(header):
+    reality = [[] for item in range(len(habits))]
+    for idx1, sublist in enumerate(habits):
         for idx2, item in enumerate(sublist):
             reality[idx1].append(
                 get_value_from_df_by_row(
-                    to_lower_underscored(header[idx1][idx2]), -1, data
+                    to_lower_underscored(habits[idx1][idx2]), -1, data
                 )
             )
 
@@ -89,22 +89,22 @@ def get_popup_message(
     conditions: list,
     fractions: list,
     habit_messages: list,
-    header: list,
+    habits: list,
     categories: list,
     data: DataFrame,
     messages: DataFrame,
     random_messages: bool,
 ) -> str | None:
     todays_date = get_today_date(new_day_time)
-    flat_header = flatten_list(header)
+    flat_habits = flatten_list(habits)
     message_data = [
         (
-            check_habit(h, conditions, fractions, header, data),
-            get_category(h, header, categories),
+            check_habit(h, conditions, fractions, habits, data),
+            get_category(h, habits, categories),
             h,
-            get_matrix_data_by_header_indexes(habit_messages, header, h),
+            get_matrix_data_by_header_indexes(habit_messages, habits, h),
         )
-        for h in flat_header
+        for h in flat_habits
     ]
     message_data.sort(key=lambda m: m[0][1], reverse=True)
 
@@ -114,7 +114,7 @@ def get_popup_message(
     # m[3] = message
     candidate_messages = set(
         [
-            f"{m[1].upper()}{category_habit_separator}{get_matrix_data_by_header_indexes(header, habit_messages, m[3])}\n{m[3]}"
+            f"{m[1].upper()}{category_habit_separator}{get_matrix_data_by_header_indexes(habits, habit_messages, m[3])}\n{m[3]}"
             for m in message_data
             if m[0][2]
         ]
@@ -143,7 +143,7 @@ def get_popup_message(
         candidate_messages.remove(previous_message)
 
     success_messages = determine_successful_today(
-        data, conditions, header, habit_messages
+        data, conditions, habits, habit_messages
     )
     success_messages = list(set(success_messages))
     if "" in success_messages:
@@ -175,11 +175,11 @@ def should_show_data_visualization_reminder(
     if not show_data_vis_reminder:
         return False
 
-    shown = messages.loc[(messages[MESSAGES_HEADERS.data_reminder] == "True")]
+    shown = messages.loc[(messages[MESSAGES_HEADERS.data_reminder] == True)]
     if len(shown.values) == 0:
         return True
 
-    latest = shown.iloc[-1][MESSAGES_HEADERS.data_reminder]
+    latest = shown.iloc[-1][MESSAGES_HEADERS.date]
     today = messages.iloc[-1][MESSAGES_HEADERS.date]
     if today >= str(
         date.fromisoformat(latest) + timedelta(days=data_vis_reminder_days)

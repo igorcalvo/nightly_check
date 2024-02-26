@@ -139,7 +139,7 @@ def replace_double_spaces_for_commas(string: str) -> str:
     return string.replace("  ", ", ")
 
 
-def join_white_spaced_header(string: str) -> str:
+def join_white_spaced_habit(string: str) -> str:
     return string.replace(" ", "-")
 
 

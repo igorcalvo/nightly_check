@@ -1,7 +1,7 @@
 from source.utils import (
     values_from_keyword,
     replace_commas_for_double_spaces,
-    join_white_spaced_header,
+    join_white_spaced_habit,
     flatten_list,
 )
 from source.constants import HABITS_INIT, variables_csv_header
@@ -14,7 +14,7 @@ def habit_index_from_event(event: str):
 
 def variables_row(
     category: str,
-    header: str,
+    habit: str,
     tooltip: str,
     message: str,
     condition: str,
@@ -36,7 +36,7 @@ def variables_row(
         if condition in empty_conditions
         else f"{replace_commas_for_double_spaces(message)},{condition},{numerator}/{denominator}"
     )
-    result += f"1,{category.lower()},{join_white_spaced_header(header.lower())},{tooltip},{slap}\n"
+    result += f"1,{category.lower()},{join_white_spaced_habit(habit.lower())},{tooltip},{slap}\n"
     return result
 
 

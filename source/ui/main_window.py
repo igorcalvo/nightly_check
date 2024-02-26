@@ -11,13 +11,13 @@ PATH.__init__()
 
 def CreateMainLayout(
     categories: list,
-    headers: list,
+    habits: list,
     descriptions: list,
     csv_not_empty: bool,
     is_sub_window: bool,
     default_values: list,
 ) -> list:
-    max_cat_header_count = max([len(cat) for cat in headers])
+    max_cat_habits_count = max([len(cat) for cat in habits])
     category_padding = ((20, 0), (10, 0))
     checkbox_padding = ((15, 0), (1, 1))
     checkbox_padlast = ((15, 15), (1, 1))
@@ -44,7 +44,7 @@ def CreateMainLayout(
                                     if len(default_values) == 0
                                     else bool(
                                         get_matrix_data_by_header_indexes(
-                                            default_values, headers, item
+                                            default_values, habits, item
                                         )
                                     )
                                 ),
@@ -59,11 +59,11 @@ def CreateMainLayout(
                                     else checkbox_padding
                                 ),
                                 tooltip=get_matrix_data_by_header_indexes(
-                                    descriptions, headers, item
+                                    descriptions, habits, item
                                 ),
                             )
                         ]
-                        for item in headers[idx_cat]
+                        for item in habits[idx_cat]
                     ),
                     list(
                         [
@@ -75,7 +75,7 @@ def CreateMainLayout(
                                 pad=checkbox_padding,
                             )
                         ]
-                        for i in range(max_cat_header_count - len(headers[idx_cat]))
+                        for i in range(max_cat_habits_count - len(habits[idx_cat]))
                     ),
                 ]
             ),
@@ -139,7 +139,7 @@ def CreateMainLayout(
 
 def MainWindow(
     categories: list,
-    header: list,
+    habits: list,
     descriptions: list,
     csv_not_empty: bool,
     is_sub_window: bool,
@@ -147,7 +147,7 @@ def MainWindow(
 ):
     layout = CreateMainLayout(
         categories,
-        header,
+        habits,
         descriptions,
         csv_not_empty,
         is_sub_window,

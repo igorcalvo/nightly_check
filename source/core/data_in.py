@@ -40,19 +40,19 @@ def read_csv(file_name: str) -> DataFrame:
     return df
 
 
-def get_data_dataframe(header: list) -> DataFrame:
+def get_data_dataframe(habits: list) -> DataFrame:
     if file_not_exists(FILE_NAMES.csv):
-        cols = [to_lower_underscored(item) for item in flatten_list(header)]
+        cols = [to_lower_underscored(item) for item in flatten_list(habits)]
         cols.insert(0, date_header)
         return DataFrame(columns=cols)
     else:
         return read_csv(FILE_NAMES.csv)
 
 
-def group_by_category(dataframe: DataFrame, column: str) -> list:
+def group_by_category(dataframe: DataFrame, column: str) -> list[list]:
     enabled_column = "enabled"
     category_column = "category"
-    capitalized_columns = ["header"]
+    capitalized_columns = ["habit"]
     categories = remove_duplicates(dataframe[category_column])
     result = []
     for category in categories:
@@ -71,8 +71,8 @@ def group_by_category(dataframe: DataFrame, column: str) -> list:
     return result
 
 
-def get_category(habit: str, header: list[list[str]], categories: list[str]) -> str:
-    for idx, cat in enumerate(header):
+def get_category(habit: str, habits: list[list[str]], categories: list[str]) -> str:
+    for idx, cat in enumerate(habits):
         if habit in cat:
             return categories[idx]
     raise Exception(f"get_category: couldn't find category for {habit}")
@@ -83,28 +83,28 @@ def get_data(variables_file):
     conditions = group_by_category(variables_file, "condition")
     habit_messages = group_by_category(variables_file, "message")
     descriptions = group_by_category(variables_file, "tooltip")
-    header = group_by_category(variables_file, "header")
+    habits = group_by_category(variables_file, "habit")
     categories = remove_duplicates(
         flatten_list(group_by_category(variables_file, "category"))
     )
-    disabled_headers = list(
-        variables_file.loc[(variables_file["enabled"] == "0")]["header"]
+    disabled_habits = list(
+        variables_file.loc[(variables_file["enabled"] == "0")]["habit"]
     )
     return (
         conditions,
         fractions,
         habit_messages,
         descriptions,
-        header,
+        habits,
         categories,
-        disabled_headers,
+        disabled_habits,
     )
 
 
 def get_matrix_data_by_header_indexes(
-    other_matrix: list, header_matrix: list, header_value: str
+    other_matrix: list[list[str]], habit_matrix: list[list[str]], header_value: str
 ) -> str:
-    for idx1, sublist in enumerate(header_matrix):
+    for idx1, sublist in enumerate(habit_matrix):
         for idx2, item in enumerate(sublist):
             if item == header_value:
                 return other_matrix[idx1][idx2]
@@ -136,7 +136,7 @@ def read_messages(messages_file_name: str, new_day_time: int) -> DataFrame:
         messages = pandas_read_csv(FILE_NAMES.msg)
         messages.fillna("")
 
-    today = str(get_today_date(new_day_time))
+    today = get_today_date(new_day_time)
     if today not in list(messages[date_header].values):
         messages = create_entry(today, messages)
 
