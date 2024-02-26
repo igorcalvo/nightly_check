@@ -1,12 +1,12 @@
 import PySimpleGUI as sg
 
-from source.constants import COLORS, FONTS, MESSAGES, PATHS, TEXTS_AND_KEYS
+from source.constants import COLORS, FONTS, MESSAGES, TEXTS_AND_KEYS
+from source.ui.utils import get_paths
 from source.utils import flatten_and_wrap, pad_string, date_ymd_to_mdy
 from source.core.data_in import get_matrix_data_by_header_indexes
 from source.core.theme import THEME_PROPS
 
-PATH = PATHS()
-PATH.__init__()
+ICON_PATHS = get_paths()
 
 
 def CreateMainLayout(
@@ -159,7 +159,7 @@ def MainWindow(
         use_custom_titlebar=True,
         titlebar_background_color=COLORS[THEME_PROPS.BUTTON][0],
         titlebar_text_color=COLORS[THEME_PROPS.BUTTON][1],
-        titlebar_icon=PATH.colored_icon,
+        titlebar_icon=ICON_PATHS.colored_icon,
         background_color=COLORS[THEME_PROPS.BACKGROUND],
         element_justification="l",
     )
@@ -228,7 +228,7 @@ def NeglectedPopUp():
         use_custom_titlebar=True,
         titlebar_background_color=COLORS[THEME_PROPS.BUTTON][0],
         titlebar_text_color=COLORS[THEME_PROPS.BUTTON][1],
-        titlebar_icon=PATH.yesterday_icon,
+        titlebar_icon=ICON_PATHS.yesterday_icon,
         background_color=COLORS[THEME_PROPS.BUTTON][0],
         relative_location=(0, 0),
         element_justification="c",
@@ -286,7 +286,7 @@ def DatePickerWindow(yesterdays_date: str):
         use_custom_titlebar=True,
         titlebar_background_color=COLORS[THEME_PROPS.BUTTON][0],
         titlebar_text_color=COLORS[THEME_PROPS.BUTTON][1],
-        titlebar_icon=PATH.yesterday_icon,
+        titlebar_icon=ICON_PATHS.yesterday_icon,
         background_color=COLORS[THEME_PROPS.BUTTON][0],
         relative_location=(0, 0),
         element_justification="c",

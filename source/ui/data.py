@@ -3,12 +3,11 @@ from io import BytesIO
 from PIL import Image
 from base64 import b64decode
 
-from source.constants import COLORS, FONTS, PATHS, TEXTS_AND_KEYS
+from source.constants import COLORS, FONTS, TEXTS_AND_KEYS
 from source.core.theme import THEME_PROPS
-from source.ui.utils import get_min_win_size
+from source.ui.utils import get_min_win_size, get_paths
 
-PATH = PATHS()
-PATH.__init__()
+ICON_PATHS = get_paths()
 
 
 def DataWindow(
@@ -56,7 +55,7 @@ def DataWindow(
         use_custom_titlebar=True,
         titlebar_background_color=COLORS[THEME_PROPS.BUTTON][0],
         titlebar_text_color=COLORS[THEME_PROPS.BUTTON][1],
-        titlebar_icon=PATH.data_icon,
+        titlebar_icon=ICON_PATHS.data_icon,
         background_color=COLORS[THEME_PROPS.SCROLL],
         relative_location=(0, -15),
     ).Finalize()

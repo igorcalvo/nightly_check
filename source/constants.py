@@ -137,7 +137,7 @@ class MESSAGES:
     )
 
 
-class PATHS:
+class ICON_PATHS:
     colored_icon = f"{DIR}/assets/icons/iconColored.png"
     standard_icon = f"{DIR}/assets/icons/icon16.png"
     style_icon = f"{DIR}/assets/icons/style16.png"

@@ -10,7 +10,7 @@ import cv2 as cv
 
 from source.constants import (
     COLORS,
-    PATHS,
+    ICON_PATHS,
     SETTINGS_DEFAULT_VALUES,
     habit_init_scrollable_threshold,
     height_coefficient,
@@ -24,8 +24,11 @@ from source.core.theme import (
 )
 from source.utils import flatten_list_1
 
-PATH = PATHS()
-PATH.__init__()
+
+def get_paths() -> ICON_PATHS:
+    path = ICON_PATHS()
+    path.__init__()
+    return path
 
 
 def print_fonts():
@@ -64,10 +67,10 @@ def apply_hue_offset(hex_color: str, hue_offset: float) -> str:
 
 
 def generate_icon(hue_offset: float):
-    icon = cv.imread(PATH.standard_icon, cv.IMREAD_UNCHANGED)
+    icon = cv.imread(ICON_PATHS.standard_icon, cv.IMREAD_UNCHANGED)
     a = icon[:, :, 3]
 
-    bgr = cv.imread(PATH.standard_icon)
+    bgr = cv.imread(ICON_PATHS.standard_icon)
     hsv = cv.cvtColor(bgr, cv.COLOR_BGR2HSV)
     h, s, v = hsv[:, :, 0], hsv[:, :, 1], hsv[:, :, 2]
 
@@ -77,7 +80,7 @@ def generate_icon(hue_offset: float):
 
     result = cv.cvtColor(hsv2, cv.COLOR_HSV2BGR)
     result = cv.merge([result[:, :, 0], result[:, :, 1], result[:, :, 2], a])
-    cv.imwrite(PATH.colored_icon, result)
+    cv.imwrite(ICON_PATHS.colored_icon, result)
 
 
 def populate_colors_dict(theme: THEME, hue_offset) -> dict:

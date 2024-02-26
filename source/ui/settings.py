@@ -4,7 +4,6 @@ from source.constants import (
     COLORS,
     FONTS,
     MESSAGES,
-    PATHS,
     SETTINGS_DEFAULT_VALUES,
     SETTINGS_KEYS,
     TEXTS_AND_KEYS,
@@ -12,10 +11,9 @@ from source.constants import (
 from source.core.theme import THEME_PROPS
 from source.utils import pad_string, settings_key_to_text
 from source.core.settings import Settings
-from source.ui.utils import init_ui
+from source.ui.utils import get_paths, init_ui
 
-PATH = PATHS()
-PATH.__init__()
+ICON_PATHS = get_paths()
 
 
 def PreviewWindow(new_hue: float, theme: str):
@@ -64,7 +62,7 @@ def PreviewWindow(new_hue: float, theme: str):
         use_custom_titlebar=True,
         titlebar_background_color=COLORS[THEME_PROPS.BUTTON][0],
         titlebar_text_color=COLORS[THEME_PROPS.BUTTON][1],
-        titlebar_icon=PATHS.preview_icon,
+        titlebar_icon=ICON_PATHS.preview_icon,
         background_color=COLORS[THEME_PROPS.BACKGROUND],
         relative_location=(250, 20),
         auto_close_duration=3,
@@ -473,7 +471,7 @@ def SettingsWindow(
         use_custom_titlebar=True,
         titlebar_background_color=COLORS[THEME_PROPS.BUTTON][0],
         titlebar_text_color=COLORS[THEME_PROPS.BUTTON][1],
-        titlebar_icon=PATH.settings_icon,
+        titlebar_icon=ICON_PATHS.settings_icon,
         background_color=COLORS[THEME_PROPS.BACKGROUND],
         size=(900, 590),
         element_justification="l",

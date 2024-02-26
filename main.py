@@ -332,12 +332,11 @@ finally:
         log_write(log, f"{finally_string}")
     log.close()
 
-# more consistent typing list -> list[list[str]]
-# why so many Path and path init?
 # ui habit init description for fields, just tooltip is too ambiguous
 # ui to load habits.csv (load init habit)
 # identidade visual: patrolling owl
 # ship with scripts to run before shutdown
+# more consistent typing list -> list[list[str]]
 # sort imports
 
 # MAJOR

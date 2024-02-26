@@ -4,7 +4,6 @@ from source.constants import (
     COLORS,
     FONTS,
     MESSAGES,
-    PATHS,
     HABITS_INIT,
     habit_init_width,
     height_coefficient,
@@ -18,10 +17,9 @@ from source.utils import (
     safe_value_from_array,
     habit_init_key,
 )
-from source.ui.utils import get_min_win_size, show_habit_init_scroll_bar
+from source.ui.utils import show_habit_init_scroll_bar, get_paths
 
-PATH = PATHS()
-PATH.__init__()
+ICON_PATHS = get_paths()
 
 
 def HabitInitHabitLayout(
@@ -357,7 +355,7 @@ def HabitsInitWindow(layout: list) -> sg.Window:
         use_custom_titlebar=True,
         titlebar_background_color=COLORS[THEME_PROPS.BUTTON][0],
         titlebar_text_color=COLORS[THEME_PROPS.BUTTON][1],
-        titlebar_icon=PATH.init_icon,
+        titlebar_icon=ICON_PATHS.init_icon,
         background_color=COLORS[THEME_PROPS.BACKGROUND],
         relative_location=(0, 0),
         element_justification="l",
