@@ -26,11 +26,19 @@ def HabitInitHabitLayout(
     row_in_habit_count: int,
     category_row: int,
     values_dict: dict,
+    padding_x: int,
 ):
+    padding_text = 10
     layout = [
+        sg.Text(
+            text=HABITS_INIT.label_habit,
+            text_color=COLORS[THEME_PROPS.BUTTON][1],
+            background_color=COLORS[THEME_PROPS.BACKGROUND],
+            font=FONTS["pop"],
+            pad=((2 * padding_x, 0), (0, 0)),
+        ),
         sg.InputText(
             key=habit_init_key(HABITS_INIT.habit_key, category_row, row_in_habit_count),
-            # background_color=COLORS[THEME_PROPS.BUTTON][1],
             background_color=COLORS[THEME_PROPS.INPUT],
             text_color=COLORS[THEME_PROPS.TEXT_INPUT],
             size=20,
@@ -41,11 +49,17 @@ def HabitInitHabitLayout(
                 values_dict,
             ),
         ),
+        sg.Text(
+            text=HABITS_INIT.label_habit_question,
+            text_color=COLORS[THEME_PROPS.BUTTON][1],
+            background_color=COLORS[THEME_PROPS.BACKGROUND],
+            font=FONTS["pop"],
+            pad=((padding_x, 0), (0, 0)),
+        ),
         sg.InputText(
             key=habit_init_key(
                 HABITS_INIT.question_key, category_row, row_in_habit_count
             ),
-            # background_color=COLORS[THEME_PROPS.BUTTON][1],
             background_color=COLORS[THEME_PROPS.INPUT],
             text_color=COLORS[THEME_PROPS.TEXT_INPUT],
             size=30,
@@ -74,7 +88,7 @@ def HabitInitHabitLayout(
                 HABITS_INIT.track_frequency_key, category_row, row_in_habit_count
             ),
             size=16,
-            font=FONTS["ckb"],
+            font=FONTS["btn"],
             checkbox_color=COLORS[THEME_PROPS.BUTTON][0],
             text_color=COLORS[THEME_PROPS.BUTTON][1],
             background_color=COLORS[THEME_PROPS.BACKGROUND],
@@ -82,15 +96,31 @@ def HabitInitHabitLayout(
             tooltip=MESSAGES.input_tooltip_checkbox,
             enable_events=True,
         ),
+        sg.Text(
+            text=HABITS_INIT.label_message,
+            text_color=COLORS[THEME_PROPS.BUTTON][1],
+            background_color=COLORS[THEME_PROPS.BACKGROUND],
+            font=FONTS["pop"],
+            pad=((padding_text // 3, 0), (0, 0)),
+            visible=bool(
+                safe_value_from_dict(
+                    habit_init_key(
+                        HABITS_INIT.track_frequency_key,
+                        category_row,
+                        row_in_habit_count,
+                    ),
+                    values_dict,
+                )
+            ),
+        ),
         sg.InputText(
             key=habit_init_key(
                 HABITS_INIT.message_key, category_row, row_in_habit_count
             ),
-            # background_color=COLORS[THEME_PROPS.BUTTON][1],
             background_color=COLORS[THEME_PROPS.INPUT],
             text_color=COLORS[THEME_PROPS.TEXT_INPUT],
             size=60,
-            pad=((0, 10), (0, 0)),
+            pad=((padding_text, 0), (0, 0)),
             tooltip=MESSAGES.input_tooltip_message,
             default_text=safe_value_from_dict(habit_init_key(HABITS_INIT.message_key, category_row, row_in_habit_count), values_dict),  # type: ignore
             visible=bool(
@@ -104,8 +134,25 @@ def HabitInitHabitLayout(
                 )
             ),
         ),
+        sg.Text(
+            text=HABITS_INIT.label_direction,
+            text_color=COLORS[THEME_PROPS.BUTTON][1],
+            background_color=COLORS[THEME_PROPS.BACKGROUND],
+            font=FONTS["pop"],
+            pad=((padding_text, 0), (0, 0)),
+            visible=bool(
+                safe_value_from_dict(
+                    habit_init_key(
+                        HABITS_INIT.track_frequency_key,
+                        category_row,
+                        row_in_habit_count,
+                    ),
+                    values_dict,
+                )
+            ),
+        ),
         sg.Combo(
-            values=[">=", ">", "=", "<", "<="],
+            values=["   >", "  >=", "  <=", "   <"],
             default_value=safe_value_from_dict(
                 habit_init_key(
                     HABITS_INIT.condition_key, category_row, row_in_habit_count
@@ -115,14 +162,14 @@ def HabitInitHabitLayout(
             key=habit_init_key(
                 HABITS_INIT.condition_key, category_row, row_in_habit_count
             ),
-            size=4,
-            pad=5,
+            size=3,
+            pad=((padding_text // 2, 0), (0, 0)),
             auto_size_text=True,
-            background_color=COLORS[THEME_PROPS.BUTTON][0],
+            background_color=COLORS[THEME_PROPS.INPUT],
             text_color=COLORS[THEME_PROPS.BUTTON][1],
             button_background_color=COLORS[THEME_PROPS.BUTTON][0],
             button_arrow_color=COLORS[THEME_PROPS.BUTTON][1],
-            font=FONTS["ckb"],
+            font=FONTS["pop"],
             change_submits=True,
             enable_events=True,
             tooltip=MESSAGES.input_tooltip_combo,
@@ -141,11 +188,12 @@ def HabitInitHabitLayout(
             key=habit_init_key(
                 HABITS_INIT.fraction_num_key, category_row, row_in_habit_count
             ),
-            # background_color=COLORS[THEME_PROPS.BUTTON][1],
             background_color=COLORS[THEME_PROPS.INPUT],
             text_color=COLORS[THEME_PROPS.TEXT_INPUT],
             size=3,
             default_text=safe_value_from_dict(habit_init_key(HABITS_INIT.fraction_num_key, category_row, row_in_habit_count), values_dict),  # type: ignore
+            justification="r",
+            pad=((padding_text, 0), (0, 0)),
             visible=bool(
                 safe_value_from_dict(
                     habit_init_key(
@@ -161,6 +209,8 @@ def HabitInitHabitLayout(
             "in",
             key=("spacing", row_in_habit_count),
             background_color=COLORS[THEME_PROPS.BACKGROUND],
+            text_color=COLORS[THEME_PROPS.BUTTON][1],
+            font=FONTS["pop"],
             visible=bool(
                 safe_value_from_dict(
                     habit_init_key(
@@ -176,11 +226,11 @@ def HabitInitHabitLayout(
             key=habit_init_key(
                 HABITS_INIT.fraction_den_key, category_row, row_in_habit_count
             ),
-            # background_color=COLORS[THEME_PROPS.BUTTON][1],
             background_color=COLORS[THEME_PROPS.INPUT],
             text_color=COLORS[THEME_PROPS.TEXT_INPUT],
             size=3,
             default_text=safe_value_from_dict(habit_init_key(HABITS_INIT.fraction_den_key, category_row, row_in_habit_count), values_dict),  # type: ignore
+            justification="r",
             visible=bool(
                 safe_value_from_dict(
                     habit_init_key(
@@ -196,6 +246,8 @@ def HabitInitHabitLayout(
             pad_string("days", 5),
             key=("spacing_days", row_in_habit_count),
             background_color=COLORS[THEME_PROPS.BACKGROUND],
+            text_color=COLORS[THEME_PROPS.BUTTON][1],
+            font=FONTS["pop"],
             visible=bool(
                 safe_value_from_dict(
                     habit_init_key(
@@ -216,14 +268,21 @@ def HabitInitCategoryLayout(
     values_dict: dict,
     habit_count: list,
 ):
-    button_padding = 15
-    button_size = 10
+    padding_x = 25
+    button_size = 15
 
     layout = []
     for row in range(1, category_count + 1):
         category = [
             [sg.HorizontalSeparator(color=COLORS[THEME_PROPS.BUTTON][0])],
             [
+                sg.Text(
+                    text=HABITS_INIT.label_category,
+                    text_color=COLORS[THEME_PROPS.BUTTON][1],
+                    background_color=COLORS[THEME_PROPS.BACKGROUND],
+                    font=FONTS["pop"],
+                    pad=((padding_x, 0), (0, 0)),
+                ),
                 sg.InputText(
                     key=habit_init_key(HABITS_INIT.category_key, row),
                     # background_color=COLORS[THEME_PROPS.BUTTON][1],
@@ -236,11 +295,6 @@ def HabitInitCategoryLayout(
                         habit_init_key(HABITS_INIT.category_key, row), values_dict
                     ),
                 ),
-                sg.Text(
-                    pad_string("", 0),
-                    key=("spacing", row),
-                    background_color=COLORS[THEME_PROPS.BACKGROUND],
-                ),
                 sg.Button(
                     button_text=HABITS_INIT.add_habit_text,
                     key=habit_init_key(HABITS_INIT.add_habit_text, row),
@@ -250,7 +304,7 @@ def HabitInitCategoryLayout(
                         COLORS[THEME_PROPS.BUTTON][0],
                         COLORS[THEME_PROPS.BUTTON][1],
                     ),
-                    pad=(button_padding, 0),
+                    pad=(padding_x, 0),
                 ),
                 sg.Button(
                     button_text=HABITS_INIT.del_habit_text,
@@ -261,17 +315,13 @@ def HabitInitCategoryLayout(
                         COLORS[THEME_PROPS.BUTTON][0],
                         COLORS[THEME_PROPS.BUTTON][1],
                     ),
-                    pad=((0, button_padding), (0, 0)),
+                    pad=((0, padding_x), (0, 0)),
                     disabled=safe_bool_from_array(row - 1, habit_count),
                 ),
             ],
         ]
         for habit in range(safe_value_from_array(row - 1, habit_count, 0)):
-            habit_row = HabitInitHabitLayout(
-                habit,
-                row,
-                values_dict,
-            )
+            habit_row = HabitInitHabitLayout(habit, row, values_dict, padding_x)
             category.append(habit_row)
         layout.append(category)
     return layout
@@ -314,7 +364,7 @@ def HabitsInitLayout(
                 size=button_font_size,
                 button_color=(
                     COLORS[THEME_PROPS.BUTTON][0],
-                    COLORS[THEME_PROPS.CATEGORY],
+                    COLORS[THEME_PROPS.BUTTON][1],
                 ),
                 pad=button_padding,
             ),
@@ -324,7 +374,7 @@ def HabitsInitLayout(
                 size=button_font_size,
                 button_color=(
                     COLORS[THEME_PROPS.BUTTON][0],
-                    COLORS[THEME_PROPS.CATEGORY],
+                    COLORS[THEME_PROPS.BUTTON][1],
                 ),
                 pad=((0, button_padding), (0, 0)),
                 disabled=category_count < 1,

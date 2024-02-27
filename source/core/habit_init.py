@@ -21,6 +21,7 @@ def variables_row(
     numerator: str,
     denominator: str,
 ):
+    condition = condition.strip()
     empty_conditions = ["", None, "-", "_", " "]
     valid_conditions = empty_conditions + [">=", ">", "=", "<", "<="]
     if condition not in valid_conditions:
