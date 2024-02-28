@@ -411,6 +411,17 @@ def SettingsWindowLayout(
                 background_color=COLORS[THEME_PROPS.INPUT],
                 text_color=COLORS[THEME_PROPS.TEXT_INPUT],
             ),
+            sg.Button(
+                TEXTS_AND_KEYS.edit_variables_button_text,
+                font=FONTS["btn"],
+                size=13,
+                pad=((sections_padding_x, 0), (15, 15)),
+                key=TEXTS_AND_KEYS.edit_variables_button_text,
+                button_color=(
+                    COLORS[THEME_PROPS.BUTTON][0],
+                    COLORS[THEME_PROPS.BUTTON][1],
+                ),
+            ),
         ],
     ]
 
@@ -473,7 +484,7 @@ def SettingsWindow(
         titlebar_text_color=COLORS[THEME_PROPS.BUTTON][1],
         titlebar_icon=ICON_PATHS.settings_icon,
         background_color=COLORS[THEME_PROPS.BACKGROUND],
-        size=(900, 590),
+        size=(900, 620),
         element_justification="l",
         return_keyboard_events=True,
     )

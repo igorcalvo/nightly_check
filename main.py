@@ -67,15 +67,13 @@ try:
         habit_count = []
         init_ui(SETTINGS_DEFAULT_VALUES.hue_offset, SETTINGS_DEFAULT_VALUES.theme)
 
-        variables_init_layout = HabitsInitLayout(category_count, {}, habit_count)
+        variables_init_layout = HabitsInitLayout({}, habit_count)
         variables_init_window = HabitsInitWindow(variables_init_layout)
         while True:
             variables_init_event, variables_init_values_dict = variables_init_window.read()  # type: ignore
             if variables_init_event == HABITS_INIT.cat_add:
-                category_count += 1
                 habit_count.append(0)
             elif variables_init_event == HABITS_INIT.cat_remove:
-                category_count -= 1
                 habit_count.pop()
             elif HABITS_INIT.add_habit_text in variables_init_event:
                 habit_count[habit_index_from_event(variables_init_event)] = (
@@ -102,9 +100,10 @@ try:
                 or variables_init_event == HABITS_INIT.cat_remove
                 or variables_init_event == HABITS_INIT.cat_add
             ):
+                print("habit_count", habit_count)
+                print("variable_init_values_dict", variables_init_values_dict)
                 variables_init_window = ReRenderHabitsInit(
                     variables_init_window,
-                    category_count,
                     variables_init_values_dict,
                     habit_count,
                 )
@@ -332,14 +331,17 @@ finally:
         log_write(log, f"{finally_string}")
     log.close()
 
-# ui habit init description for fields, just tooltip is too ambiguous
+# extract while true loops to functions
+# consistency on finalize methods an typing windows
 # ui to load habits.csv (load init habit)
+# add enable checkbox to rows in habit_init
 # identidade visual: patrolling owl
 # ship with scripts to run before shutdown
 # more consistent typing list -> list[list[str]]
 # sort imports
 
 # MAJOR
+# dark theme and refactor on img gen
 #   *** Validation ***
 #       Freq
 #           Disallow 0 on denominator

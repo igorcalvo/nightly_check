@@ -192,7 +192,7 @@ def HabitInitHabitLayout(
             text_color=COLORS[THEME_PROPS.TEXT_INPUT],
             size=3,
             default_text=safe_value_from_dict(habit_init_key(HABITS_INIT.fraction_num_key, category_row, row_in_habit_count), values_dict),  # type: ignore
-            justification="r",
+            justification="c",
             pad=((padding_text, 0), (0, 0)),
             visible=bool(
                 safe_value_from_dict(
@@ -230,7 +230,7 @@ def HabitInitHabitLayout(
             text_color=COLORS[THEME_PROPS.TEXT_INPUT],
             size=3,
             default_text=safe_value_from_dict(habit_init_key(HABITS_INIT.fraction_den_key, category_row, row_in_habit_count), values_dict),  # type: ignore
-            justification="r",
+            justification="c",
             visible=bool(
                 safe_value_from_dict(
                     habit_init_key(
@@ -264,7 +264,6 @@ def HabitInitHabitLayout(
 
 
 def HabitInitCategoryLayout(
-    category_count: int,
     values_dict: dict,
     habit_count: list,
 ):
@@ -272,7 +271,7 @@ def HabitInitCategoryLayout(
     button_size = 15
 
     layout = []
-    for row in range(1, category_count + 1):
+    for row in range(1, len(habit_count) + 1):
         category = [
             [sg.HorizontalSeparator(color=COLORS[THEME_PROPS.BUTTON][0])],
             [
@@ -328,15 +327,14 @@ def HabitInitCategoryLayout(
 
 
 def HabitsInitLayout(
-    category_count: int,
     values_dict: dict,
     habit_count: list,
 ):
+    category_count = len(habit_count)
     button_padding = 25
     button_font_size = (15, 2)
     show_scroll_bar = show_habit_init_scroll_bar(category_count, habit_count)
     category_layout = HabitInitCategoryLayout(
-        category_count,
         values_dict,
         habit_count,
     )
@@ -414,12 +412,10 @@ def HabitsInitWindow(layout: list) -> sg.Window:
 
 def ReRenderHabitsInit(
     previous_windows: sg.Window,
-    category_count: int,
     values_dict: dict,
     habit_count: list,
 ) -> sg.Window:
     variables_init_layout = HabitsInitLayout(
-        category_count,
         values_dict,
         habit_count,
     )

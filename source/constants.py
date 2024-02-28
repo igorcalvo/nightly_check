@@ -30,6 +30,7 @@ class TEXTS_AND_KEYS:
     settings_cancel_button_text = "Cancel"
     select_date_button_text = "Select"
     select_date_key = "Date"
+    edit_variables_button_text = "Edit Variables"
 
 
 class HABITS_INIT:

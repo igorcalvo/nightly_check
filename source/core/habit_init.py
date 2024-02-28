@@ -1,4 +1,5 @@
 from source.utils import (
+    habit_init_key,
     values_from_keyword,
     replace_commas_for_double_spaces,
     join_white_spaced_habit,
@@ -83,3 +84,71 @@ def generate_variables(
     with open(variables_file_name, "w") as v:
         v.write(file_content)
         v.close()
+
+
+def variables_to_habitcount_and_dict(
+    variables_path: str,
+) -> tuple[list[int], dict[str, str]]:
+    with open(variables_path, "r") as v:
+        variables = v.readlines()
+        v.close()
+
+    categories = []
+    habits = []
+    dictionary = {}
+
+    for row in variables[1:]:
+        fields = row.split(",")
+        enabled, category, habit, question, message, condition, frequency = fields
+
+        if enabled != "1":
+            continue
+
+        if category not in categories:
+            categories.append(category)
+            habits.append(0)
+
+        habits[-1] = habits[-1] + 1
+        track_freq = frequency != ""
+        numerator = "" if frequency == "" else frequency.split("/")[0]
+        denominator = "" if frequency == "" else frequency.split("/")[1]
+
+        dictionary[
+            habit_init_key(
+                HABITS_INIT.category_key, habits.index(habits[-1]), habits[-1]
+            )
+        ] = category
+        dictionary[
+            habit_init_key(HABITS_INIT.habit_key, habits.index(habits[-1]), habits[-1])
+        ] = habit
+        dictionary[
+            habit_init_key(
+                HABITS_INIT.question_key, habits.index(habits[-1]), habits[-1]
+            )
+        ] = question
+        dictionary[
+            habit_init_key(
+                HABITS_INIT.track_frequency_key, habits.index(habits[-1]), habits[-1]
+            )
+        ] = track_freq
+        dictionary[
+            habit_init_key(
+                HABITS_INIT.message_key, habits.index(habits[-1]), habits[-1]
+            )
+        ] = message
+        dictionary[
+            habit_init_key(
+                HABITS_INIT.condition_key, habits.index(habits[-1]), habits[-1]
+            )
+        ] = condition
+        dictionary[
+            habit_init_key(
+                HABITS_INIT.fraction_num_key, habits.index(habits[-1]), habits[-1]
+            )
+        ] = numerator
+        dictionary[
+            habit_init_key(
+                HABITS_INIT.fraction_den_key, habits.index(habits[-1]), habits[-1]
+            )
+        ] = denominator
+    return (habits, dictionary)
