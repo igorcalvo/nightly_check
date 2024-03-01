@@ -1,3 +1,4 @@
+from unicodedata import category
 from .utils import os_is_windows
 from os import path, pardir
 
@@ -42,6 +43,8 @@ class HABITS_INIT:
     categories_key = "Categories"
     track_frequency_key = "Track Value"
     generate_text = "Generate File"
+    load_file_text = "Load data from file"
+    load_file_key = "Load File"
     habit_key = "Habit Value"
     question_key = "Question Value"
     message_key = "Message Value"
@@ -165,8 +168,18 @@ class MESSAGES_HEADERS:
     data_reminder = "data_reminder"
 
 
+class VARIABLES_KEYS:
+    enabled = "enabled"
+    category = "category"
+    habit = "habit"
+    question = "question"
+    message = "message"
+    condition = "condition"
+    frequency = "frequency"
+
+
 # ----------------------------------------------------------------------------------------------------------------------
-variables_csv_header = "enabled,category,habit,tooltip,message,condition,frequency"
+variables_csv_header = "enabled,category,habit,question,message,condition,frequency"
 messages_csv_header = f"{date_header},category,habit,message,data_reminder"
 category_habit_separator = " - "
 already_filled_in_today_message = (

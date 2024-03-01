@@ -1,6 +1,11 @@
 from pandas import DataFrame, read_csv as pandas_read_csv
 
-from source.constants import FILE_NAMES, date_header, messages_csv_header
+from source.constants import (
+    FILE_NAMES,
+    VARIABLES_KEYS,
+    date_header,
+    messages_csv_header,
+)
 from source.core.data_date import create_entry, get_today_date
 from source.utils import (
     replace_commas_for_double_spaces,
@@ -50,16 +55,14 @@ def get_data_dataframe(habits: list) -> DataFrame:
 
 
 def group_by_category(dataframe: DataFrame, column: str) -> list[list]:
-    enabled_column = "enabled"
-    category_column = "category"
-    capitalized_columns = ["habit"]
-    categories = remove_duplicates(dataframe[category_column])
+    capitalized_columns = [VARIABLES_KEYS.habit]
+    categories = remove_duplicates(dataframe[VARIABLES_KEYS.category])
     result = []
     for category in categories:
         column_data = list(
             dataframe.loc[
-                (dataframe[category_column] == category)
-                & (dataframe[enabled_column] == "1")
+                (dataframe[VARIABLES_KEYS.category] == category)
+                & (dataframe[VARIABLES_KEYS.enabled] == "1")
             ][column]
         )
         result.append(
@@ -79,16 +82,18 @@ def get_category(habit: str, habits: list[list[str]], categories: list[str]) -> 
 
 
 def get_data(variables_file):
-    fractions = group_by_category(variables_file, "frequency")
-    conditions = group_by_category(variables_file, "condition")
-    habit_messages = group_by_category(variables_file, "message")
-    descriptions = group_by_category(variables_file, "tooltip")
-    habits = group_by_category(variables_file, "habit")
+    fractions = group_by_category(variables_file, VARIABLES_KEYS.frequency)
+    conditions = group_by_category(variables_file, VARIABLES_KEYS.condition)
+    habit_messages = group_by_category(variables_file, VARIABLES_KEYS.message)
+    descriptions = group_by_category(variables_file, VARIABLES_KEYS.question)
+    habits = group_by_category(variables_file, VARIABLES_KEYS.habit)
     categories = remove_duplicates(
-        flatten_list(group_by_category(variables_file, "category"))
+        flatten_list(group_by_category(variables_file, VARIABLES_KEYS.category))
     )
     disabled_habits = list(
-        variables_file.loc[(variables_file["enabled"] == "0")]["habit"]
+        variables_file.loc[(variables_file[VARIABLES_KEYS.enabled] == "0")][
+            VARIABLES_KEYS.habit
+        ]
     )
     return (
         conditions,

@@ -326,13 +326,11 @@ def HabitInitCategoryLayout(
     return layout
 
 
-def HabitsInitLayout(
-    values_dict: dict,
-    habit_count: list,
-):
+def HabitsInitLayout(values_dict: dict, habit_count: list, file_exists: bool):
     category_count = len(habit_count)
     button_padding = 25
-    button_font_size = (15, 2)
+    button_size = (15, 2)
+    load_data_button_size = (30, 1)
     show_scroll_bar = show_habit_init_scroll_bar(category_count, habit_count)
     category_layout = HabitInitCategoryLayout(
         values_dict,
@@ -359,7 +357,7 @@ def HabitsInitLayout(
             sg.Button(
                 HABITS_INIT.cat_add,
                 font=FONTS["btn"],
-                size=button_font_size,
+                size=button_size,
                 button_color=(
                     COLORS[THEME_PROPS.BUTTON][0],
                     COLORS[THEME_PROPS.BUTTON][1],
@@ -369,7 +367,7 @@ def HabitsInitLayout(
             sg.Button(
                 HABITS_INIT.cat_remove,
                 font=FONTS["btn"],
-                size=button_font_size,
+                size=button_size,
                 button_color=(
                     COLORS[THEME_PROPS.BUTTON][0],
                     COLORS[THEME_PROPS.BUTTON][1],
@@ -380,12 +378,28 @@ def HabitsInitLayout(
             sg.Button(
                 HABITS_INIT.generate_text,
                 font=FONTS["btn"],
-                size=button_font_size,
+                size=button_size,
                 button_color=(
                     COLORS[THEME_PROPS.BUTTON][0],
                     COLORS[THEME_PROPS.BUTTON][1],
                 ),
                 pad=((0, button_padding), (0, 0)),
+            ),
+            sg.Push(background_color=COLORS[THEME_PROPS.BACKGROUND]),
+        ],
+        [
+            sg.Push(background_color=COLORS[THEME_PROPS.BACKGROUND]),
+            sg.Button(
+                HABITS_INIT.load_file_text,
+                key=HABITS_INIT.load_file_key,
+                font=FONTS["btn"],
+                size=load_data_button_size,
+                button_color=(
+                    COLORS[THEME_PROPS.BUTTON][0],
+                    COLORS[THEME_PROPS.BUTTON][1],
+                ),
+                pad=((0, 0), (0, button_padding)),
+                visible=file_exists,
             ),
             sg.Push(background_color=COLORS[THEME_PROPS.BACKGROUND]),
         ],
@@ -414,11 +428,9 @@ def ReRenderHabitsInit(
     previous_windows: sg.Window,
     values_dict: dict,
     habit_count: list,
+    file_exists: bool,
 ) -> sg.Window:
-    variables_init_layout = HabitsInitLayout(
-        values_dict,
-        habit_count,
-    )
+    variables_init_layout = HabitsInitLayout(values_dict, habit_count, file_exists)
     previous_windows.close()
     new_window = HabitsInitWindow(variables_init_layout)
     return new_window

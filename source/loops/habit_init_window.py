@@ -1,0 +1,57 @@
+from PySimpleGUI import WIN_CLOSED
+from source.constants import FILE_NAMES, HABITS_INIT
+from source.core.habit_init import generate_variables, habit_index_from_event, variables_to_habitcount_and_dict
+from source.ui.habit_init import HabitsInitLayout, HabitsInitWindow, ReRenderHabitsInit
+habit_count = []
+
+def habit_init_loop(variables_exists: bool):
+    global habit_count
+    variables_init_layout = HabitsInitLayout({}, habit_count, variables_exists)
+    variables_init_window = HabitsInitWindow(variables_init_layout)
+    while True:
+        variables_init_event, variables_init_values_dict = variables_init_window.read()  # type: ignore
+        if variables_init_event == HABITS_INIT.cat_add:
+            habit_count.append(0)
+        elif variables_init_event == HABITS_INIT.cat_remove:
+            habit_count.pop()
+        elif HABITS_INIT.add_habit_text in variables_init_event:
+            habit_count[habit_index_from_event(variables_init_event)] = (
+                habit_count[habit_index_from_event(variables_init_event)] + 1
+            )
+        elif HABITS_INIT.del_habit_text in variables_init_event:
+            habit_count[habit_index_from_event(variables_init_event)] = (
+                habit_count[habit_index_from_event(variables_init_event)] - 1
+            )
+        elif variables_init_event == HABITS_INIT.generate_text:
+            generate_variables(
+                FILE_NAMES.var, variables_init_values_dict, habit_count
+            )
+            variables_init_window.close()
+            break
+        elif variables_init_event == WIN_CLOSED:
+            variables_init_window.close()
+            break
+        elif variables_init_event == HABITS_INIT.load_file_key:
+            habit_count, variables_init_values_dict = variables_to_habitcount_and_dict(FILE_NAMES.var)
+            print("variable_init_values_dict", variables_init_values_dict)
+            variables_init_window = ReRenderHabitsInit(
+                variables_init_window,
+                variables_init_values_dict,
+                habit_count,
+                variables_exists
+            )
+        if (
+            HABITS_INIT.track_frequency_key in variables_init_event
+            or HABITS_INIT.del_habit_text in variables_init_event
+            or HABITS_INIT.add_habit_text in variables_init_event
+            or variables_init_event == HABITS_INIT.cat_remove
+            or variables_init_event == HABITS_INIT.cat_add
+        ):
+            print("variable_init_values_dict", variables_init_values_dict)
+            variables_init_window = ReRenderHabitsInit(
+                variables_init_window,
+                variables_init_values_dict,
+                habit_count,
+                variables_exists
+            )
+

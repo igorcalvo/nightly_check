@@ -55,6 +55,7 @@ from source.ui.main_window import NeglectedPopUp, MainWindow, PopUp, DatePickerW
 from source.ui.data import DataWindow
 from source.ui.settings import PreviewWindow, SettingsWindow
 from source.image_gen import generate_image
+from source.loops.habit_init_window import habit_init_loop
 
 values_dict = {}
 create_folder_if_doesnt_exist(data_folder)
@@ -62,55 +63,13 @@ create_file_if_doesnt_exist(FILE_NAMES.log)
 log = open(FILE_NAMES.log, "r+")
 
 try:
-    if file_not_exists(FILE_NAMES.var):
-        category_count = 0
-        habit_count = []
+    variables_exists = not file_not_exists(FILE_NAMES.var)
+    if not variables_exists:
         init_ui(SETTINGS_DEFAULT_VALUES.hue_offset, SETTINGS_DEFAULT_VALUES.theme)
-
-        variables_init_layout = HabitsInitLayout({}, habit_count)
-        variables_init_window = HabitsInitWindow(variables_init_layout)
-        while True:
-            variables_init_event, variables_init_values_dict = variables_init_window.read()  # type: ignore
-            if variables_init_event == HABITS_INIT.cat_add:
-                habit_count.append(0)
-            elif variables_init_event == HABITS_INIT.cat_remove:
-                habit_count.pop()
-            elif HABITS_INIT.add_habit_text in variables_init_event:
-                habit_count[habit_index_from_event(variables_init_event)] = (
-                    habit_count[habit_index_from_event(variables_init_event)] + 1
-                )
-            elif HABITS_INIT.del_habit_text in variables_init_event:
-                habit_count[habit_index_from_event(variables_init_event)] = (
-                    habit_count[habit_index_from_event(variables_init_event)] - 1
-                )
-            elif variables_init_event == HABITS_INIT.generate_text:
-                generate_variables(
-                    FILE_NAMES.var, variables_init_values_dict, habit_count
-                )
-                variables_init_window.close()
-                break
-            elif variables_init_event == WIN_CLOSED:
-                variables_init_window.close()
-                break
-
-            if (
-                HABITS_INIT.track_frequency_key in variables_init_event
-                or HABITS_INIT.del_habit_text in variables_init_event
-                or HABITS_INIT.add_habit_text in variables_init_event
-                or variables_init_event == HABITS_INIT.cat_remove
-                or variables_init_event == HABITS_INIT.cat_add
-            ):
-                print("habit_count", habit_count)
-                print("variable_init_values_dict", variables_init_values_dict)
-                variables_init_window = ReRenderHabitsInit(
-                    variables_init_window,
-                    variables_init_values_dict,
-                    habit_count,
-                )
+        habit_init_loop(variables_exists)
 
     verify_variables(FILE_NAMES.var)
     variables_file = read_csv(FILE_NAMES.var)
-
     (
         conditions,
         fractions,
@@ -283,6 +242,8 @@ try:
                     theme = settings_dict[SETTINGS_KEYS.theme]
                 elif settings_event == TEXTS_AND_KEYS.preview_themes_window_text:
                     preview_themes()
+                elif settings_event == TEXTS_AND_KEYS.edit_variables_button_text:
+                    habit_init_loop(True)
                 elif settings_event == TEXTS_AND_KEYS.preview_window_text:
                     preview_window = PreviewWindow(hue_offset, theme)
                     while True:
