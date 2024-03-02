@@ -1,10 +1,8 @@
-from pandas._libs.tslibs.period import freq_to_dtype_code
 from source.core.data_in import read_csv
 from source.utils import (
     habit_init_key,
     values_from_keyword,
     replace_commas_for_double_spaces,
-    join_white_spaced_habit,
     flatten_list,
 )
 from source.constants import HABITS_INIT, VARIABLES_KEYS, variables_csv_header
@@ -23,6 +21,7 @@ def variables_row(
     condition: str,
     numerator: str,
     denominator: str,
+    enabled: str,
 ):
     condition = condition.strip()
     empty_conditions = ["", None, "-", "_", " "]
@@ -34,13 +33,16 @@ def variables_row(
     if condition in valid_conditions and numerator in ("", " ", "0"):
         condition = ""
 
-    result = ""
+    enabled = "1" if enabled in (True, "True") else "0"
     slap = (
         ",,"
         if condition in empty_conditions
         else f"{replace_commas_for_double_spaces(message)},{condition},{numerator}/{denominator}"
     )
-    result += f"1,{category.lower()},{join_white_spaced_habit(habit.lower())},{tooltip},{slap}\n"
+
+    result = ""
+    # result += f"{enabled},{category.lower()},{join_white_spaced_habit(habit.lower())},{tooltip},{slap}\n"
+    result += f"{enabled},{category.lower()},{habit},{tooltip},{slap}\n"
     return result
 
 
@@ -69,6 +71,7 @@ def generate_variables(
     denominators = values_from_keyword(
         HABITS_INIT.fraction_den_key, variables_init_values_dict
     )
+    enableds = values_from_keyword(HABITS_INIT.enabled_key, variables_init_values_dict)
 
     file_content = f"{variables_csv_header}\n"
     for i in range(len(repeated_categories)):
@@ -80,6 +83,7 @@ def generate_variables(
             conditions[i],
             numerators[i],
             denominators[i],
+            enableds[i],
         )
         file_content += row
 
@@ -92,7 +96,6 @@ def variables_to_habitcount_and_dict(
     variables_path: str,
 ) -> tuple[list[int], dict[str, str]]:
     variables = read_csv(variables_path)
-    variables.to_csv(variables_path.replace("variables", "test"))
 
     categories = []
     habits = []
@@ -139,5 +142,8 @@ def variables_to_habitcount_and_dict(
         dictionary[
             habit_init_key(HABITS_INIT.fraction_den_key, key_row, key_sub_row)
         ] = denominator
+        dictionary[habit_init_key(HABITS_INIT.enabled_key, key_row, key_sub_row)] = row[
+            VARIABLES_KEYS.enabled
+        ]
 
     return (habits, dictionary)

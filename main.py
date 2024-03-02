@@ -7,7 +7,6 @@ from source.constants import (
     data_folder,
     SETTINGS_KEYS,
     FILE_NAMES,
-    HABITS_INIT,
     TEXTS_AND_KEYS,
     SETTINGS_DEFAULT_VALUES,
     data_visualization_reminder_duration,
@@ -40,13 +39,11 @@ from source.core.habit_messages import (
     get_popup_message,
     should_show_data_visualization_reminder,
 )
-from source.core.habit_init import habit_index_from_event, generate_variables
 from source.core.validation import (
     verify_variables,
     verify_header_and_data,
     no_data_from_yesterday,
 )
-from source.ui.habit_init import HabitsInitLayout, HabitsInitWindow, ReRenderHabitsInit
 from source.ui.utils import (
     init_ui,
     preview_themes,
@@ -293,9 +290,9 @@ finally:
     log.close()
 
 # extract while true loops to functions
-# consistency on finalize methods an typing windows
-# ui to load habits.csv (load init habit)
-# add enable checkbox to rows in habit_init
+# improve scripts so it can be run from another folder
+# consistency on finalize methods and typing windows
+# reenable random messages after testing
 # identidade visual: patrolling owl
 # ship with scripts to run before shutdown
 # more consistent typing list -> list[list[str]]

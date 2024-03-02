@@ -1,4 +1,3 @@
-from unicodedata import category
 from .utils import os_is_windows
 from os import path, pardir
 
@@ -43,6 +42,7 @@ class HABITS_INIT:
     categories_key = "Categories"
     track_frequency_key = "Track Value"
     generate_text = "Generate File"
+    generate_text_alt = "Update File"
     load_file_text = "Load data from file"
     load_file_key = "Load File"
     habit_key = "Habit Value"
@@ -56,6 +56,7 @@ class HABITS_INIT:
     label_habit_question = "Goal Question"
     label_message = "Encouraging Message"
     label_direction = "Ideal Frequency is: "
+    enabled_key = "Enabled"
 
 
 class SETTINGS_KEYS:
@@ -144,6 +145,7 @@ class MESSAGES:
     settings_data_vis_reminder_message = (
         "Have you recently checked how you are doing?\nMaybe you should check it."
     )
+    settings_tooltip_enabled = "Toggles wether habit is enabled or not"
 
 
 class ICON_PATHS:

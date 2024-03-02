@@ -1,11 +1,10 @@
 from pandas import DataFrame, options as pandas_options
-from datetime import date
+from datetime import date, datetime
 from os.path import exists, isdir
 from os import makedirs
 
 from source.constants import (
     date_header,
-    already_filled_in_today_message,
     category_habit_separator,
     MESSAGES_HEADERS,
 )
@@ -54,9 +53,12 @@ def write_csv(file_name: str, data: DataFrame):
 
 
 def backup_data(csv_file_name: str, data: DataFrame):
-    file_name = csv_file_name.replace(".csv", "_" + str(date.today()) + ".csv")
+    date_time_str = f"{date.today()}-{datetime.now().hour}:{datetime.now().minute}"
+    file_name = csv_file_name.replace(".csv", "_" + date_time_str + ".csv")
     if exists(file_name):
-        raise Exception(f"File {file_name} already exists.")
+        raise Exception(
+            f"File {file_name} already exists. Please move it before proceeding"
+        )
     write_csv(file_name, data)
 
 

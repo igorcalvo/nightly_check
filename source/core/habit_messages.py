@@ -62,17 +62,21 @@ def check_habit(
     return (frequency, nominal, check_if_failed)
 
 
-def determine_successful_today(
-    data: DataFrame, conditions: list, habits: list, habit_messages: list
+def determine_successful(
+    data: DataFrame,
+    conditions: list,
+    habits: list,
+    habit_messages: list,
+    dataframe_row: int = -1,
 ) -> list:
-    expectation = [[False if d == "<" else True for d in arr] for arr in conditions]
+    expectation = [[False if "<" in d else True for d in arr] for arr in conditions]
 
     reality = [[] for item in range(len(habits))]
     for idx1, sublist in enumerate(habits):
         for idx2, item in enumerate(sublist):
             reality[idx1].append(
                 get_value_from_df_by_row(
-                    to_lower_underscored(habits[idx1][idx2]), -1, data
+                    to_lower_underscored(habits[idx1][idx2]), dataframe_row, data
                 )
             )
 
@@ -82,6 +86,10 @@ def determine_successful_today(
             if reality[idx1][idx2] == expectation[idx1][idx2]:
                 mission_accomplished_messages.append(habit_messages[idx1][idx2])
     return mission_accomplished_messages
+
+
+def format_habit_popup_message(category: str, habit: str, message: str, separator: str):
+    return f"{category.upper()}{separator}{habit}\n{message}"
 
 
 def get_popup_message(
@@ -114,7 +122,12 @@ def get_popup_message(
     # m[3] = message
     candidate_messages = set(
         [
-            f"{m[1].upper()}{category_habit_separator}{get_matrix_data_by_header_indexes(habits, habit_messages, m[3])}\n{m[3]}"
+            format_habit_popup_message(
+                m[1],
+                get_matrix_data_by_header_indexes(habits, habit_messages, m[3]),
+                m[1],
+                category_habit_separator,
+            )
             for m in message_data
             if m[0][2]
         ]
@@ -130,11 +143,16 @@ def get_popup_message(
         candidate_messages.intersection(empty_messages)
     )
 
+    # Checking for message already shown today
     last_date = get_latest_date(messages)
-    past_messages = list(messages["message"])
-    if last_date == todays_date.isoformat() and messages.iloc[-1]["message"] != "":
+    past_messages = list(messages[MESSAGES_HEADERS.message])
+    if (
+        last_date == todays_date.isoformat()
+        and messages.iloc[-1][MESSAGES_HEADERS.message] != ""
+    ):
         return already_filled_in_today_message
 
+    # Removing message from yesterday
     previous_message = past_messages[-1] if past_messages is not None else ""
     if (
         previous_message != ""
@@ -142,13 +160,21 @@ def get_popup_message(
     ):
         candidate_messages.remove(previous_message)
 
-    success_messages = determine_successful_today(
-        data, conditions, habits, habit_messages
+    # Successes from today
+    success_messages_today = determine_successful(
+        data, conditions, habits, habit_messages, -1
     )
+
+    # Successes from yesterday
+    success_messages_yesterday = determine_successful(
+        data, conditions, habits, habit_messages, -2
+    )
+
+    # Removing successes
+    success_messages = success_messages_today + success_messages_yesterday
     success_messages = list(set(success_messages))
     if "" in success_messages:
         success_messages.remove("")
-
     sucesses_to_be_removed = [
         c for c in candidate_messages for s in success_messages if s in c
     ]
@@ -162,8 +188,14 @@ def get_popup_message(
             replace_double_spaces_for_commas(c) for c in candidate_messages
         ]
         for m in message_data:
-            if f"{m[-2]}\n{m[-1]}" in candidate_messages:
-                return f"{m[-2]}\n{m[-1]}"
+            msg = format_habit_popup_message(
+                m[1],
+                get_matrix_data_by_header_indexes(habits, habit_messages, m[3]),
+                m[1],
+                category_habit_separator,
+            )
+            if msg in candidate_messages:
+                return msg
 
     todays_message = choice(list(candidate_messages))
     return todays_message

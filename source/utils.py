@@ -13,13 +13,7 @@ def to_lower_underscored(string: str) -> str:
 
 
 def to_capitalized(string: str) -> str:
-    dirty_fixes = {"GG": "GG"}
-    return " ".join(
-        [
-            s.capitalize() if s not in dirty_fixes.keys() else dirty_fixes[s]
-            for s in string.split(" ")
-        ]
-    )
+    return " ".join([s.capitalize() for s in string.split(" ")])
 
 
 def settings_key_to_text(key: str) -> str:
@@ -163,3 +157,5 @@ def date_ymd_to_mdy(date_str: str) -> tuple[int, int, int]:
     return (int(date_list[1]), int(date_list[2]), int(date_list[0]))
 
 
+def enabled_checkbox_default_value(value: str):
+    return False if value in (None, "0") else True

@@ -16,6 +16,7 @@ from source.utils import (
     safe_bool_from_array,
     safe_value_from_array,
     habit_init_key,
+    enabled_checkbox_default_value,
 )
 from source.ui.utils import show_habit_init_scroll_bar, get_paths
 
@@ -27,9 +28,24 @@ def HabitInitHabitLayout(
     category_row: int,
     values_dict: dict,
     padding_x: int,
+    file_exists: bool
 ):
     padding_text = 10
     layout = [
+        sg.Checkbox(
+            text="",
+            key=habit_init_key(
+                HABITS_INIT.enabled_key, category_row, row_in_habit_count
+            ),
+            size=1,
+            default=enabled_checkbox_default_value(safe_value_from_dict(habit_init_key(HABITS_INIT.enabled_key,category_row,row_in_habit_count),values_dict)), # type: ignore
+            checkbox_color=COLORS[THEME_PROPS.BUTTON][0],
+            background_color=COLORS[THEME_PROPS.BACKGROUND],
+            pad=((padding_text, 0),(0,0)),
+            tooltip=MESSAGES.settings_tooltip_enabled,
+            enable_events=True,
+            visible=file_exists
+        ),
         sg.Text(
             text=HABITS_INIT.label_habit,
             text_color=COLORS[THEME_PROPS.BUTTON][1],
@@ -266,6 +282,7 @@ def HabitInitHabitLayout(
 def HabitInitCategoryLayout(
     values_dict: dict,
     habit_count: list,
+    file_exists: bool
 ):
     padding_x = 25
     button_size = 15
@@ -320,7 +337,7 @@ def HabitInitCategoryLayout(
             ],
         ]
         for habit in range(safe_value_from_array(row - 1, habit_count, 0)):
-            habit_row = HabitInitHabitLayout(habit, row, values_dict, padding_x)
+            habit_row = HabitInitHabitLayout(habit, row, values_dict, padding_x, file_exists)
             category.append(habit_row)
         layout.append(category)
     return layout
@@ -335,6 +352,7 @@ def HabitsInitLayout(values_dict: dict, habit_count: list, file_exists: bool):
     category_layout = HabitInitCategoryLayout(
         values_dict,
         habit_count,
+        file_exists,
     )
     layout = [
         [
@@ -376,7 +394,8 @@ def HabitsInitLayout(values_dict: dict, habit_count: list, file_exists: bool):
                 disabled=category_count < 1,
             ),
             sg.Button(
-                HABITS_INIT.generate_text,
+                button_text=HABITS_INIT.generate_text_alt if file_exists else HABITS_INIT.generate_text,
+                key=HABITS_INIT.generate_text,
                 font=FONTS["btn"],
                 size=button_size,
                 button_color=(
