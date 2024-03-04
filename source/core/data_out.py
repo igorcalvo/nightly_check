@@ -93,13 +93,10 @@ def save_message_file(
             todays_message.split("\n")[0].split(category_habit_separator),
             todays_message.split("\n")[1],
         )
-        pandas_options.mode.chained_assignment = None
-        messages_row = messages.iloc[-1]
-        messages_row[MESSAGES_HEADERS.category] = cat
-        messages_row[MESSAGES_HEADERS.habit] = hab
-        messages_row[MESSAGES_HEADERS.message] = msg
-        messages_row[MESSAGES_HEADERS.data_reminder] = view_data_reminder_displayed
-        messages.iloc[-1] = messages_row
+        messages.loc[messages.index[-1], MESSAGES_HEADERS.category] = cat
+        messages.loc[messages.index[-1], MESSAGES_HEADERS.habit] = hab
+        messages.loc[messages.index[-1], MESSAGES_HEADERS.message] = msg
+        messages.loc[messages.index[-1], MESSAGES_HEADERS.data_reminder] = view_data_reminder_displayed
 
     messages.to_csv(messages_file_name, index=False)
 

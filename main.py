@@ -290,7 +290,6 @@ finally:
     log.close()
 
 # extract while true loops to functions
-# improve scripts so it can be run from another folder
 # consistency on finalize methods and typing windows
 # reenable random messages after testing
 # identidade visual: patrolling owl
@@ -299,7 +298,9 @@ finally:
 # sort imports
 
 # MAJOR
-# dark theme and refactor on img gen
+# dark theme img gen
+# rename data to data vis?
+# refactor on img gen
 #   *** Validation ***
 #       Freq
 #           Disallow 0 on denominator

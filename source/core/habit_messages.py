@@ -125,7 +125,7 @@ def get_popup_message(
             format_habit_popup_message(
                 m[1],
                 get_matrix_data_by_header_indexes(habits, habit_messages, m[3]),
-                m[1],
+                m[3],
                 category_habit_separator,
             )
             for m in message_data
@@ -191,7 +191,7 @@ def get_popup_message(
             msg = format_habit_popup_message(
                 m[1],
                 get_matrix_data_by_header_indexes(habits, habit_messages, m[3]),
-                m[1],
+                m[3],
                 category_habit_separator,
             )
             if msg in candidate_messages:
