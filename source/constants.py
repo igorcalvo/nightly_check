@@ -1,5 +1,5 @@
 from .utils import os_is_windows
-from os import path, pardir
+from os import pardir, path
 
 DIR = path.abspath(path.join(path.dirname(__file__), pardir))
 data_folder_name = "data"

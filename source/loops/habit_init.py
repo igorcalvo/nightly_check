@@ -12,7 +12,7 @@ from source.ui.habit_init import HabitsInitLayout, HabitsInitWindow, ReRenderHab
 habit_count = []
 
 
-def habit_init_loop(variables_exists: bool):
+def Habit_Init_Loop(variables_exists: bool):
     global habit_count
     variables_init_layout = HabitsInitLayout({}, habit_count, variables_exists)
     variables_init_window = HabitsInitWindow(variables_init_layout)

@@ -1,24 +1,24 @@
 import PySimpleGUI as sg
 
 from source.constants import (
-    COLORS,
-    FONTS,
-    MESSAGES,
-    HABITS_INIT,
     habit_init_width,
     height_coefficient,
+    COLORS,
+    FONTS,
+    HABITS_INIT,
+    MESSAGES,
 )
 from source.core.theme import THEME_PROPS
+from source.ui.utils import get_paths, show_habit_init_scroll_bar
 from source.utils import (
+    enabled_checkbox_default_value,
     flatten_list_1,
+    habit_init_key,
     pad_string,
-    safe_value_from_dict,
     safe_bool_from_array,
     safe_value_from_array,
-    habit_init_key,
-    enabled_checkbox_default_value,
+    safe_value_from_dict,
 )
-from source.ui.utils import show_habit_init_scroll_bar, get_paths
 
 ICON_PATHS = get_paths()
 
@@ -28,7 +28,7 @@ def HabitInitHabitLayout(
     category_row: int,
     values_dict: dict,
     padding_x: int,
-    file_exists: bool
+    file_exists: bool,
 ):
     padding_text = 10
     layout = [
@@ -38,13 +38,13 @@ def HabitInitHabitLayout(
                 HABITS_INIT.enabled_key, category_row, row_in_habit_count
             ),
             size=1,
-            default=enabled_checkbox_default_value(safe_value_from_dict(habit_init_key(HABITS_INIT.enabled_key,category_row,row_in_habit_count),values_dict)), # type: ignore
+            default=enabled_checkbox_default_value(safe_value_from_dict(habit_init_key(HABITS_INIT.enabled_key, category_row, row_in_habit_count), values_dict)),  # type: ignore
             checkbox_color=COLORS[THEME_PROPS.BUTTON][0],
             background_color=COLORS[THEME_PROPS.BACKGROUND],
-            pad=((padding_text, 0),(0,0)),
+            pad=((padding_text, 0), (0, 0)),
             tooltip=MESSAGES.settings_tooltip_enabled,
             enable_events=True,
-            visible=file_exists
+            visible=file_exists,
         ),
         sg.Text(
             text=HABITS_INIT.label_habit,
@@ -280,9 +280,7 @@ def HabitInitHabitLayout(
 
 
 def HabitInitCategoryLayout(
-    values_dict: dict,
-    habit_count: list,
-    file_exists: bool
+    values_dict: dict, habit_count: list[int], file_exists: bool
 ):
     padding_x = 25
     button_size = 15
@@ -337,13 +335,15 @@ def HabitInitCategoryLayout(
             ],
         ]
         for habit in range(safe_value_from_array(row - 1, habit_count, 0)):
-            habit_row = HabitInitHabitLayout(habit, row, values_dict, padding_x, file_exists)
+            habit_row = HabitInitHabitLayout(
+                habit, row, values_dict, padding_x, file_exists
+            )
             category.append(habit_row)
         layout.append(category)
     return layout
 
 
-def HabitsInitLayout(values_dict: dict, habit_count: list, file_exists: bool):
+def HabitsInitLayout(values_dict: dict, habit_count: list[int], file_exists: bool):
     category_count = len(habit_count)
     button_padding = 25
     button_size = (15, 2)
@@ -394,7 +394,11 @@ def HabitsInitLayout(values_dict: dict, habit_count: list, file_exists: bool):
                 disabled=category_count < 1,
             ),
             sg.Button(
-                button_text=HABITS_INIT.generate_text_alt if file_exists else HABITS_INIT.generate_text,
+                button_text=(
+                    HABITS_INIT.generate_text_alt
+                    if file_exists
+                    else HABITS_INIT.generate_text
+                ),
                 key=HABITS_INIT.generate_text,
                 font=FONTS["btn"],
                 size=button_size,
@@ -428,7 +432,7 @@ def HabitsInitLayout(values_dict: dict, habit_count: list, file_exists: bool):
     # https://github.com/PySimpleGUI/PySimpleGUI/issues/845
 
 
-def HabitsInitWindow(layout: list) -> sg.Window:
+def HabitsInitWindow(layout: list[list]) -> sg.Window:
     return sg.Window(
         MESSAGES.habits_title,
         layout,
@@ -440,13 +444,14 @@ def HabitsInitWindow(layout: list) -> sg.Window:
         background_color=COLORS[THEME_PROPS.BACKGROUND],
         relative_location=(0, 0),
         element_justification="l",
-    ).Finalize()
+        finalize=True,
+    )
 
 
 def ReRenderHabitsInit(
     previous_windows: sg.Window,
     values_dict: dict,
-    habit_count: list,
+    habit_count: list[int],
     file_exists: bool,
 ) -> sg.Window:
     variables_init_layout = HabitsInitLayout(values_dict, habit_count, file_exists)

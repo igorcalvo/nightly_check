@@ -1,18 +1,18 @@
 import PySimpleGUI as sg
 
 from source.constants import COLORS, FONTS, MESSAGES, TEXTS_AND_KEYS
-from source.ui.utils import get_paths
-from source.utils import flatten_and_wrap, pad_string, date_ymd_to_mdy
 from source.core.data_in import get_matrix_data_by_header_indexes
 from source.core.theme import THEME_PROPS
+from source.ui.utils import get_paths
+from source.utils import date_ymd_to_mdy, flatten_and_wrap, pad_string
 
 ICON_PATHS = get_paths()
 
 
 def CreateMainLayout(
-    categories: list,
-    habits: list,
-    descriptions: list,
+    categories: list[str],
+    habits: list[list[str]],
+    descriptions: list[list[str]],
     csv_not_empty: bool,
     is_sub_window: bool,
     default_values: list,
@@ -138,12 +138,12 @@ def CreateMainLayout(
 
 
 def MainWindow(
-    categories: list,
-    habits: list,
-    descriptions: list,
+    categories: list[str],
+    habits: list[list[str]],
+    descriptions: list[list[str]],
     csv_not_empty: bool,
     is_sub_window: bool,
-    default_values: list = [],
+    default_values: list[list] = [],
 ):
     layout = CreateMainLayout(
         categories,
@@ -179,7 +179,7 @@ def PopUp(message: str, message_duration: int):
     )
 
 
-def NeglectedPopUp():
+def NeglectedPopUp() -> sg.Window:
     layout = [
         [
             sg.Text(
@@ -232,10 +232,11 @@ def NeglectedPopUp():
         background_color=COLORS[THEME_PROPS.BUTTON][0],
         relative_location=(0, 0),
         element_justification="c",
-    ).Finalize()
+        finalize=True,
+    )
 
 
-def DatePickerWindow(yesterdays_date: str):
+def DatePickerWindow(yesterdays_date: str) -> sg.Window:
     layout = [
         [
             sg.Text(
@@ -290,4 +291,5 @@ def DatePickerWindow(yesterdays_date: str):
         background_color=COLORS[THEME_PROPS.BUTTON][0],
         relative_location=(0, 0),
         element_justification="c",
-    ).Finalize()
+        finalize=True,
+    )

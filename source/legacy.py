@@ -1,7 +1,7 @@
 from pandas import DataFrame
 
 
-def group_list_if_char(flatList: list, ch: str) -> list:
+def group_list_if_char(flatList: list, ch: str) -> list[list]:
     result = []
     separator_indexes = [i for i, x in enumerate(flatList) if x == ch]
     for i in range(len(separator_indexes) + 1):

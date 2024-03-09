@@ -1,26 +1,26 @@
 from datetime import date, timedelta
+from pandas import DataFrame
 from PIL import Image, ImageFont, ImageDraw
 
-from source.constants import date_header
-from source.utils import (
-    flatten_list,
-    align_right,
-    cycle_index,
-    get_value_from_df_by_row,
-)
+from source.constants import date_header, font_families
 from source.core.data_vis import (
-    get_habit_data,
-    get_date_array,
-    get_fail_indexes_list,
-    get_expeted_value,
     calculate_x_position,
-    generate_y_positions,
+    get_date_array,
+    get_expected_value,
+    get_fail_indexes_list,
+    get_habit_data,
     get_rgb_color,
     get_weekdays_characters,
+    generate_y_positions,
     segment_unit_into_list,
     text_list_max_len_to_pixels,
 )
-from source.constants import font_families
+from source.utils import (
+    align_right,
+    cycle_index,
+    flatten_list,
+    get_value_from_df_by_row,
+)
 
 
 def new_image(size_x: int, size_y: int, background_color=(255, 255, 255)):
@@ -29,10 +29,10 @@ def new_image(size_x: int, size_y: int, background_color=(255, 255, 255)):
 
 # 6 pixels / char + 1 @ 12
 def write(
-    image,
-    position: tuple,
+    image: Image.Image,
+    position: tuple[int, int],
     text: str,
-    color: tuple,
+    color: tuple[int, int, int],
     font_family: str = "consolas",
     size: int = 12,
 ):
@@ -43,8 +43,8 @@ def write(
 
 
 def write_category_header(
-    image,
-    position: tuple,
+    image: Image.Image,
+    position: tuple[int, int],
     category: str,
     max_category_len: int,
     square_size: int,
@@ -90,8 +90,8 @@ def write_category_header(
 
 
 def write_footer(
-    image,
-    position: tuple,
+    image: Image.Image,
+    position: tuple[int, int],
     square_size: int,
     square_border: int,
     squares: int,
@@ -114,14 +114,14 @@ def write_footer(
 
 
 def draw_line_of_squares(
-    image,
-    position: tuple,
+    image: Image.Image,
+    position: tuple[int, int],
     square_size: int,
     square_border: int,
     squares: int,
-    skipped: list,
-    square_color: tuple,
-    skipped_color: tuple,
+    skipped: list[int],
+    square_color: tuple[int, int, int],
+    skipped_color: tuple[int, int, int],
 ):
     for square_index in range(squares):
         color = skipped_color if square_index in skipped else square_color
@@ -139,12 +139,12 @@ def draw_line_of_squares(
 
 
 def write_all(
-    image,
-    categories: list,
-    habits: list,
-    conditions: list,
-    data,
-    position: tuple,
+    image: Image.Image,
+    categories: list[str],
+    habits: list[list[str]],
+    conditions: list[list[str]],
+    data: DataFrame,
+    position: tuple[int, int],
     squares: int,
     sqr_size: int,
     sqr_border: int,
@@ -152,7 +152,7 @@ def write_all(
     text_squares_x_spacing: int,
     text_squares_y_offset: int,
     category_y_spacing: int,
-    category_text_offset: tuple,
+    category_text_offset: tuple[int, int],
     graph_expected_value: bool,
     weekdays_language: str,
 ):
@@ -185,7 +185,7 @@ def write_all(
             get_value_from_df_by_row(date_header, -1, data),
         )
         for habit_index, habit in enumerate(habits[category_index]):
-            expected_value = get_expeted_value(habit, habits, conditions)
+            expected_value = get_expected_value(habit, habits, conditions)
             habit_data = get_habit_data(
                 data,
                 date_array,
@@ -237,13 +237,13 @@ def write_all(
 
 
 def generate_image(
-    categories: list,
-    habits: list,
-    conditions: list,
+    categories: list[str],
+    habits: list[list[str]],
+    conditions: list[list[str]],
     data_days: int,
     graph_expected_value: bool,
     weekdays_language: str,
-    data,
+    data: DataFrame,
 ):
     flat_habit_list = flatten_list(habits)
     initial_x = 25

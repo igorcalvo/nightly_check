@@ -1,20 +1,21 @@
-from pandas import DataFrame, options as pandas_options
 from datetime import date, datetime
+from io import TextIOWrapper
 from os.path import exists, isdir
 from os import makedirs
+from pandas import DataFrame
 
 from source.constants import (
-    date_header,
     category_habit_separator,
+    date_header,
     MESSAGES_HEADERS,
 )
-from source.utils import df_row_from_date, to_lower_underscored
 from source.core.settings import Settings
+from source.utils import df_row_from_date, to_lower_underscored
 
 
-def log_write(log_file, new_lines: str):
+def log_write(log_file: TextIOWrapper, new_lines: str):
     log_file.seek(0)
-    content: list = log_file.readlines()
+    content: list[str] = log_file.readlines()
     content.insert(0, new_lines)
     log_file.seek(0)
     log_file.write("".join(content))
@@ -95,8 +96,12 @@ def save_message_file(
         )
         messages.loc[messages.index[-1], MESSAGES_HEADERS.category] = cat
         messages.loc[messages.index[-1], MESSAGES_HEADERS.habit] = hab
-        messages.loc[messages.index[-1], MESSAGES_HEADERS.message] = msg
-        messages.loc[messages.index[-1], MESSAGES_HEADERS.data_reminder] = view_data_reminder_displayed
+        messages.loc[messages.index[-1], MESSAGES_HEADERS.message] = msg.replace(
+            '""', ""
+        )
+        messages.loc[messages.index[-1], MESSAGES_HEADERS.data_reminder] = (
+            view_data_reminder_displayed
+        )
 
     messages.to_csv(messages_file_name, index=False)
 

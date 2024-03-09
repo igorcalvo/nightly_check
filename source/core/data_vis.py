@@ -1,13 +1,14 @@
 from base64 import b64encode
 from datetime import datetime, timedelta
 from io import BytesIO
-from pandas import DataFrame
 from matplotlib.colors import hsv_to_rgb
+from pandas import DataFrame
+from PIL.Image import Image
 
 from source.constants import date_header
-from source.utils import to_lower_underscored, get_value_from_df_by_value
 from source.core.data_in import get_matrix_data_by_header_indexes
 from source.core.data_date import get_latest_date
+from source.utils import get_value_from_df_by_value, to_lower_underscored
 
 
 def get_date_array(data: DataFrame, squares: int) -> list[str]:
@@ -20,7 +21,9 @@ def get_date_array(data: DataFrame, squares: int) -> list[str]:
     return result
 
 
-def get_expeted_value(habit: str, habit_list: list, conditions: list) -> bool:
+def get_expected_value(
+    habit: str, habit_list: list[list[str]], conditions: list[list[str]]
+) -> bool:
     condition = get_matrix_data_by_header_indexes(conditions, habit_list, habit)
     return False if condition in ["=", "<=", "<"] else True
 
@@ -39,9 +42,7 @@ def get_habit_data(
     result = [not expected_value for item in range(squares)]
     for index, date_value in enumerate(date_array):
         try:
-            data_value = get_value_from_df_by_value(
-                date_header, date_value, habit_data
-            )
+            data_value = get_value_from_df_by_value(date_header, date_value, habit_data)
             value = data_value[column_habit].values[0]
             if value == str(expected_value):
                 result[index] = expected_value
@@ -51,15 +52,15 @@ def get_habit_data(
     return result
 
 
-def get_fail_indexes_list(habit_data: list, expectedValue: bool = True) -> list[int]:
+def get_fail_indexes_list(habit_data: list, expected_value: bool = True) -> list[int]:
     result = []
     for index, item in enumerate(habit_data):
-        if item != expectedValue:
+        if item != expected_value:
             result.append(index)
     return result
 
 
-def image_bytes_to_base64(image) -> str:
+def image_bytes_to_base64(image: Image) -> str:
     in_memory_file = BytesIO()
     image.save(in_memory_file, format="PNG")
     in_memory_file.seek(0)
@@ -83,23 +84,23 @@ def segment_unit_into_list(
     return result
 
 
-def get_rgb_color(hue: float, saturation: float, value: float) -> tuple[int, ...]:
+def get_rgb_color(hue: float, saturation: float, value: float) -> tuple:
     # 0 to 1
     rgb_float = hsv_to_rgb((hue, saturation, value))
-    result = tuple(int(v * 255) for v in rgb_float)
+    result = tuple([int(v * 255) for v in rgb_float])
     return result
 
 
 def text_list_max_len_to_pixels(
-    textList: list, font_size_length: int = 6, font_size_spacing: int = 1
+    text_list: list[str], font_size_length: int = 6, font_size_spacing: int = 1
 ) -> int:
-    return max([len(text) for text in textList]) * (
+    return max([len(text) for text in text_list]) * (
         font_size_length + font_size_spacing
     )
 
 
 def generate_y_positions(
-    initial_position: tuple, length: int, spacing: int, number: int
+    initial_position: tuple[int, int], length: int, spacing: int, number: int
 ) -> tuple:
     positions = [
         (initial_position[0], initial_position[1] + (length + spacing) * n)
@@ -108,7 +109,9 @@ def generate_y_positions(
     return positions, positions[-1][1] + length + spacing - initial_position[1]
 
 
-def calculate_x_position(initial_pos_x, index, square_size, square_border):
+def calculate_x_position(
+    initial_pos_x: int, index: int, square_size: int, square_border: int
+):
     return initial_pos_x + index * (square_size + square_border)
 
 

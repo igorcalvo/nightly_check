@@ -1,26 +1,26 @@
-from tkinter import Tk as tk_tk, font as tk_font
+import cv2 as cv
+import matplotlib.colors as clr
+from tkinter import font as tk_font, Tk as tk_tk
 from PySimpleGUI import (
-    LOOK_AND_FEEL_TABLE,
     change_look_and_feel,
     theme_previewer,
+    LOOK_AND_FEEL_TABLE,
     Window,
 )
-import matplotlib.colors as clr
-import cv2 as cv
 
 from source.constants import (
+    habit_init_scrollable_threshold,
+    height_coefficient,
     COLORS,
     ICON_PATHS,
     SETTINGS_DEFAULT_VALUES,
-    habit_init_scrollable_threshold,
-    height_coefficient,
 )
 from source.core.theme import (
+    get_default_theme,
+    get_theme_from_table,
     DEFAULT_COLORS,
     THEME,
     THEME_PROPS,
-    get_default_theme,
-    get_theme_from_table,
 )
 from source.utils import flatten_list_1
 
@@ -40,7 +40,7 @@ def print_fonts():
     root.destroy()
 
 
-def normalize_hue(hue, offset):
+def normalize_hue(hue: float, offset: float) -> float:
     new_hue = hue + offset
     if new_hue > 1:
         return new_hue - 1
@@ -83,7 +83,7 @@ def generate_icon(hue_offset: float):
     cv.imwrite(ICON_PATHS.colored_icon, result)
 
 
-def populate_colors_dict(theme: THEME, hue_offset) -> dict:
+def populate_colors_dict(theme: THEME, hue_offset: float) -> dict:
     result = {}
     result[THEME_PROPS.BACKGROUND] = apply_hue_offset(theme.BACKGROUND, hue_offset)  # type: ignore
     result[THEME_PROPS.BORDER] = theme.BORDER
@@ -95,7 +95,7 @@ def populate_colors_dict(theme: THEME, hue_offset) -> dict:
     return result
 
 
-def get_cat_txt_color(bar_txt: str):
+def get_cat_txt_color(bar_txt: str) -> str:
     if not is_hex_color(bar_txt):
         return bar_txt
 
@@ -126,7 +126,7 @@ def init_ui(hue_offset: float, theme: str):
         change_look_and_feel(theme)
 
 
-def get_all_keys_for_themes():
+def get_all_keys_for_themes() -> list[str]:
     # ['ACCENT1', 'ACCENT2', 'ACCENT3', 'BACKGROUND', 'BORDER', 'BUTTON', 'COLOR_LIST', 'DESCRIPTION', 'INPUT', 'PROGRESS', 'PROGRESS_DEPTH', 'SCROLL', 'SLIDER_DEPTH', 'TEXT', 'TEXT_INPUT']
     result = []
     for theme in LOOK_AND_FEEL_TABLE.keys():
@@ -149,7 +149,7 @@ def preview_themes():
     return theme_previewer(columns=8, scrollable=True)
 
 
-def show_habit_init_scroll_bar(category_count: int, habit_count: list) -> bool:
+def show_habit_init_scroll_bar(category_count: int, habit_count: list[int]) -> bool:
     return (
         category_count + sum(flatten_list_1(habit_count))
         > habit_init_scrollable_threshold

@@ -1,20 +1,20 @@
+from datetime import date, timedelta
 from pandas import DataFrame
 from random import choice
-from datetime import date, timedelta
 
+from source.core.data_in import get_category, get_matrix_data_by_header_indexes
+from source.core.data_date import get_latest_date, get_today_date
 from source.constants import (
-    MESSAGES_HEADERS,
     already_filled_in_today_message,
     category_habit_separator,
+    MESSAGES_HEADERS,
 )
 from source.utils import (
-    to_lower_underscored,
     flatten_list,
-    replace_double_spaces_for_commas,
     get_value_from_df_by_row,
+    replace_double_spaces_for_commas,
+    to_lower_underscored,
 )
-from source.core.data_in import get_matrix_data_by_header_indexes, get_category
-from source.core.data_date import get_latest_date, get_today_date
 
 
 def calculate_frequency(
@@ -39,8 +39,11 @@ def calculate_frequency(
 
 
 def parse_frequency(
-    column: str, conditions: list, fractions: list, habits: list
-) -> tuple:
+    column: str,
+    conditions: list[list[str]],
+    fractions: list[list[str]],
+    habits: list[list[str]],
+) -> tuple[str, int, int]:
     condition = get_matrix_data_by_header_indexes(conditions, habits, column)
     fraction = get_matrix_data_by_header_indexes(fractions, habits, column)
     if "/" not in fraction:
@@ -50,7 +53,7 @@ def parse_frequency(
 
 def check_habit(
     column: str, conditions: list, fractions: list, habits: list, data: DataFrame
-) -> tuple:
+) -> tuple[float, float, bool]:
     condition, num, den = parse_frequency(column, conditions, fractions, habits)
     nominal = num / den
     trues = [
@@ -64,11 +67,11 @@ def check_habit(
 
 def determine_successful(
     data: DataFrame,
-    conditions: list,
-    habits: list,
-    habit_messages: list,
+    conditions: list[list[str]],
+    habits: list[list[str]],
+    habit_messages: list[list[str]],
     dataframe_row: int = -1,
-) -> list:
+) -> list[str]:
     expectation = [[False if "<" in d else True for d in arr] for arr in conditions]
 
     reality = [[] for item in range(len(habits))]
@@ -88,17 +91,19 @@ def determine_successful(
     return mission_accomplished_messages
 
 
-def format_habit_popup_message(category: str, habit: str, message: str, separator: str):
+def format_habit_popup_message(
+    category: str, habit: str, message: str, separator: str
+) -> str:
     return f"{category.upper()}{separator}{habit}\n{message}"
 
 
 def get_popup_message(
     new_day_time: int,
-    conditions: list,
-    fractions: list,
-    habit_messages: list,
-    habits: list,
-    categories: list,
+    conditions: list[list[str]],
+    fractions: list[list[str]],
+    habit_messages: list[list[str]],
+    habits: list[list[str]],
+    categories: list[str],
     data: DataFrame,
     messages: DataFrame,
     random_messages: bool,

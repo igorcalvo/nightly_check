@@ -1,22 +1,22 @@
 from pandas import DataFrame, read_csv as pandas_read_csv
 
 from source.constants import (
-    FILE_NAMES,
-    VARIABLES_KEYS,
     date_header,
     messages_csv_header,
+    FILE_NAMES,
+    VARIABLES_KEYS,
 )
 from source.core.data_date import create_entry, get_today_date
+from source.core.settings import Settings
 from source.utils import (
+    file_not_exists,
+    flatten_list,
+    remove_duplicates,
     replace_commas_for_double_spaces,
     replace_double_spaces_for_commas,
-    flatten_list,
     to_capitalized,
-    remove_duplicates,
-    file_not_exists,
     to_lower_underscored,
 )
-from source.core.settings import Settings
 
 
 def read_csv(file_name: str) -> DataFrame:
@@ -45,7 +45,7 @@ def read_csv(file_name: str) -> DataFrame:
     return df
 
 
-def get_data_dataframe(habits: list) -> DataFrame:
+def get_data_dataframe(habits: list[list[str]]) -> DataFrame:
     if file_not_exists(FILE_NAMES.csv):
         cols = [to_lower_underscored(item) for item in flatten_list(habits)]
         cols.insert(0, date_header)
@@ -54,7 +54,7 @@ def get_data_dataframe(habits: list) -> DataFrame:
         return read_csv(FILE_NAMES.csv)
 
 
-def group_by_category(dataframe: DataFrame, column: str) -> list[list]:
+def group_by_category(dataframe: DataFrame, column: str) -> list[list[str]]:
     capitalized_columns = [VARIABLES_KEYS.habit]
     categories = remove_duplicates(dataframe[VARIABLES_KEYS.category])
     result = []
@@ -81,7 +81,17 @@ def get_category(habit: str, habits: list[list[str]], categories: list[str]) -> 
     raise Exception(f"get_category: couldn't find category for {habit}")
 
 
-def get_data(variables_file):
+def get_data(
+    variables_file: DataFrame,
+) -> tuple[
+    list[list[str]],
+    list[list[str]],
+    list[list[str]],
+    list[list[str]],
+    list[list[str]],
+    list[str],
+    list[str],
+]:
     fractions = group_by_category(variables_file, VARIABLES_KEYS.frequency)
     conditions = group_by_category(variables_file, VARIABLES_KEYS.condition)
     habit_messages = group_by_category(variables_file, VARIABLES_KEYS.message)

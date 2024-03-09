@@ -1,6 +1,6 @@
 from collections.abc import Iterable
-from pandas import DataFrame
 from os.path import exists, getsize
+from pandas import DataFrame
 from sys import platform
 
 
@@ -20,7 +20,7 @@ def settings_key_to_text(key: str) -> str:
     return " ".join([c.capitalize() for c in key.split("_")])
 
 
-def flatten_list(l: list) -> list:
+def flatten_list(l: list[list]) -> list:
     return [item for sublist in l for item in sublist]
 
 
@@ -60,15 +60,15 @@ def flatten_and_wrap_1(l: list) -> list[list]:
     return wrap_list_items_in_list(flat_list)
 
 
-def get_value_from_df_by_row(colName: str, row: int, data: DataFrame):
-    return data.iloc[row, data.columns.get_loc(colName)]
+def get_value_from_df_by_row(col_name: str, row: int, data: DataFrame):
+    return data.iloc[row, data.columns.get_loc(col_name)]
 
 
 def align_right(string: str, length: int) -> str:
     return string.rjust(length)
 
 
-def cycle_index(obj, index):
+def cycle_index(obj: list | str, index: int):
     corrected_index = index
     if abs(index) > len(obj):
         div = abs(index) // len(obj)
@@ -79,8 +79,8 @@ def cycle_index(obj, index):
     return obj[corrected_index]
 
 
-def get_value_from_df_by_value(colName: str, value, data: DataFrame):
-    return data.loc[data[colName] == value]
+def get_value_from_df_by_value(col_name: str, value, data: DataFrame):
+    return data.loc[data[col_name] == value]
 
 
 def remove_duplicates(arr: Iterable) -> list:
@@ -101,7 +101,7 @@ def safe_value_from_dict(key, dictionary: dict):
         return None
 
 
-def safe_bool_from_array(index, array: list):
+def safe_bool_from_array(index: int, array: list):
     if array is None:
         return True
 
@@ -111,7 +111,7 @@ def safe_bool_from_array(index, array: list):
         return False
 
 
-def safe_value_from_array(index, array: list, default_value):
+def safe_value_from_array(index: int, array: list, default_value):
     if array is None:
         return 0
 
@@ -121,7 +121,7 @@ def safe_value_from_array(index, array: list, default_value):
         return default_value
 
 
-def habit_init_key(key: str, row: int, sub_row: int = 0):
+def habit_init_key(key: str, row: int, sub_row: int = 0) -> str:
     return f"{key}_{row}" if sub_row == 0 else f"{key}_{row}_{sub_row}"
 
 

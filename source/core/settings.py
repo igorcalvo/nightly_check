@@ -1,5 +1,6 @@
-from source.constants import SETTINGS_KEYS, SETTINGS_DEFAULT_VALUES
 from json import dumps, loads
+
+from source.constants import SETTINGS_KEYS, SETTINGS_DEFAULT_VALUES
 
 
 class Settings:

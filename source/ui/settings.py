@@ -9,14 +9,14 @@ from source.constants import (
     TEXTS_AND_KEYS,
 )
 from source.core.theme import THEME_PROPS
-from source.utils import pad_string, settings_key_to_text
 from source.core.settings import Settings
 from source.ui.utils import get_paths, init_ui
+from source.utils import pad_string, settings_key_to_text
 
 ICON_PATHS = get_paths()
 
 
-def PreviewWindow(new_hue: float, theme: str):
+def PreviewWindow(new_hue: float, theme: str) -> sg.Window:
     init_ui(new_hue, theme)
 
     return sg.Window(
@@ -68,7 +68,7 @@ def PreviewWindow(new_hue: float, theme: str):
         auto_close_duration=3,
         auto_close=True,
         force_toplevel=True,
-    ).Finalize()
+    )
 
 
 def SettingsWindowLayout(

@@ -1,5 +1,5 @@
-from datetime import date, timedelta, datetime
-from pandas import DataFrame, concat
+from datetime import date, datetime, timedelta
+from pandas import concat as pandas_concat, DataFrame
 
 from source.constants import date_header
 from source.utils import df_row_from_date, to_lower_underscored
@@ -37,7 +37,7 @@ def create_entry(date: date, data: DataFrame) -> DataFrame:
     di = dict.fromkeys(data.columns.values, "")
     di[date_header] = str(date)
     df_row = DataFrame([di])
-    data = concat([data, df_row], ignore_index=True)
+    data = pandas_concat([data, df_row], ignore_index=True)
     return data
 
 
@@ -66,18 +66,18 @@ def create_entries(new_day_time: int, data: DataFrame) -> DataFrame:
     return data
 
 
-def data_from_date_to_list(data: DataFrame, date: str, habits: list):
+def data_from_date_to_list(data: DataFrame, date: str, habits: list[list[str]]):
     row_from_date = df_row_from_date(data, date, date_header)
     result = [
         [row_from_date[to_lower_underscored(h)].values[0] == "True" for h in cat]
-        for cat in habits 
+        for cat in habits
     ]
     return result
 
 
 def todays_data_or_none(
-    new_day_time: int, data: DataFrame, habits: list
-) -> list | None:
+    new_day_time: int, data: DataFrame, habits: list[list[str]]
+) -> list[list] | None:
     today = str(get_today_date(new_day_time))
     if len(data.tail(1)["date"].values) == 0:
         return None

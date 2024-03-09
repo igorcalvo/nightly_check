@@ -1,17 +1,17 @@
 from pandas import DataFrame
 
 from source.constants import date_header
-from source.utils import to_lower_underscored, replace_commas_for_double_spaces
 from source.core.data_date import get_yesterday_date
 from source.core.data_out import backup_data
+from source.utils import to_lower_underscored, replace_commas_for_double_spaces
 
 
 def verify_header_and_data(
-    habits: list,
-    data_variables: list,
+    habits: list[list[str]],
+    data_variables: list[str],
     csv_file_name: str,
     data: DataFrame,
-    disabled_habits: list,
+    disabled_habits: list[str],
 ):
     flat_habits = [to_lower_underscored(item) for sublist in habits for item in sublist]
     if (
@@ -31,7 +31,7 @@ def verify_header_and_data(
                 # maybe None is not the right value, it should be empty string
 
 
-def verify_variables(variables_file_name):
+def verify_variables(variables_file_name: str):
     try:
         with open(variables_file_name, "r") as file:
             lines = file.readlines()
@@ -55,7 +55,7 @@ def verify_variables(variables_file_name):
         raise e
 
 
-def no_data_from_yesterday(new_day_time: int, data: DataFrame):
+def no_data_from_yesterday(new_day_time: int, data: DataFrame) -> bool:
     yesterday = get_yesterday_date(new_day_time).isoformat()
     last_column_row = data.loc[data[date_header] == yesterday]
     if data.shape[0] <= 1:

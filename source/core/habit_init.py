@@ -1,11 +1,11 @@
+from source.constants import variables_csv_header, HABITS_INIT, VARIABLES_KEYS
 from source.core.data_in import read_csv
 from source.utils import (
-    habit_init_key,
-    values_from_keyword,
-    replace_commas_for_double_spaces,
     flatten_list,
+    habit_init_key,
+    replace_commas_for_double_spaces,
+    values_from_keyword,
 )
-from source.constants import HABITS_INIT, VARIABLES_KEYS, variables_csv_header
 
 
 def habit_index_from_event(event: str):
@@ -49,7 +49,7 @@ def variables_row(
 def generate_variables(
     variables_file_name: str,
     variables_init_values_dict: dict,
-    habit_count: list,
+    habit_count: list[int],
 ):
     categories = values_from_keyword(
         HABITS_INIT.category_key, variables_init_values_dict

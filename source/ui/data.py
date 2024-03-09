@@ -1,7 +1,7 @@
-import PySimpleGUI as sg
+from base64 import b64decode
 from io import BytesIO
 from PIL import Image
-from base64 import b64decode
+import PySimpleGUI as sg
 
 from source.constants import COLORS, FONTS, TEXTS_AND_KEYS
 from source.core.theme import THEME_PROPS
@@ -13,7 +13,7 @@ ICON_PATHS = get_paths()
 def DataWindow(
     scrollable_image: bool,
     img_base64: str,
-):
+) -> sg.Window:
     width, height = Image.open(BytesIO(b64decode(img_base64))).size
     layout = [
         [sg.Image(data=img_base64)],
@@ -58,4 +58,5 @@ def DataWindow(
         titlebar_icon=ICON_PATHS.data_icon,
         background_color=COLORS[THEME_PROPS.SCROLL],
         relative_location=(0, -15),
-    ).Finalize()
+        finalize=True,
+    )
