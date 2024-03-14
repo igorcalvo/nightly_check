@@ -9,3 +9,4 @@ variables.csv
 settings.json
 assets/icons/iconColored.png
 !assets/reference/*.txt
+data/*.png

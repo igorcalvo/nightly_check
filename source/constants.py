@@ -103,7 +103,7 @@ class MESSAGES:
     neglected = "It looks like you haven't input yesterday's data. Would you like to add it now?"
     date_text = "Select a date:"
     date_calendar = "Pick a date"
-    input_tooltip_track = "  Track Frequency?"
+    input_tooltip_track = "  Track?"
     input_tooltip_habit = "Short word to represent a habit"
     input_tooltip_question = "Simple yes or no question to help you determine whether you have completed a task or not"
     input_tooltip_checkbox = "Enables message pop up if you fail to perform a task within a determined frequency"
@@ -195,9 +195,10 @@ already_filled_in_today_message = (
     "No message for you! You have already added in an entry for today."
 )
 habit_init_scrollable_threshold = 20
-habit_init_width = 1725
-height_coefficient = 0.80
+habit_init_width = 1750
+height_coefficient = 0.75
 data_visualization_reminder_duration = 3
+data_vizualization_threshold = 60
 # ----------------------------------------------------------------------------------------------------------------------
 # | hue_offset | < 1
 

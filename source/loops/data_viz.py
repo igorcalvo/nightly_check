@@ -23,7 +23,7 @@ def Data_Viz_Loop(
         settings.weekdays_language,
         graph_data,
     )
-    data_window = DataWindow(settings.scrollable_image, image_bytes_to_base64(img))
+    data_window = DataWindow(settings.scrollable_image, settings.data_days, image_bytes_to_base64(img))
     while True:
         data_event, data_values_dict = data_window.read()  # type: ignore
         if data_event == TEXTS_AND_KEYS.export_button_text:

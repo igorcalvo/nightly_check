@@ -22,6 +22,9 @@ def Habit_Init_Loop(variables_exists: bool):
             habit_count.append(0)
         elif variables_init_event == HABITS_INIT.cat_remove:
             habit_count.pop()
+        elif variables_init_event == WIN_CLOSED:
+            variables_init_window.close()
+            break
         elif HABITS_INIT.add_habit_text in variables_init_event:
             habit_count[habit_index_from_event(variables_init_event)] = (
                 habit_count[habit_index_from_event(variables_init_event)] + 1
@@ -34,9 +37,6 @@ def Habit_Init_Loop(variables_exists: bool):
             if variables_exists:
                 backup_data(FILE_NAMES.var, read_csv(FILE_NAMES.var))
             generate_variables(FILE_NAMES.var, variables_init_values_dict, habit_count)
-            variables_init_window.close()
-            break
-        elif variables_init_event == WIN_CLOSED:
             variables_init_window.close()
             break
         elif variables_init_event == HABITS_INIT.load_file_key:

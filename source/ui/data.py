@@ -3,7 +3,7 @@ from io import BytesIO
 from PIL import Image
 import PySimpleGUI as sg
 
-from source.constants import COLORS, FONTS, TEXTS_AND_KEYS
+from source.constants import COLORS, FONTS, TEXTS_AND_KEYS, data_vizualization_threshold
 from source.core.theme import THEME_PROPS
 from source.ui.utils import get_min_win_size, get_paths
 
@@ -12,8 +12,10 @@ ICON_PATHS = get_paths()
 
 def DataWindow(
     scrollable_image: bool,
+    data_days: int,
     img_base64: str,
 ) -> sg.Window:
+    horizontal_scroll = data_days >= data_vizualization_threshold
     width, height = Image.open(BytesIO(b64decode(img_base64))).size
     layout = [
         [sg.Image(data=img_base64)],
@@ -45,9 +47,10 @@ def DataWindow(
             [
                 sg.Column(
                     layout,
-                    scrollable=scrollable_image,
+                    scrollable=scrollable_image or horizontal_scroll,
+                    vertical_scroll_only=not horizontal_scroll,
                     key="Column",
-                    size=(None, None) if not scrollable_image else get_min_win_size(),
+                    size=(None, None) if not (scrollable_image or horizontal_scroll) else get_min_win_size(),
                 )
             ]
         ],
