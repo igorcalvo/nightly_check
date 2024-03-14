@@ -87,6 +87,7 @@ try:
         PopUp(
             MESSAGES.settings_data_vis_reminder_message,
             data_visualization_reminder_duration,
+            False,
         )
 
     todays_data = todays_data_or_none(settings.new_day_time, data, habits)
@@ -127,7 +128,7 @@ try:
                     save_message_file(
                         FILE_NAMES.msg, messages, message, show_data_vis_reminder
                     )
-                    PopUp(message, settings.message_duration)
+                    PopUp(message, settings.message_duration, True)
             break
     window.close()
 except Exception as e:
@@ -146,9 +147,7 @@ finally:
         log_write(log, f"{finally_string}")
     log.close()
 
-# reenable random messages after testing
-# refactor get todays message - it's going too much
-# identidade visual: patrolling owl
+# someshow refactor get_popup_message
 # ship with scripts to run before shutdown
 
 # MAJOR

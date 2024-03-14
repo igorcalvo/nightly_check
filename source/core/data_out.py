@@ -5,6 +5,7 @@ from os import makedirs
 from pandas import DataFrame
 
 from source.constants import (
+    already_filled_in_today_message,
     category_habit_separator,
     date_header,
     MESSAGES_HEADERS,
@@ -89,7 +90,7 @@ def save_message_file(
     todays_message: str,
     view_data_reminder_displayed: bool,
 ):
-    if todays_message != "":
+    if todays_message not in ("", None, already_filled_in_today_message):
         ([cat, hab], msg) = (
             todays_message.split("\n")[0].split(category_habit_separator),
             todays_message.split("\n")[1],
@@ -103,7 +104,7 @@ def save_message_file(
             view_data_reminder_displayed
         )
 
-    messages.to_csv(messages_file_name, index=False)
+        messages.to_csv(messages_file_name, index=False)
 
 
 def save_settings_file(settings_file_name: str, settings: Settings):

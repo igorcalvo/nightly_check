@@ -153,7 +153,7 @@ def get_popup_message(
     past_messages = list(messages[MESSAGES_HEADERS.message])
     if (
         last_date == todays_date.isoformat()
-        and messages.iloc[-1][MESSAGES_HEADERS.message] != ""
+        and messages.iloc[-2][MESSAGES_HEADERS.message] != ""
     ):
         return already_filled_in_today_message
 

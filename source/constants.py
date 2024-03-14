@@ -90,7 +90,10 @@ class SETTINGS_DEFAULT_VALUES:
 
 
 class MESSAGES:
-    app_title = "Argus"
+    # app_title = "Argus"
+    # app_title = "NightlyCheck"
+    # app_title = "OwlPeek"
+    app_title = "OwlCheck"
     hue = "Slide to change hue"
     preview_text = "Preview"
     preview_tooltip = "Sample tooltip"
@@ -150,6 +153,7 @@ class MESSAGES:
 
 class ICON_PATHS:
     colored_icon = f"{DIR}/assets/icons/iconColored.png"
+    colored_msg_icon = f"{DIR}/assets/icons/msgIconColored.png"
     standard_icon = f"{DIR}/assets/icons/icon16.png"
     style_icon = f"{DIR}/assets/icons/style16.png"
     data_icon = f"{DIR}/assets/icons/data16.png"
@@ -157,6 +161,9 @@ class ICON_PATHS:
     init_icon = f"{DIR}/assets/icons/rocket16.png"
     preview_icon = f"{DIR}/assets/icons/preview16.png"
     settings_icon = f"{DIR}/assets/icons/cogwheel16.png"
+    owl_icon_ico = f"{DIR}/assets/icons/owl/patrolling-owl.ico"
+    owl_icon_png_32 = f"{DIR}/assets/icons/owl/patrolling-owl32.png"
+    owl_icon_png_64 = f"{DIR}/assets/icons/owl/patrolling-owl64.png"
 
 
 date_header = "date"

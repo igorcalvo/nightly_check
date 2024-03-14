@@ -1,7 +1,9 @@
 import PySimpleGUI as sg
+from PIL import Image
 
 from source.constants import COLORS, FONTS, MESSAGES, TEXTS_AND_KEYS
 from source.core.data_in import get_matrix_data_by_header_indexes
+from source.core.data_vis import image_bytes_to_base64
 from source.core.theme import THEME_PROPS
 from source.ui.utils import get_paths
 from source.utils import date_ymd_to_mdy, flatten_and_wrap, pad_string
@@ -165,18 +167,71 @@ def MainWindow(
     )
 
 
-def PopUp(message: str, message_duration: int):
-    sg.PopupNoButtons(
-        message,
-        keep_on_top=True,
-        auto_close=True,
-        auto_close_duration=message_duration,
+def IconWindow(message: str, message_duration: int):
+    img = Image.open(ICON_PATHS.colored_msg_icon)
+    base64_img = image_bytes_to_base64(img)
+    layout = [
+        [
+            sg.Column(
+                [
+                    [
+                        sg.Image(
+                            data=base64_img,
+                            background_color=COLORS[THEME_PROPS.BUTTON][1],
+                        )
+                    ]
+                ],
+                background_color=COLORS[THEME_PROPS.BUTTON][1],
+            ),
+            sg.Column(
+                [
+                    [
+                        sg.Text(
+                            text=message,
+                            text_color=COLORS[THEME_PROPS.BUTTON][0],
+                            background_color=COLORS[THEME_PROPS.BUTTON][1],
+                            font=FONTS["pop"],
+                        )
+                    ]
+                ],
+                background_color=COLORS[THEME_PROPS.BUTTON][1],
+            ),
+        ]
+    ]
+
+    window = sg.Window(
+        title="",
         background_color=COLORS[THEME_PROPS.BUTTON][1],
-        text_color=COLORS[THEME_PROPS.BUTTON][0],
         no_titlebar=True,
-        font=FONTS["pop"],
-        line_width=len(message),
+        layout=layout,
+        auto_close_duration=message_duration,
+        auto_close=True,
+        finalize=True,
     )
+    window.read()
+    window.TKroot.after(
+        int(message_duration * 1000),
+        lambda win=window: win.write_event_value(sg.WINDOW_CLOSED, None),
+    )
+    window.close()
+
+
+def PopUp(message: str, message_duration: int, show_icon: bool):
+    if show_icon:
+        IconWindow(message, message_duration)
+    else:
+        sg.PopupNoButtons(
+            message,
+            keep_on_top=True,
+            auto_close=True,
+            auto_close_duration=message_duration,
+            background_color=COLORS[THEME_PROPS.BUTTON][1],
+            text_color=COLORS[THEME_PROPS.BUTTON][0],
+            no_titlebar=True,
+            font=FONTS["pop"],
+            line_width=len(message),
+            image=ICON_PATHS.colored_msg_icon,
+        )
 
 
 def NeglectedPopUp() -> sg.Window:

@@ -66,11 +66,11 @@ def apply_hue_offset(hex_color: str, hue_offset: float) -> str:
     return clr.rgb2hex(clr.hsv_to_rgb(hsv))
 
 
-def generate_icon(hue_offset: float):
-    icon = cv.imread(ICON_PATHS.standard_icon, cv.IMREAD_UNCHANGED)
+def generate_icon(hue_offset: float, icon_path: str, output_path: str):
+    icon = cv.imread(icon_path, cv.IMREAD_UNCHANGED)
     a = icon[:, :, 3]
 
-    bgr = cv.imread(ICON_PATHS.standard_icon)
+    bgr = cv.imread(icon_path)
     hsv = cv.cvtColor(bgr, cv.COLOR_BGR2HSV)
     h, s, v = hsv[:, :, 0], hsv[:, :, 1], hsv[:, :, 2]
 
@@ -80,7 +80,7 @@ def generate_icon(hue_offset: float):
 
     result = cv.cvtColor(hsv2, cv.COLOR_HSV2BGR)
     result = cv.merge([result[:, :, 0], result[:, :, 1], result[:, :, 2], a])
-    cv.imwrite(ICON_PATHS.colored_icon, result)
+    cv.imwrite(output_path, result)
 
 
 def populate_colors_dict(theme: THEME, hue_offset: float) -> dict:
@@ -116,7 +116,8 @@ def get_cat_txt_color(bar_txt: str) -> str:
 
 
 def init_ui(hue_offset: float, theme: str):
-    generate_icon(hue_offset)
+    generate_icon(hue_offset, ICON_PATHS.owl_icon_png_32, ICON_PATHS.colored_icon)
+    generate_icon(hue_offset, ICON_PATHS.owl_icon_png_64, ICON_PATHS.colored_msg_icon)
     ui_theme = get_theme(theme)
     theme_dict = populate_colors_dict(ui_theme, hue_offset)
     for k in theme_dict.keys():
@@ -124,6 +125,7 @@ def init_ui(hue_offset: float, theme: str):
     COLORS[THEME_PROPS.CATEGORY] = get_cat_txt_color(COLORS[THEME_PROPS.TEXT])
     if theme != SETTINGS_DEFAULT_VALUES.theme:
         change_look_and_feel(theme)
+    # set_global_icon(ICON_PATHS.owl_icon_png_64)
 
 
 def get_all_keys_for_themes() -> list[str]:
