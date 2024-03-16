@@ -1,3 +1,4 @@
+from numpy import delete, generic
 from source.constants import variables_csv_header, HABITS_INIT, VARIABLES_KEYS
 from source.core.data_in import read_csv
 from source.utils import (
@@ -147,3 +148,18 @@ def variables_to_habitcount_and_dict(
         ]
 
     return (habits, dictionary)
+
+def clear_habit_row(dictionary: dict[str, str], event_id: str) -> dict[str, str]:
+    generic_key = event_id.count("_") == 1
+    delete_keys = []
+    for k in dictionary.keys():
+        k_is_generic = k.count("_") == 1
+        if event_id in k and HABITS_INIT.category_key not in k:
+            if (generic_key and k_is_generic) or (not generic_key and not k_is_generic):
+                delete_keys.append(k)
+
+    for k in delete_keys:
+        del dictionary[k]
+
+    return dictionary
+    

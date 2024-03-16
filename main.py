@@ -26,6 +26,7 @@ from source.core.data_out import (
 )
 from source.core.data_date import create_entries, todays_data_or_none
 from source.core.habit_messages import (
+    get_message_data,
     get_popup_message,
     should_show_data_visualization_reminder,
 )
@@ -116,16 +117,18 @@ try:
         elif event == TEXTS_AND_KEYS.done_button_text or event == WIN_CLOSED:
             if event == TEXTS_AND_KEYS.done_button_text:
                 data = save_data(data, values_dict, FILE_NAMES.csv)
+                message_data = get_message_data(
+                    habits, categories, conditions, fractions, habit_messages, data
+                )
                 message = get_popup_message(
                     settings.new_day_time,
+                    settings.random_messages,
                     conditions,
-                    fractions,
                     habit_messages,
                     habits,
-                    categories,
                     data,
                     messages,
-                    settings.random_messages,
+                    message_data,
                 )
                 if message and settings.display_messages:
                     save_message_file(
@@ -154,11 +157,7 @@ finally:
         log_write(log, f"{finally_string}")
     log.close()
 
-# someshow refactor get_popup_message
 # ship with scripts to run before shutdown
-# habit init
-#   change order
-#   delete row button
 
 # MAJOR
 # dark theme img gen

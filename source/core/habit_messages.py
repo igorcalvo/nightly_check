@@ -98,17 +98,18 @@ def format_habit_popup_message(
     return f"{category.upper()}{separator}{habit}\n{message}"
 
 
-def get_popup_message(
-    new_day_time: int,
+ # m[0] = (frequency, nominal, failed: bool)
+ # m[1] = category
+ # m[2] = habit
+ # m[3] = message
+def get_message_data(
+    habits: list[list[str]],
+    categories: list[str],
     conditions: list[list[str]],
     fractions: list[list[str]],
     habit_messages: list[list[str]],
-    habits: list[list[str]],
-    categories: list[str],
     data: DataFrame,
-    messages: DataFrame,
-    random_messages: bool,
-) -> str | None:
+) -> list[tuple[tuple[float, float, bool], str, str, str]]:
     flat_habits = flatten_list(habits)
     message_data = [
         (
@@ -120,11 +121,19 @@ def get_popup_message(
         for h in flat_habits
     ]
     message_data.sort(key=lambda m: m[0][1], reverse=True)
+    return message_data
 
-    # m[0] = (frequency, nominal, failed: bool)
-    # m[1] = category
-    # m[2] = habit
-    # m[3] = message
+
+def get_popup_message(
+    new_day_time: int,
+    random_messages: bool,
+    conditions: list[list[str]],
+    habit_messages: list[list[str]],
+    habits: list[list[str]],
+    data: DataFrame,
+    messages: DataFrame,
+    message_data: list[tuple[tuple[float, float, bool], str, str, str]],
+) -> str | None:
     candidate_messages = set(
         [
             format_habit_popup_message(
@@ -139,6 +148,7 @@ def get_popup_message(
     )
 
     # No idea why this is here
+    # Probably removes empty messages if bad input
     empty_messages = set(
         [cm if cm.split("\n")[-1] == "" else None for cm in candidate_messages]
     )
@@ -151,11 +161,11 @@ def get_popup_message(
     # Checking for message already shown today
     todays_date = get_today_date(new_day_time)
     last_date = get_latest_date(messages)
-    past_messages = list(messages[MESSAGES_HEADERS.message])
-    if (last_date == str(todays_date)):
+    if last_date == str(todays_date):
         return already_filled_in_today_message
 
     # Removing message from yesterday
+    past_messages = list(messages[MESSAGES_HEADERS.message])
     previous_message = past_messages[-1] if past_messages is not None else ""
     if (
         previous_message != ""
@@ -183,13 +193,11 @@ def get_popup_message(
     ]
     candidate_messages.difference_update(sucesses_to_be_removed)
 
+    # None is needed later not show any message
     if len(candidate_messages) == 0:
         return None
 
     if not random_messages:
-        candidate_messages = [
-            replace_double_spaces_for_commas(c) for c in candidate_messages
-        ]
         for m in message_data:
             msg = format_habit_popup_message(
                 m[1],

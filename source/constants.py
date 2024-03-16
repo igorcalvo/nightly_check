@@ -57,6 +57,8 @@ class HABITS_INIT:
     label_message = "Encouraging Message"
     label_direction = "Ideal Frequency is: "
     enabled_key = "Enabled"
+    clear_icon = "🧹"
+    habit_clear_key = "ClearHabit"
 
 
 class SETTINGS_KEYS:

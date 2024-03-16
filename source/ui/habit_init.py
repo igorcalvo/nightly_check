@@ -33,6 +33,17 @@ def HabitInitHabitLayout(
     padding_text = 10
     habit_padding = padding_x // 2 if file_exists else 2 * padding_x
     layout = [
+        sg.Button(
+            button_text=HABITS_INIT.clear_icon,
+            key=habit_init_key(HABITS_INIT.habit_clear_key, category_row, row_in_habit_count),
+            font=FONTS["btn"],
+            size=1,
+            button_color=(
+                COLORS[THEME_PROPS.BUTTON][0],
+                COLORS[THEME_PROPS.BUTTON][1],
+            ),
+            pad=((padding_x, 0), (0, 0)),
+        ),
         sg.Checkbox(
             text="",
             key=habit_init_key(
@@ -111,7 +122,7 @@ def HabitInitHabitLayout(
             checkbox_color=COLORS[THEME_PROPS.BUTTON][0],
             text_color=COLORS[THEME_PROPS.BUTTON][1],
             background_color=COLORS[THEME_PROPS.BACKGROUND],
-            pad=((5, 5), (0, 0)),
+            pad=((5, 0), (0, 0)),
             tooltip=MESSAGES.input_tooltip_checkbox,
             enable_events=True,
         ),
@@ -121,7 +132,7 @@ def HabitInitHabitLayout(
             ),
             background_color=COLORS[THEME_PROPS.INPUT],
             text_color=COLORS[THEME_PROPS.TEXT_INPUT],
-            size=80,
+            size=70,
             font=FONTS["pop"],
             pad=((padding_text + 5, 0), (0, 0)),
             tooltip=MESSAGES.input_tooltip_message,
