@@ -54,9 +54,7 @@ def create_entries(new_day_time: int, data: DataFrame) -> DataFrame:
         # Fixes inputting data after midnight
         current_date = get_today_date(new_day_time)
         last_date = (
-            str(current_date + timedelta(days=-1))
-            if last_date is None
-            else last_date
+            str(current_date + timedelta(days=-1)) if last_date is None else last_date
         )
 
     if delta_days > 0:

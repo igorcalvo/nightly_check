@@ -28,7 +28,9 @@ def Habit_Init_Loop(variables_exists: bool):
             break
         elif HABITS_INIT.habit_clear_key in variables_init_event:
             row_key = variables_init_event.replace(HABITS_INIT.habit_clear_key, "")
-            variables_init_values_dict = clear_habit_row(variables_init_values_dict, row_key)
+            variables_init_values_dict = clear_habit_row(
+                variables_init_values_dict, row_key
+            )
         elif HABITS_INIT.add_habit_text in variables_init_event:
             habit_count[habit_index_from_event(variables_init_event)] = (
                 habit_count[habit_index_from_event(variables_init_event)] + 1

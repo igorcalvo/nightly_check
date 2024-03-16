@@ -163,6 +163,7 @@ def date_ymd_to_mdy(date_str: str) -> tuple[int, int, int]:
 def enabled_checkbox_default_value(value: str):
     return False if value in (None, "0") else True
 
+
 def trim_quotes(string: str):
     if string[0] == '"' and string[-1] == '"':
         return string.strip('"')

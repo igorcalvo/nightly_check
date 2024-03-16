@@ -35,7 +35,9 @@ def HabitInitHabitLayout(
     layout = [
         sg.Button(
             button_text=HABITS_INIT.clear_icon,
-            key=habit_init_key(HABITS_INIT.habit_clear_key, category_row, row_in_habit_count),
+            key=habit_init_key(
+                HABITS_INIT.habit_clear_key, category_row, row_in_habit_count
+            ),
             font=FONTS["btn"],
             size=1,
             button_color=(

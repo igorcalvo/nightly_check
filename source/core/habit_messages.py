@@ -98,10 +98,10 @@ def format_habit_popup_message(
     return f"{category.upper()}{separator}{habit}\n{message}"
 
 
- # m[0] = (frequency, nominal, failed: bool)
- # m[1] = category
- # m[2] = habit
- # m[3] = message
+# m[0] = (frequency, nominal, failed: bool)
+# m[1] = category
+# m[2] = habit
+# m[3] = message
 def get_message_data(
     habits: list[list[str]],
     categories: list[str],

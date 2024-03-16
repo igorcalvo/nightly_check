@@ -50,7 +50,11 @@ def DataWindow(
                     scrollable=scrollable_image or horizontal_scroll,
                     vertical_scroll_only=not horizontal_scroll,
                     key="Column",
-                    size=(None, None) if not (scrollable_image or horizontal_scroll) else get_min_win_size(),
+                    size=(
+                        (None, None)
+                        if not (scrollable_image or horizontal_scroll)
+                        else get_min_win_size()
+                    ),
                 )
             ]
         ],

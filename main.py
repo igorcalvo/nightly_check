@@ -158,6 +158,10 @@ finally:
     log.close()
 
 # ship with scripts to run before shutdown
+# fix owl color, override hue with theme instead of offset
+#   associate current img to a color then delta hue that with a theme's color
+# datavis refactor -> sizes to constants file
+# settings for dark theme
 
 # MAJOR
 # dark theme img gen
@@ -195,7 +199,6 @@ finally:
 #       for that, we'll have to link the habits somehow
 #   migrate to Qt? -> fix icons in titlebar
 
-#   sort imports
 #   COMPILE and SHIP
 #       README.md
 #       Reddit post HG, Producitivy, Linux

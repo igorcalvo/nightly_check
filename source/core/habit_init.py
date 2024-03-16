@@ -149,6 +149,7 @@ def variables_to_habitcount_and_dict(
 
     return (habits, dictionary)
 
+
 def clear_habit_row(dictionary: dict[str, str], event_id: str) -> dict[str, str]:
     generic_key = event_id.count("_") == 1
     delete_keys = []
@@ -162,4 +163,3 @@ def clear_habit_row(dictionary: dict[str, str], event_id: str) -> dict[str, str]
         del dictionary[k]
 
     return dictionary
-    
