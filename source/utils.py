@@ -13,7 +13,10 @@ def to_lower_underscored(string: str) -> str:
 
 
 def to_capitalized(string: str) -> str:
-    return " ".join([s.capitalize() for s in string.split(" ")])
+    partials = []
+    for s in string.split(" "):
+        partials.append(s.capitalize() if s != s.upper() else s.upper())
+    return " ".join(partials)
 
 
 def settings_key_to_text(key: str) -> str:
@@ -159,3 +162,9 @@ def date_ymd_to_mdy(date_str: str) -> tuple[int, int, int]:
 
 def enabled_checkbox_default_value(value: str):
     return False if value in (None, "0") else True
+
+def trim_quotes(string: str):
+    if string[0] == '"' and string[-1] == '"':
+        return string.strip('"')
+    else:
+        return string

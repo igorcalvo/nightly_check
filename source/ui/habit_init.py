@@ -31,6 +31,7 @@ def HabitInitHabitLayout(
     file_exists: bool,
 ):
     padding_text = 10
+    habit_padding = padding_x // 2 if file_exists else 2 * padding_x
     layout = [
         sg.Checkbox(
             text="",
@@ -51,7 +52,7 @@ def HabitInitHabitLayout(
             text_color=COLORS[THEME_PROPS.BUTTON][1],
             background_color=COLORS[THEME_PROPS.BACKGROUND],
             font=FONTS["pop"],
-            pad=((padding_x // 2, 0), (0, 0)),
+            pad=((habit_padding, 0), (0, 0)),
         ),
         sg.InputText(
             key=habit_init_key(HABITS_INIT.habit_key, category_row, row_in_habit_count),

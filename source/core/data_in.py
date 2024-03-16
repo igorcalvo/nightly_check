@@ -151,8 +151,4 @@ def read_messages(messages_file_name: str, new_day_time: int) -> DataFrame:
         messages = pandas_read_csv(FILE_NAMES.msg)
         messages.fillna("")
 
-    today = get_today_date(new_day_time)
-    if today not in list(messages[date_header].values):
-        messages = create_entry(today, messages)
-
     return messages

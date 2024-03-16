@@ -38,9 +38,7 @@ def Neglected_Loop(
                         data,
                         neglected_data_values_dict,
                         FILE_NAMES.csv,
-                        get_yesterday_date(
-                            settings.new_day_time,
-                        ).isoformat(),
+                        str(get_yesterday_date(settings.new_day_time)),
                     )
                 if (
                     neglected_data_event == WIN_CLOSED

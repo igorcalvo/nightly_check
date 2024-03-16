@@ -56,7 +56,7 @@ def verify_variables(variables_file_name: str):
 
 
 def no_data_from_yesterday(new_day_time: int, data: DataFrame) -> bool:
-    yesterday = get_yesterday_date(new_day_time).isoformat()
+    yesterday = str(get_yesterday_date(new_day_time))
     last_column_row = data.loc[data[date_header] == yesterday]
     if data.shape[0] <= 1:
         return False

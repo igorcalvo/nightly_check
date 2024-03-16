@@ -14,6 +14,7 @@ from source.utils import (
     get_value_from_df_by_row,
     replace_double_spaces_for_commas,
     to_lower_underscored,
+    trim_quotes,
 )
 
 
@@ -108,7 +109,6 @@ def get_popup_message(
     messages: DataFrame,
     random_messages: bool,
 ) -> str | None:
-    todays_date = get_today_date(new_day_time)
     flat_habits = flatten_list(habits)
     message_data = [
         (
@@ -149,12 +149,10 @@ def get_popup_message(
     )
 
     # Checking for message already shown today
+    todays_date = get_today_date(new_day_time)
     last_date = get_latest_date(messages)
     past_messages = list(messages[MESSAGES_HEADERS.message])
-    if (
-        last_date == todays_date.isoformat()
-        and messages.iloc[-2][MESSAGES_HEADERS.message] != ""
-    ):
+    if (last_date == str(todays_date)):
         return already_filled_in_today_message
 
     # Removing message from yesterday
@@ -200,14 +198,17 @@ def get_popup_message(
                 category_habit_separator,
             )
             if msg in candidate_messages:
-                return msg
+                return trim_quotes(msg)
 
-    todays_message = choice(list(candidate_messages))
+    todays_message = trim_quotes(choice(list(candidate_messages)))
     return todays_message
 
 
 def should_show_data_visualization_reminder(
-    show_data_vis_reminder: bool, data_vis_reminder_days: int, messages: DataFrame
+    show_data_vis_reminder: bool,
+    data_vis_reminder_days: int,
+    new_day_time: int,
+    messages: DataFrame,
 ) -> bool:
     if not show_data_vis_reminder:
         return False
@@ -217,7 +218,7 @@ def should_show_data_visualization_reminder(
         return True
 
     latest = shown.iloc[-1][MESSAGES_HEADERS.date]
-    today = messages.iloc[-1][MESSAGES_HEADERS.date]
+    today = str(get_today_date(new_day_time))
     if today >= str(
         date.fromisoformat(latest) + timedelta(days=data_vis_reminder_days)
     ):

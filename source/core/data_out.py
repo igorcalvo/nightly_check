@@ -10,6 +10,7 @@ from source.constants import (
     date_header,
     MESSAGES_HEADERS,
 )
+from source.core.data_date import create_entry, get_today_date
 from source.core.settings import Settings
 from source.utils import df_row_from_date, to_lower_underscored
 
@@ -89,12 +90,17 @@ def save_message_file(
     messages: DataFrame,
     todays_message: str,
     view_data_reminder_displayed: bool,
+    new_day_time: int
 ):
     if todays_message not in ("", None, already_filled_in_today_message):
+        today = get_today_date(new_day_time)
+        messages = create_entry(today, messages)
+
         ([cat, hab], msg) = (
             todays_message.split("\n")[0].split(category_habit_separator),
             todays_message.split("\n")[1],
         )
+
         messages.loc[messages.index[-1], MESSAGES_HEADERS.category] = cat
         messages.loc[messages.index[-1], MESSAGES_HEADERS.habit] = hab
         messages.loc[messages.index[-1], MESSAGES_HEADERS.message] = msg.replace(

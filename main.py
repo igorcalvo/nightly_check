@@ -76,7 +76,10 @@ try:
     init_ui(settings.hue_offset, settings.theme)
     data = create_entries(settings.new_day_time, data)
     show_data_vis_reminder = should_show_data_visualization_reminder(
-        settings.show_data_vis_reminder, settings.data_vis_reminder_days, messages
+        settings.show_data_vis_reminder,
+        settings.data_vis_reminder_days,
+        settings.new_day_time,
+        messages,
     )
 
     neglected = no_data_from_yesterday(settings.new_day_time, data)
@@ -126,7 +129,11 @@ try:
                 )
                 if message and settings.display_messages:
                     save_message_file(
-                        FILE_NAMES.msg, messages, message, show_data_vis_reminder
+                        FILE_NAMES.msg,
+                        messages,
+                        message,
+                        show_data_vis_reminder,
+                        settings.new_day_time,
                     )
                     PopUp(message, settings.message_duration, True)
             break
@@ -149,6 +156,9 @@ finally:
 
 # someshow refactor get_popup_message
 # ship with scripts to run before shutdown
+# habit init
+#   change order
+#   delete row button
 
 # MAJOR
 # dark theme img gen
