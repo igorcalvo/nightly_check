@@ -1,5 +1,6 @@
 import cv2 as cv
 import matplotlib.colors as clr
+import PIL.Image as im
 from tkinter import font as tk_font, Tk as tk_tk
 from PySimpleGUI import (
     change_look_and_feel,
@@ -116,9 +117,12 @@ def get_cat_txt_color(bar_txt: str) -> str:
 
 
 def init_ui(hue_offset: float, theme: str):
-    generate_icon(hue_offset, ICON_PATHS.owl_icon_png_32, ICON_PATHS.colored_icon)
-    generate_icon(hue_offset, ICON_PATHS.owl_icon_png_64, ICON_PATHS.colored_msg_icon)
     ui_theme = get_theme(theme)
+    base_color = ui_theme.BUTTON[1]
+    updated_theme_color = apply_hue_offset(base_color, hue_offset)
+    offset = image_hue_delta(im.open(ICON_PATHS.owl_icon_png_64), updated_theme_color)
+    generate_icon(offset, ICON_PATHS.owl_icon_png_32, ICON_PATHS.colored_icon)
+    generate_icon(offset, ICON_PATHS.owl_icon_png_64, ICON_PATHS.colored_msg_icon)
     theme_dict = populate_colors_dict(ui_theme, hue_offset)
     for k in theme_dict.keys():
         COLORS[k] = theme_dict[k]
@@ -166,3 +170,39 @@ def get_min_win_size() -> tuple[int, int]:
     else:
         w = round(0.9 * 1920)
     return (w, h)
+
+
+def img_pixels(img: im.Image):
+    pixels = img.load()
+    width, height = img.size
+
+    all_pixels = []
+    for x in range(width):
+        for y in range(height):
+            cpixel = pixels[x, y]
+            all_pixels.append(cpixel)
+
+    return all_pixels
+
+
+def avg_pixel(img: im.Image):
+    pixels = img_pixels(img)
+    count = 0
+    avg = [0, 0, 0, 0]
+    for px in pixels:
+        if px[3] > 0:
+            avg[0] = avg[0] + px[0]
+            avg[1] = avg[1] + px[1]
+            avg[2] = avg[2] + px[2]
+            avg[3] = avg[3] + px[3]
+            count += 1
+    avg = (avg[0] / count, avg[1] / count, avg[2] / count, avg[3] / count)
+    return avg
+
+
+def image_hue_delta(img: im.Image, hex_color: str) -> float:
+    avg = avg_pixel(img)
+    hsv_img = clr.rgb_to_hsv(avg[:3])
+    hsv_clr = clr.rgb_to_hsv(clr.to_rgb(hex_color))
+    hsv_delta = hsv_clr[0] - hsv_img[0]
+    return hsv_delta

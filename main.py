@@ -91,7 +91,7 @@ try:
         PopUp(
             MESSAGES.settings_data_vis_reminder_message,
             data_visualization_reminder_duration,
-            False,
+            True,
         )
 
     todays_data = todays_data_or_none(settings.new_day_time, data, habits)
@@ -158,8 +158,6 @@ finally:
     log.close()
 
 # ship with scripts to run before shutdown
-# fix owl color, override hue with theme instead of offset
-#   associate current img to a color then delta hue that with a theme's color
 # datavis refactor -> sizes to constants file
 # settings for dark theme
 
