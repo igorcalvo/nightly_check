@@ -18,6 +18,7 @@ class Settings:
         new_day_time: int = SETTINGS_DEFAULT_VALUES.new_day_time,
         show_data_vis_reminder: bool = SETTINGS_DEFAULT_VALUES.show_data_vis_reminder,
         data_vis_reminder_days: int = SETTINGS_DEFAULT_VALUES.data_vis_reminder_days,
+        data_vis_dark_theme: bool = SETTINGS_DEFAULT_VALUES.data_vis_dark_theme,
     ):
         self.hue_offset = hue_offset
         self.theme = theme
@@ -31,6 +32,7 @@ class Settings:
         self.new_day_time = new_day_time
         self.show_data_vis_reminder = show_data_vis_reminder
         self.data_vis_reminder_days = data_vis_reminder_days
+        self.data_vis_dark_theme = data_vis_dark_theme
 
     def to_json(self):
         return dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
@@ -49,6 +51,7 @@ class Settings:
         new_day_time = int(dictionary[SETTINGS_KEYS.new_day_time])
         show_data_vis_reminder = bool(dictionary[SETTINGS_KEYS.show_data_vis_reminder])
         data_vis_reminder_days = int(dictionary[SETTINGS_KEYS.data_vis_reminder_days])
+        data_vis_dark_theme = bool(dictionary[SETTINGS_KEYS.data_vis_dark_theme])
         return Settings(
             hue_offset,
             theme,
@@ -62,6 +65,7 @@ class Settings:
             new_day_time,
             show_data_vis_reminder,
             data_vis_reminder_days,
+            data_vis_dark_theme,
         )
 
     @staticmethod

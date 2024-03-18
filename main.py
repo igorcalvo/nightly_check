@@ -35,7 +35,7 @@ from source.core.validation import (
     verify_variables,
     verify_header_and_data,
 )
-from source.loops.data_viz import Data_Viz_Loop
+from source.loops.data_vis import Data_Vis_Loop
 from source.loops.edit import Edit_Loop
 from source.loops.habit_init import Habit_Init_Loop
 from source.loops.neglected import Neglected_Loop
@@ -107,7 +107,7 @@ try:
     while True:
         event, values_dict = window.read()  # type: ignore
         if event == TEXTS_AND_KEYS.data_button_text:
-            Data_Viz_Loop(categories, habits, conditions, settings)
+            Data_Vis_Loop(categories, habits, conditions, settings)
         elif event == TEXTS_AND_KEYS.edit_button_text:
             Edit_Loop(
                 settings.new_day_time, categories, habits, descriptions, data, log
@@ -158,13 +158,8 @@ finally:
     log.close()
 
 # ship with scripts to run before shutdown
-# datavis refactor -> sizes to constants file
-# settings for dark theme
 
 # MAJOR
-# dark theme img gen
-# rename data to data vis?
-# refactor on img gen
 #   Indicator
 #       have an indicator on the side of each row based on frequencies:
 #           all good

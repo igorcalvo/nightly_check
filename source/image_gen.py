@@ -2,7 +2,7 @@ from datetime import date, timedelta
 from pandas import DataFrame
 from PIL import Image, ImageFont, ImageDraw
 
-from source.constants import date_header, font_families
+from source.constants import date_header, font_families, DATA_VISUALIZATION
 from source.core.data_vis import (
     calculate_x_position,
     get_date_array,
@@ -23,7 +23,7 @@ from source.utils import (
 )
 
 
-def new_image(size_x: int, size_y: int, background_color=(255, 255, 255)):
+def new_image(size_x: int, size_y: int, background_color: tuple[int, int, int]):
     return Image.new("RGB", (size_x, size_y), background_color)
 
 
@@ -51,12 +51,17 @@ def write_category_header(
     square_border: int,
     squares: int,
     latest_date: str,
+    dark_theme: bool,
 ):
     write(
         image,
         position,
         align_right(category.upper(), max_category_len),
-        (0, 0, 0),
+        (
+            DATA_VISUALIZATION.text
+            if not dark_theme
+            else DATA_VISUALIZATION.dark_theme_text
+        ),
         "liberation",
     )
     habit_font_size_length = 7
@@ -83,7 +88,11 @@ def write_category_header(
                     if current_date.day < 10
                     else str(current_date.day)
                 ),
-                (0, 0, 0),
+                (
+                    DATA_VISUALIZATION.text
+                    if not dark_theme
+                    else DATA_VISUALIZATION.dark_theme_text
+                ),
                 "noto",
             )
         current_date += timedelta(days=+1)
@@ -97,6 +106,7 @@ def write_footer(
     squares: int,
     latest_date: str,
     weekdays_language: str,
+    dark_theme: bool,
 ):
     days_of_the_week = get_weekdays_characters(weekdays_language)
     todays_index = date.fromisoformat(latest_date).weekday()
@@ -108,7 +118,11 @@ def write_footer(
                 position[1],
             ),
             cycle_index(days_of_the_week, todays_index - squares + s + 1),
-            (0, 0, 0),
+            (
+                DATA_VISUALIZATION.text
+                if not dark_theme
+                else DATA_VISUALIZATION.dark_theme_text
+            ),
             "noto",
         )
 
@@ -155,6 +169,7 @@ def write_all(
     category_text_offset: tuple[int, int],
     graph_expected_value: bool,
     weekdays_language: str,
+    dark_theme: bool,
 ):
     max_habit_len = max([len(h) for h in flatten_list(habits)])
     max_category_len = max([len(c) for c in categories])
@@ -183,6 +198,7 @@ def write_all(
             sqr_border,
             squares,
             get_value_from_df_by_row(date_header, -1, data),
+            dark_theme,
         )
         for habit_index, habit in enumerate(habits[category_index]):
             expected_value = get_expected_value(habit, habits, conditions)
@@ -201,7 +217,11 @@ def write_all(
                 image,
                 category_positions[habit_index],
                 align_right(habit, max_habit_len),
-                (0, 0, 0),
+                (
+                    DATA_VISUALIZATION.text
+                    if not dark_theme
+                    else DATA_VISUALIZATION.dark_theme_text
+                ),
             )
             draw_line_of_squares(
                 image,
@@ -216,7 +236,11 @@ def write_all(
                 # GetRGBColor(0.5, 0.75, 1)
                 # GetRGBColor(hues[category_index], saturations[habit_index], 1),
                 get_rgb_color(hues[category_index] + habit_index * hueOffset, 0.85, 1),
-                get_rgb_color(0, 0, 0.75),
+                (
+                    DATA_VISUALIZATION.skipped
+                    if not dark_theme
+                    else DATA_VISUALIZATION.dark_theme_skipped
+                ),
             )
         initial_pos[1] = initial_pos[1] + next_category_position + category_y_spacing
         write_footer(
@@ -233,6 +257,7 @@ def write_all(
             squares,
             get_value_from_df_by_row(date_header, -1, data),
             weekdays_language,
+            dark_theme,
         )
 
 
@@ -243,35 +268,35 @@ def generate_image(
     data_days: int,
     graph_expected_value: bool,
     weekdays_language: str,
+    dark_theme: bool,
     data: DataFrame,
 ):
     flat_habit_list = flatten_list(habits)
-    initial_x = 25
-    initial_y = 50
     rows = len(flat_habit_list)
-    rows_y_spacing = 2
     categories_length = len(categories)
-
-    sqrSize = 20
-    sqrBorder = 1
     squares = min([data_days, len(data.index)])
-
     max_x_delta = text_list_max_len_to_pixels(flat_habit_list)
-
-    text_squares_x_spacing = int(0.5 * sqrSize)
-    text_squares_y_offset = int(0.25 * sqrSize)
-
-    category_y_spacing = int(2 * sqrSize)
-    category_text_offset = (max_x_delta - 0, int(1.2 * sqrSize))
+    category_text_offset = (max_x_delta - 0, int(1.2 * DATA_VISUALIZATION.sqrSize))
 
     img = new_image(
-        squares * (sqrSize + sqrBorder)
+        squares * (DATA_VISUALIZATION.sqrSize + DATA_VISUALIZATION.sqrBorder)
         + max_x_delta
-        + text_squares_x_spacing
-        + 2 * initial_x,
-        rows * (rows_y_spacing + sqrSize + sqrBorder)
-        + (categories_length - 1) * (category_y_spacing + rows_y_spacing)
-        + initial_y,
+        + DATA_VISUALIZATION.text_squares_x_spacing
+        + 2 * DATA_VISUALIZATION.initial_x,
+        rows
+        * (
+            DATA_VISUALIZATION.rows_y_spacing
+            + DATA_VISUALIZATION.sqrSize
+            + DATA_VISUALIZATION.sqrBorder
+        )
+        + (categories_length - 1)
+        * (DATA_VISUALIZATION.category_y_spacing + DATA_VISUALIZATION.rows_y_spacing)
+        + DATA_VISUALIZATION.initial_y,
+        (
+            DATA_VISUALIZATION.background
+            if not dark_theme
+            else DATA_VISUALIZATION.dark_theme_background
+        ),
     )
     # DrawLineOfSquares(img, (2 * sqrSize, 2 * sqrSize), sqrSize, sqrBorder, days, [5, 10, 13], GetRGBColor(0.5, 0.75, 1), (150, 150, 150))
     write_all(
@@ -280,17 +305,18 @@ def generate_image(
         habits,
         conditions,
         data,
-        (initial_x, initial_y),
+        (DATA_VISUALIZATION.initial_x, DATA_VISUALIZATION.initial_y),
         squares,
-        sqrSize,
-        sqrBorder,
+        DATA_VISUALIZATION.sqrSize,
+        DATA_VISUALIZATION.sqrBorder,
         max_x_delta,
-        text_squares_x_spacing,
-        text_squares_y_offset,
-        category_y_spacing,
+        DATA_VISUALIZATION.text_squares_x_spacing,
+        DATA_VISUALIZATION.text_squares_y_offset,
+        DATA_VISUALIZATION.category_y_spacing,
         category_text_offset,
         graph_expected_value,
         weekdays_language,
+        dark_theme,
     )
     # img.show()
     # img.save(r'assets\data\test.png')

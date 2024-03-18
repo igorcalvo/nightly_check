@@ -289,7 +289,7 @@ def SettingsWindowLayout(
                 background_color=COLORS[THEME_PROPS.BACKGROUND],
                 font=FONTS["pop"],
                 pad=(
-                    (2 * sections_padding_x + sections_padding_x // 2 - 5, 0),
+                    (int(4.5 * sections_padding_x), 0),
                     (sections_padding_y, 0),
                 ),
             ),
@@ -306,6 +306,26 @@ def SettingsWindowLayout(
                 background_color=COLORS[THEME_PROPS.INPUT],
                 text_color=COLORS[THEME_PROPS.TEXT_INPUT],
                 pad=((checkbox_padding, 0), (sections_padding_y, 0)),
+            ),
+        ],
+        [
+            sg.Text(
+                text=settings_key_to_text(SETTINGS_KEYS.data_vis_dark_theme),
+                text_color=COLORS[THEME_PROPS.BUTTON][1],
+                background_color=COLORS[THEME_PROPS.BACKGROUND],
+                font=FONTS["pop"],
+                pad=((sections_padding_x, 0), (sections_padding_y, 0)),
+            ),
+            sg.Checkbox(
+                text="",
+                default=bool(settings.data_vis_dark_theme),
+                key=SETTINGS_KEYS.data_vis_dark_theme,
+                font=FONTS["pop"],
+                checkbox_color=COLORS[THEME_PROPS.BUTTON][0],
+                text_color=COLORS[THEME_PROPS.BUTTON][1],
+                background_color=COLORS[THEME_PROPS.BACKGROUND],
+                pad=((checkbox_padding, 0), (sections_padding_y, 1)),
+                tooltip=MESSAGES.settings_tooltip_datavis_darktheme,
             ),
         ],
     ]
@@ -484,7 +504,7 @@ def SettingsWindow(
         titlebar_text_color=COLORS[THEME_PROPS.BUTTON][1],
         titlebar_icon=ICON_PATHS.settings_icon,
         background_color=COLORS[THEME_PROPS.BACKGROUND],
-        size=(900, 620),
+        size=(900, 680),
         element_justification="l",
         return_keyboard_events=True,
     )

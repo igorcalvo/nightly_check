@@ -20,7 +20,9 @@ def to_capitalized(string: str) -> str:
 
 
 def settings_key_to_text(key: str) -> str:
-    return " ".join([c.capitalize() for c in key.split("_")])
+    result = " ".join([c.capitalize() for c in key.split("_")])
+    result = result.replace("Data Vis", "")
+    return result
 
 
 def flatten_list(l: list[list]) -> list:

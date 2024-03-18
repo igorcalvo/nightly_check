@@ -3,7 +3,13 @@ from io import BytesIO
 from PIL import Image
 import PySimpleGUI as sg
 
-from source.constants import COLORS, FONTS, TEXTS_AND_KEYS, data_vizualization_threshold
+from source.constants import (
+    COLORS,
+    FONTS,
+    MESSAGES,
+    TEXTS_AND_KEYS,
+    data_visualization_threshold,
+)
 from source.core.theme import THEME_PROPS
 from source.ui.utils import get_min_win_size, get_paths
 
@@ -15,10 +21,10 @@ def DataWindow(
     data_days: int,
     img_base64: str,
 ) -> sg.Window:
-    horizontal_scroll = data_days >= data_vizualization_threshold
+    horizontal_scroll = data_days >= data_visualization_threshold
     width, height = Image.open(BytesIO(b64decode(img_base64))).size
     layout = [
-        [sg.Image(data=img_base64)],
+        [sg.Image(data=img_base64, background_color=COLORS[THEME_PROPS.SCROLL])],
         [
             sg.InputText(
                 key=TEXTS_AND_KEYS.export_button_text,
@@ -27,6 +33,7 @@ def DataWindow(
                 visible=False,
                 background_color=COLORS[THEME_PROPS.INPUT],
                 text_color=COLORS[THEME_PROPS.TEXT_INPUT],
+                tooltip=MESSAGES.data_export_tooltip,
             ),
             sg.FileSaveAs(
                 button_text=TEXTS_AND_KEYS.export_button_text,
@@ -50,6 +57,7 @@ def DataWindow(
                     scrollable=scrollable_image or horizontal_scroll,
                     vertical_scroll_only=not horizontal_scroll,
                     key="Column",
+                    background_color=COLORS[THEME_PROPS.SCROLL],
                     size=(
                         (None, None)
                         if not (scrollable_image or horizontal_scroll)

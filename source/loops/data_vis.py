@@ -4,10 +4,10 @@ from source.core.data_in import read_csv
 from source.core.data_vis import image_bytes_to_base64
 from source.core.settings import Settings
 from source.image_gen import generate_image
-from source.ui.data import DataWindow
+from source.ui.data_vis import DataWindow
 
 
-def Data_Viz_Loop(
+def Data_Vis_Loop(
     categories: list[str],
     habits: list[list[str]],
     conditions: list[list[str]],
@@ -21,6 +21,7 @@ def Data_Viz_Loop(
         settings.data_days,
         settings.graph_expected_value,
         settings.weekdays_language,
+        settings.data_vis_dark_theme,
         graph_data,
     )
     data_window = DataWindow(

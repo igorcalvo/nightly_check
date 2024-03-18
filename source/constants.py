@@ -74,6 +74,7 @@ class SETTINGS_KEYS:
     new_day_time = "new_day_time"
     show_data_vis_reminder = "show_data_vis_reminder"
     data_vis_reminder_days = "data_vis_reminder_days"
+    data_vis_dark_theme = "data_vis_dark_theme"
 
 
 class SETTINGS_DEFAULT_VALUES:
@@ -89,6 +90,7 @@ class SETTINGS_DEFAULT_VALUES:
     new_day_time = 6
     show_data_vis_reminder = True
     data_vis_reminder_days = 7
+    data_vis_dark_theme = True
 
 
 class MESSAGES:
@@ -117,6 +119,7 @@ class MESSAGES:
     style_button_tooltip = "change app's hue"
     settings_button_tooltip = "edit settings"
     data_button_tooltip = "display past days' data"
+    data_export_tooltip = "export image to file"
     edit_button_tooltip = "edit a past day's entry"
     done_button_tooltip = "save and close app"
     settings_section_appearance = "APPEARANCE"
@@ -151,6 +154,7 @@ class MESSAGES:
         "Have you recently checked how you are doing?\nMaybe you should check it."
     )
     settings_tooltip_enabled = "Toggles wether habit is enabled or not"
+    settings_tooltip_datavis_darktheme = "Toggles dark theme on data visualization"
 
 
 class ICON_PATHS:
@@ -189,6 +193,23 @@ class VARIABLES_KEYS:
     frequency = "frequency"
 
 
+class DATA_VISUALIZATION:
+    initial_x = 25
+    initial_y = 50
+    rows_y_spacing = 2
+    sqrSize = 20
+    sqrBorder = 1
+    text_squares_x_spacing = int(0.5 * sqrSize)
+    text_squares_y_offset = int(0.25 * sqrSize)
+    category_y_spacing = int(2 * sqrSize)
+    background = (255, 255, 255)
+    dark_theme_background = (70, 70, 70)
+    text = (0, 0, 0)
+    dark_theme_text = (220, 220, 220)
+    skipped = (191, 191, 191)
+    dark_theme_skipped = (150, 150, 150)
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 variables_csv_header = "enabled,category,habit,question,message,condition,frequency"
 messages_csv_header = f"{date_header},category,habit,message,data_reminder"
@@ -200,7 +221,7 @@ habit_init_scrollable_threshold = 20
 habit_init_width = 1750
 height_coefficient = 0.75
 data_visualization_reminder_duration = 3
-data_vizualization_threshold = 60
+data_visualization_threshold = 60
 # ----------------------------------------------------------------------------------------------------------------------
 # | hue_offset | < 1
 
