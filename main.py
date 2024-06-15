@@ -158,6 +158,9 @@ finally:
     log.close()
 
 # ship with scripts to run before shutdown
+# settings ui to cols
+# more messages option (currently only one)
+# messages priority on msgs (if more than one)
 
 # MAJOR
 #   Indicator
