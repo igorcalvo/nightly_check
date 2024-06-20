@@ -157,8 +157,12 @@ finally:
         log_write(log, f"{finally_string}")
     log.close()
 
+# redo habits
 # ship with scripts to run before shutdown
 # settings ui to cols
+# msg on yesterday's window too
+# multiple messages settings
+# order checking data view before yesterday
 # more messages option (currently only one)
 # messages priority on msgs (if more than one)
 
