@@ -1,6 +1,3 @@
-from PySimpleGUI import LOOK_AND_FEEL_TABLE
-
-
 class DEFAULT_COLORS:
     bar_bkg = "#00274f"
     bar_txt = "#b1d8ff"
@@ -68,9 +65,3 @@ def get_default_theme() -> THEME:
     theme = THEME()
     return theme
 
-
-def get_theme_from_table(theme_str: str) -> THEME:
-    theme = get_default_theme()
-    for key in LOOK_AND_FEEL_TABLE[theme_str].keys():
-        theme.__dict__[key] = LOOK_AND_FEEL_TABLE[theme_str][key]
-    return theme

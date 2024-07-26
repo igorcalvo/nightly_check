@@ -1,4 +1,3 @@
-from numpy import delete, generic
 from source.constants import variables_csv_header, HABITS_INIT, VARIABLES_KEYS
 from source.core.data_in import read_csv
 from source.utils import (

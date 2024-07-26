@@ -1,4 +1,3 @@
-from .utils import os_is_windows
 from os import pardir, path
 
 DIR = path.abspath(path.join(path.dirname(__file__), pardir))
@@ -210,6 +209,18 @@ class DATA_VISUALIZATION:
     dark_theme_skipped = (150, 150, 150)
 
 
+class HTTP:
+    get = "GET"
+    post = "POST"
+
+
+class ROUTES:
+    initial = "welcome"
+    edit = "data"
+    visual = "report"
+    settings = "settings"
+    close = "exit"
+
 # ----------------------------------------------------------------------------------------------------------------------
 variables_csv_header = "enabled,category,habit,question,message,condition,frequency"
 messages_csv_header = f"{date_header},category,habit,message,data_reminder"
@@ -217,9 +228,6 @@ category_habit_separator = " - "
 already_filled_in_today_message = (
     "No message for you! You have already added in an entry for today."
 )
-habit_init_scrollable_threshold = 20
-habit_init_width = 1750
-height_coefficient = 0.75
 data_visualization_reminder_duration = 3
 data_visualization_threshold = 60
 # ----------------------------------------------------------------------------------------------------------------------
@@ -227,16 +235,8 @@ data_visualization_threshold = 60
 
 COLORS = {}
 
-FONTS = {
-    "cat": ("Cascadia Mono" if os_is_windows() else "Liberation Mono", 13, "bold"),
-    "ckb": ("Consolas" if os_is_windows() else "Noto Mono", 11),
-    "btn": ("Verdana", 9, "bold"),
-    "pop": ("Arial", 11, "bold"),
-}
-
 font_families = {
     "consolas": path.join(DIR, r"assets/fonts/consola.ttf"),
     "liberation": path.join(DIR, r"assets/fonts/LiberationMono-Bold.ttf"),
     "noto": path.join(DIR, r"assets/fonts/NotoSansJP-Regular.otf"),
-    # "roboto": path.join(DIR, r"assets/fonts/Roboto-Bold.ttf"),
 }

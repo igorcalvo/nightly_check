@@ -1,5 +1,5 @@
 from pandas import DataFrame
-
+from sys import platform
 
 def group_list_if_char(flatList: list, ch: str) -> list[list]:
     result = []
@@ -49,3 +49,7 @@ def transpose(alist: list, emptyItem="") -> list:
 
 def clean_df(data: DataFrame):
     return data.dropna().iloc[:-1]
+
+
+def os_is_windows() -> bool:
+    return False if platform == "linux" else True

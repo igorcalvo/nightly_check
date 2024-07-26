@@ -41,7 +41,7 @@ def read_csv(file_name: str) -> DataFrame:
             [replace_double_spaces_for_commas(string) for string in habit_row]
             for habit_row in content
         ]
-    df = DataFrame(content, columns=header)
+    df = DataFrame(content, columns=header) # type: ignore
     return df
 
 
@@ -49,7 +49,7 @@ def get_data_dataframe(habits: list[list[str]]) -> DataFrame:
     if file_not_exists(FILE_NAMES.csv):
         cols = [to_lower_underscored(item) for item in flatten_list(habits)]
         cols.insert(0, date_header)
-        return DataFrame(columns=cols)
+        return DataFrame(columns=cols) # type: ignore
     else:
         return read_csv(FILE_NAMES.csv)
 
@@ -146,7 +146,7 @@ def read_settings(settings_file_name: str) -> Settings:
 
 def read_messages(messages_file_name: str, new_day_time: int) -> DataFrame:
     if file_not_exists(messages_file_name):
-        messages = DataFrame(columns=messages_csv_header.split(","))
+        messages = DataFrame(columns=messages_csv_header.split(",")) # type: ignore
     else:
         messages = pandas_read_csv(FILE_NAMES.msg)
         messages.fillna("")

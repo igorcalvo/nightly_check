@@ -1,7 +1,6 @@
 from collections.abc import Iterable
 from os.path import exists, getsize
 from pandas import DataFrame
-from sys import platform
 
 
 def pad_string(string: str, length: int) -> str:
@@ -147,10 +146,6 @@ def values_from_keyword(keyword: str, dictionary: dict):
     keys.sort()
     values = [dictionary[key] for key in keys]
     return values
-
-
-def os_is_windows() -> bool:
-    return False if platform == "linux" else True
 
 
 def file_not_exists(file_name) -> bool:

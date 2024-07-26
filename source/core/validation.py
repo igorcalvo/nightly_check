@@ -50,7 +50,7 @@ def verify_variables(variables_file_name: str):
                 raise Exception(
                     f"verify_variables - Cannot have empty value for line {idx} at the first two columns\n{line}"
                 )
-        df = DataFrame(content, columns=header)
+        df = DataFrame(content, columns=header) # type: ignore
     except Exception as e:
         raise e
 

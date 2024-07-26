@@ -1,44 +1,23 @@
 import cv2 as cv
 import matplotlib.colors as clr
 import PIL.Image as im
-from tkinter import font as tk_font, Tk as tk_tk
-from PySimpleGUI import (
-    change_look_and_feel,
-    theme_previewer,
-    LOOK_AND_FEEL_TABLE,
-    Window,
-)
-
 from source.constants import (
-    habit_init_scrollable_threshold,
-    height_coefficient,
     COLORS,
     ICON_PATHS,
     SETTINGS_DEFAULT_VALUES,
 )
 from source.core.theme import (
     get_default_theme,
-    get_theme_from_table,
     DEFAULT_COLORS,
     THEME,
     THEME_PROPS,
 )
-from source.utils import flatten_list_1
 
 
 def get_paths() -> ICON_PATHS:
     path = ICON_PATHS()
     path.__init__()
     return path
-
-
-def print_fonts():
-    root = tk_tk()
-    font_list = list(tk_font.families())
-    font_list.sort()
-    for f in font_list:
-        print(f)
-    root.destroy()
 
 
 def normalize_hue(hue: float, offset: float) -> float:
@@ -64,7 +43,7 @@ def apply_hue_offset(hex_color: str, hue_offset: float) -> str:
     hsv = clr.rgb_to_hsv(clr.to_rgb(hex_color))
     new_hue = normalize_hue(hsv[0], hue_offset)
     hsv[0] = new_hue
-    return clr.rgb2hex(clr.hsv_to_rgb(hsv))
+    return clr.rgb2hex(clr.hsv_to_rgb(hsv)) # type: ignore
 
 
 def generate_icon(hue_offset: float, icon_path: str, output_path: str):
@@ -112,7 +91,7 @@ def get_cat_txt_color(bar_txt: str) -> str:
     if hsv3[1] > 1:
         hsv3[1] = 1
 
-    color = clr.to_hex(clr.hsv_to_rgb(hsv3))
+    color = clr.to_hex(clr.hsv_to_rgb(hsv3)) # type: ignore
     return color
 
 
@@ -127,49 +106,18 @@ def init_ui(hue_offset: float, theme: str):
     for k in theme_dict.keys():
         COLORS[k] = theme_dict[k]
     COLORS[THEME_PROPS.CATEGORY] = get_cat_txt_color(COLORS[THEME_PROPS.TEXT])
-    if theme != SETTINGS_DEFAULT_VALUES.theme:
-        change_look_and_feel(theme)
     # set_global_icon(ICON_PATHS.owl_icon_png_64)
 
 
 def get_all_keys_for_themes() -> list[str]:
     # ['ACCENT1', 'ACCENT2', 'ACCENT3', 'BACKGROUND', 'BORDER', 'BUTTON', 'COLOR_LIST', 'DESCRIPTION', 'INPUT', 'PROGRESS', 'PROGRESS_DEPTH', 'SCROLL', 'SLIDER_DEPTH', 'TEXT', 'TEXT_INPUT']
     result = []
-    for theme in LOOK_AND_FEEL_TABLE.keys():
-        for key in LOOK_AND_FEEL_TABLE[theme].keys():
-            if key not in result:
-                result.append(key)
     result.sort()
     return result
 
 
 def get_theme(theme: str) -> THEME:
-    return (
-        get_theme_from_table(theme)
-        if theme in LOOK_AND_FEEL_TABLE.keys()
-        else get_default_theme()
-    )
-
-
-def preview_themes():
-    return theme_previewer(columns=8, scrollable=True)
-
-
-def show_habit_init_scroll_bar(category_count: int, habit_count: list[int]) -> bool:
-    return (
-        category_count + sum(flatten_list_1(habit_count))
-        > habit_init_scrollable_threshold
-    )
-
-
-def get_min_win_size() -> tuple[int, int]:
-    w, h = Window.get_screen_size()
-    h = round(height_coefficient * h)
-    if w < 2 * 1920 and w % 1920 != 0:
-        w = round(0.9 * w)
-    else:
-        w = round(0.9 * 1920)
-    return (w, h)
+    return get_default_theme()
 
 
 def img_pixels(img: im.Image):
@@ -179,7 +127,7 @@ def img_pixels(img: im.Image):
     all_pixels = []
     for x in range(width):
         for y in range(height):
-            cpixel = pixels[x, y]
+            cpixel = pixels[x, y] # type: ignore
             all_pixels.append(cpixel)
 
     return all_pixels
