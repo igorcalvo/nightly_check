@@ -53,21 +53,6 @@ try:
         init_ui(SETTINGS_DEFAULT_VALUES.hue_offset, SETTINGS_DEFAULT_VALUES.theme)
         Habit_Init_Loop(variables_exists)
 
-    verify_variables(FILE_NAMES.var)
-    variables_file = read_csv(FILE_NAMES.var)
-    (
-        conditions,
-        fractions,
-        habit_messages,
-        descriptions,
-        habits,
-        categories,
-        disabled_habits,
-    ) = get_data(variables_file)
-    data = get_data_dataframe(habits)
-    variables = list(data.columns)
-    variables.pop(0)
-    verify_header_and_data(habits, variables, FILE_NAMES.csv, data, disabled_habits)
 
     # print_fonts()
     settings = read_settings(FILE_NAMES.stg)
